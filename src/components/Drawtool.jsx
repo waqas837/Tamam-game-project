@@ -282,30 +282,13 @@ const Drawtool = () => {
         setSelectedObject(null);
       });
 
-      // texter tool
-      const handleMouseDown = (options, canvas) => {
-        isDrawingRef.current = true;
-        const pointer = canvas.getPointer(options.e);
-        position = { x: pointer.x, y: pointer.y };
-        lastPointerPosition = { x: pointer.x, y: pointer.y };
-        draw(canvas);
-      };
 
-      const handleMouseMove = (options) => {
-        if (isDrawingRef.current) {
-          const pointer = canvas.getPointer(options.e);
-          lastPointerPosition = { x: pointer.x, y: pointer.y };
-          draw();
-        }
-      };
 
-      const handleMouseUp = () => {
-        isDrawingRef.current = false;
-      };
+
       // texter tool
-      canvas.on('mouse:down', (e) => handleMouseDown(e, canvas));
-      canvas.on('mouse:move', handleMouseMove);
-      canvas.on('mouse:up', handleMouseUp);
+
+
+
 
 
 
@@ -333,8 +316,27 @@ const Drawtool = () => {
   }, []);
 
 
+  // texter tool
+  const handleMouseUp = () => {
+    isDrawingRef.current = false;
+  };
+
+  const handleMouseDown = (options, canvas) => {
+    isDrawingRef.current = true;
+    const pointer = canvas.getPointer(options.e);
+    position = { x: pointer.x, y: pointer.y };
+    lastPointerPosition = { x: pointer.x, y: pointer.y };
+    draw(canvas);
+  };
+
+  const handleMouseMovet = (options, canvas) => {
+    if (isDrawingRef.current) {
+      const pointer = canvas.getPointer(options.e);
+      lastPointerPosition = { x: pointer.x, y: pointer.y };
+      draw(canvas);
+    }
+  };
   const draw = (canvas) => {
-    console.log(canvas && canvas)
     if (canvas) {
       const newDistance = distance(position, lastPointerPosition);
       let currentFontSize = fontSize;
@@ -353,7 +355,7 @@ const Drawtool = () => {
           top: position.y,
           fontFamily: 'Georgia',
           fontSize: currentFontSize,
-          fill: textColor, // Set text color dynamically
+          fill: "#FFFFFF", // Set text color dynamically
           selectable: false,
         });
         canvas.add(textObject);
@@ -588,6 +590,11 @@ const Drawtool = () => {
     }
   };
   // handleTexture
+  const handleBrushMain = (canvas) => {
+    canvas.on('mouse:down', (e) => handleMouseDown(e, canvas));
+    canvas.on('mouse:move', (e) => handleMouseMovet(e, canvas));
+    canvas.on('mouse:up', handleMouseUp);
+  }
   const handleTexture = () => {
     setshowTexterTool(true)
   }
@@ -598,9 +605,11 @@ const Drawtool = () => {
         canvas.isDrawingMode = false;
         break;
       case 'brush':
-        canvas.isDrawingMode = true;
-        canvas.freeDrawingBrush.color = brushColor;
-        canvas.freeDrawingBrush.width = brushSize;
+        // canvas.isDrawingMode = true;
+        // canvas.freeDrawingBrush.color = brushColor;
+        // canvas.freeDrawingBrush.width = brushSize;
+        handleBrushMain(canvas)
+
         break;
       // we will add a pencil or other shapes we can draw
       case 'zoom':
