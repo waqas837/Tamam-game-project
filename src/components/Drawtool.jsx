@@ -462,6 +462,9 @@ const Drawtool = () => {
 
 
 
+
+
+
   const resizeCanvas = (newSize) => {
     if (canvas) {
       setCanvasSize(newSize);
@@ -597,7 +600,6 @@ const Drawtool = () => {
         if (!rect) {
           isDrawing = true;
           const pointer = canvas.getPointer(options.e);
-
           rect = new fabric.Rect({
             left: pointer.x,
             top: pointer.y,
@@ -663,8 +665,8 @@ const Drawtool = () => {
             });
             canvas.clear();
             canvas.setBackgroundImage(croppedImage, canvas.renderAll.bind(canvas), {
-              // scaleX: canvas.width / croppedImage.width,
-              // scaleY: canvas.height / croppedImage.height
+              scaleX: canvas.width / croppedImage.width,
+              scaleY: canvas.height / croppedImage.height
             });
             // canvas.add(croppedImage);
             canvas.setZoom(1); // Reset zoom to 1
@@ -1380,7 +1382,7 @@ const Drawtool = () => {
           <div className="ps-4 text-sm font-normal">Canvas Size: {Math.round(width)} x {Math.round(height)}
           </div>
         </div>
-          <canvas style={{width:window.innerWidth, height:window.innerHeight, border:"1px solid red"}}></canvas>
+
         <div className='flex items-center justify-center h-screen'>
           <canvas
             style={{ border: "1px solid red" }}
