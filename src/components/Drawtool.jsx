@@ -3,7 +3,7 @@ import { fabric } from 'fabric';
 import delicon from "../assets/delicon.svg"
 import edit from "../assets/edit.svg"
 import reset from "../assets/reset.svg"
-import imgg from "../assets/imgg.jpg"
+import backgroundTransparent from "../assets/trans.jpg"
 
 
 const Drawtool = () => {
@@ -123,28 +123,18 @@ const Drawtool = () => {
     const initCanvas = () => {
       const canvas = new fabric.Canvas(canvasRef.current, {
         isDrawingMode: false,
+
       });
       fabric.Object.prototype.transparentCorners = false; // Ensure corner colors are visible
       fabric.Object.prototype.cornerColor = '#3f51b5'; // Change corner color
       fabric.Object.prototype.cornerSize = 20;
-
-      // Create a gradient pattern using SVG
-      const gradientSVG = `
-        <svg xmlns="http://www.w3.org/2000/svg" width="1000" height="485">
-          <defs>
-            <pattern id="grid" width="30" height="40" patternUnits="userSpaceOnUse">
-              <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#e0e0e0" stroke-width="2"/>
-            </pattern>
-          </defs>
-          <rect width="100%" height="100%" fill="url(#grid)" />
-        </svg>
-      `;
-      const gradientDataURL = `data:image/svg+xml;base64,${btoa(gradientSVG)}`;
-      fabric.Image.fromURL(gradientDataURL, (img) => {
-        canvas.setBackgroundImage(img, canvas.renderAll.bind(canvas));
-      });
-
-
+      fabric.Image.fromURL(backgroundTransparent, function (img) {
+        // add background image
+        canvas.setBackgroundImage(img, canvas.renderAll.bind(canvas), {
+          scaleX: canvas.width / img.width, // times to fit the canvas by scale formula
+          scaleY: canvas.height / img.height
+        });
+      });;
       // delete icon
       const img = document.createElement('img');
       img.src = delicon
@@ -281,17 +271,7 @@ const Drawtool = () => {
         setcurrentObject(null)
         setSelectedObject(null);
       });
-
-
-
-
       // texter tool
-
-
-
-
-
-
       return canvas;
     };
     const canvasElement = initCanvas();
@@ -480,6 +460,8 @@ const Drawtool = () => {
     }
   }, [isImage, currentObjectimg]);
 
+
+
   const resizeCanvas = (newSize) => {
     if (canvas) {
       setCanvasSize(newSize);
@@ -598,6 +580,111 @@ const Drawtool = () => {
   const handleTexture = () => {
     setshowTexterTool(true)
   }
+
+  // cropCanvasSize
+  const cropCanvasSize = () => {
+    canvas.isDrawingMode = false;
+    setShowSizeCropModal(true);
+    let isDrawing = false;
+    let rect = null;
+
+    if (canvas) {
+      canvas.off('mouse:down');
+      canvas.off('mouse:move');
+      canvas.off('mouse:up');
+
+      canvas.on('mouse:down', (options) => {
+        if (!rect) {
+          isDrawing = true;
+          const pointer = canvas.getPointer(options.e);
+
+          rect = new fabric.Rect({
+            left: pointer.x,
+            top: pointer.y,
+            width: 0,
+            height: 0,
+            fill: 'transparent',
+            stroke: 'black',
+            strokeWidth: 2,
+            selectable: false,
+          });
+          canvas.add(rect);
+        }
+      });
+
+      canvas.on('mouse:move', (options) => {
+        if (!isDrawing) return;
+        if (rect) {
+          const pointer = canvas.getPointer(options.e);
+          rect.set({
+            width: pointer.x - rect.left,
+            height: pointer.y - rect.top
+          });
+          canvas.renderAll();
+        }
+      });
+
+      canvas.on('mouse:up', () => {
+        if (rect) {
+          const zoom = canvas.getZoom();
+          const left = rect.left / zoom;
+          const top = rect.top / zoom;
+          const width = rect.width / zoom;
+          const height = rect.height / zoom;
+
+          if (width <= 0 || height <= 0) {
+            console.error('Invalid rectangle dimensions for cropping.');
+            canvas.remove(rect);
+            rect = null;
+            isDrawing = false;
+            return;
+          }
+
+          const croppedDataURL = canvas.toDataURL({
+            left: left,
+            top: top,
+            width: width,
+            height: height,
+          });
+
+          fabric.Image.fromURL(croppedDataURL, (croppedImage) => {
+            if (!croppedImage) {
+              console.error('Cropped image could not be loaded.');
+              return;
+            }
+            canvas.setWidth(width);
+            canvas.setHeight(height);
+            croppedImage.set({
+              left: 0,
+              top: 0,
+              scaleX: 1,
+              scaleY: 1,
+              selectable: false,
+            });
+            canvas.clear();
+            canvas.setBackgroundImage(croppedImage, canvas.renderAll.bind(canvas), {
+              // scaleX: canvas.width / croppedImage.width,
+              // scaleY: canvas.height / croppedImage.height
+            });
+            // canvas.add(croppedImage);
+            canvas.setZoom(1); // Reset zoom to 1
+            canvas.renderAll();
+            canvas.calcOffset(); // Recalculate the canvas offset
+            console.log('Cropped image added and canvas updated.');
+            canvas.off("mouse:move")
+            canvas.off("mouse:down")
+          });
+
+          rect = null; // Reset the rect variable
+          isDrawing = false; // Reset the drawing flag
+        }
+      });
+    }
+  };
+
+
+
+
   const handleSelectTool = (tool) => {
     setSelectedTool(tool); // please integrate one of that tool.
     switch (tool) {
@@ -616,8 +703,7 @@ const Drawtool = () => {
         canvas.isDrawingMode = false;
         break;
       case 'crop':
-        canvas.isDrawingMode = false;
-        setShowSizeCropModal(true);
+        cropCanvasSize()
         break;
       case 'fill':
         canvas.isDrawingMode = false;
@@ -799,9 +885,12 @@ const Drawtool = () => {
 
   const handleBackgroundFill = () => {
     if (fillType === 'solid') {
+      canvas.setBackgroundImage(null); // Remove background image
       canvas.setBackgroundColor(fillColor, canvas.renderAll.bind(canvas));
       // set the whole canvas background
     } else if (fillType === 'gradient') {
+      canvas.setBackgroundImage(null); // Remove background image
+
       // Define the gradient object
       let gradient = new fabric.Gradient({
         type: "linear",
@@ -957,11 +1046,11 @@ const Drawtool = () => {
 
   let tools = [{ name: 'select', icon: cursorIcon }, { name: 'zoom', icon: zoom }, { name: 'crop', icon: crop }, { name: 'shapes', icon: shapes }, { name: 'brush', icon: brush }, { name: 'pencil', icon: cursorIcon }, { name: 'fill', icon: fill }, { name: 'image', icon: image }, { name: 'layers', icon: layer }, { name: 'undo', icon: undo }, { name: 'texter', icon: textertool },]
   return (
-    <div className="flex h-screen relative">
-      <div className="w-64 bg-gray-600 text-white flex flex-col">
+    <div className="flex relative">
+      <div>
         <div>
           {/* save drawing */}
-          <button onClick={handleSaveDrawing} className="fixed top-0 z-20 right-10 rounded-l-md p-2 bg-gray-500 hover:bg-yellow-300 hover:text-black">
+          <button onClick={handleSaveDrawing} className="fixed top-0 z-20 right-10 rounded-l-md p-2 bg-gray-800 text-white hover:bg-yellow-300 hover:text-black">
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
               <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 9.776c.112-.017.227-.026.344-.026h15.812c.117 0 .232.009.344.026m-16.5 0a2.25 2.25 0 0 0-1.883 2.542l.857 6a2.25 2.25 0 0 0 2.227 1.932H19.05a2.25 2.25 0 0 0 2.227-1.932l.857-6a2.25 2.25 0 0 0-1.883-2.542m-16.5 0V6A2.25 2.25 0 0 1 6 3.75h3.879a1.5 1.5 0 0 1 1.06.44l2.122 2.12a1.5 1.5 0 0 0 1.06.44H18A2.25 2.25 0 0 1 20.25 9v.776" />
             </svg>
@@ -970,7 +1059,7 @@ const Drawtool = () => {
           <button
             type="button"
             onClick={toggleDropdown}
-            className="fixed top-0 right-0 z-20 inline-flex justify-center px-2 py-2 text-sm font-medium text-white bg-gray-500 shadow-md hover:bg-yellow-300 hover:text-black focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50"
+            className="fixed top-0 right-0 z-20 inline-flex justify-center px-2 py-2 text-sm font-medium text-white bg-gray-800 shadow-md hover:bg-yellow-300 hover:text-black focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50"
           >
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" className="size-6">
               <path stroke-linecap="round" stroke-linejoin="round" d="m9 13.5 3 3m0 0 3-3m-3 3v-6m1.06-4.19-2.12-2.12a1.5 1.5 0 0 0-1.061-.44H4.5A2.25 2.25 0 0 0 2.25 6v12a2.25 2.25 0 0 0 2.25 2.25h15A2.25 2.25 0 0 0 21.75 18V9a2.25 2.25 0 0 0-2.25-2.25h-5.379a1.5 1.5 0 0 1-1.06-.44Z" />
@@ -1025,7 +1114,7 @@ const Drawtool = () => {
           Export as PNG
         </button> */}
 
-        <div className="fixed z-30 bg-gray-700 w-[97px] mt-3 ml-2 rounded-lg shadow-lg m-auto">
+        <div className="fixed z-30 bg-gray-900 w-[97px] mt-3 ml-2 rounded-lg shadow-lg m-auto text-white">
           {tools.map((tool) => (
             <div className='py-1 relative'>
               <button
@@ -1219,18 +1308,61 @@ const Drawtool = () => {
                     )}
                   </div>
                 </div>
-
+              }
+              {/* Crop / resize canvas tool */}
+              {
+                tool.name === selectedTool &&
+                <div className='fixed left-[110px] top-[10px]'>
+                  {showSizeCropModal && (
+                    <div>
+                      <div className="bg-gray-700 p-8 rounded border border-yellow-400">
+                        <h2 className="text-2xl mb-4">Size/Crop Canvas</h2>
+                        <div className="mb-4">
+                          <label className="block mb-2">Width:</label>
+                          <input
+                            type="number"
+                            value={customSize.width}
+                            onChange={(e) => setCustomSize({ ...customSize, width: e.target.value })}
+                            className="border p-2 w-full text-black"
+                          />
+                        </div>
+                        <div className="mb-4">
+                          <label className="block mb-2">Height:</label>
+                          <input
+                            type="number"
+                            value={customSize.height}
+                            onChange={(e) => setCustomSize({ ...customSize, height: e.target.value })}
+                            className="border p-2 w-full text-black"
+                          />
+                        </div>
+                        <div className="flex justify-between">
+                          <button
+                            onClick={handleDefaultSize}
+                            className="bg-gray-500 hover:bg-gray-600 text-white px-3 py-2 rounded"
+                          >
+                            Default Size
+                          </button>
+                          <button
+                            onClick={handleSizeCropSubmit}
+                            className="bg-blue-500 hover:bg-blue-600 text-white px-3 py-2 rounded"
+                          >
+                            Apply
+                          </button>
+                          <button
+                            onClick={() => setShowSizeCropModal(false)}
+                            className="bg-red-500 hover:bg-red-600 text-white px-3 py-2 rounded"
+                          >
+                            Cancel
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
               }
             </div>
           ))}
-
         </div>
-
-
-
-
-
-
         {selectedObject && (
           <div className="p-4">
             <button className="w-full p-2 mb-2 bg-red-500 hover:bg-red-400 rounded" onClick={handleDeleteObject}>
@@ -1243,68 +1375,21 @@ const Drawtool = () => {
           </div>
         )}
       </div>
-      <div className="flex-1 p-4 bg-gray-800">
-        {/* <div className="flex z-40 fixed top-0 items-center w-full max-w-xs p-2 space-x-4 rtl:space-x-reverse bg-white opacity-45 text-black divide-x rtl:divide-x-reverse divide-gray-200 rounded-lg shadow dark:text-gray-400 dark:divide-gray-700 space-x dark:bg-gray-800">
+      <div className="flex-1 p-4">
+        <div className="flex z-40 fixed top-0 items-center w-full max-w-xs p-2 space-x-4 rtl:space-x-reverse bg-white opacity-45 text-black divide-x rtl:divide-x-reverse divide-gray-200 rounded-lg shadow dark:text-gray-400 dark:divide-gray-700 space-x dark:bg-gray-800">
           <div className="ps-4 text-sm font-normal">Canvas Size: {Math.round(width)} x {Math.round(height)}
           </div>
-        </div> */}
-
-        <canvas
-          ref={canvasRef}
-          style={{ border: '1px solid #000' }}
-          width={canvasSize.width}
-          height={canvasSize.height}
-        ></canvas>
-
-      </div>
-
-      {showSizeCropModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-          <div className="bg-gray-700 p-8 rounded border border-yellow-400">
-            <h2 className="text-2xl mb-4">Size/Crop Canvas</h2>
-            <div className="mb-4">
-              <label className="block mb-2">Width:</label>
-              <input
-                type="number"
-                value={customSize.width}
-                onChange={(e) => setCustomSize({ ...customSize, width: e.target.value })}
-                className="border p-2 w-full"
-              />
-            </div>
-            <div className="mb-4">
-              <label className="block mb-2">Height:</label>
-              <input
-                type="number"
-                value={customSize.height}
-                onChange={(e) => setCustomSize({ ...customSize, height: e.target.value })}
-                className="border p-2 w-full"
-              />
-            </div>
-            <div className="flex justify-between">
-              <button
-                onClick={handleDefaultSize}
-                className="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded"
-              >
-                Default Size
-              </button>
-              <button
-                onClick={handleSizeCropSubmit}
-                className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded"
-              >
-                Apply
-              </button>
-              <button
-                onClick={() => setShowSizeCropModal(false)}
-                className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded"
-              >
-                Cancel
-              </button>
-            </div>
-          </div>
         </div>
-      )}
-
-
+          <canvas style={{width:window.innerWidth, height:window.innerHeight, border:"1px solid red"}}></canvas>
+        <div className='flex items-center justify-center h-screen'>
+          <canvas
+            style={{ border: "1px solid red" }}
+            ref={canvasRef}
+            width={canvasSize.width}
+            height={canvasSize.height}
+          ></canvas>
+        </div>
+      </div>
     </div>
   );
 };
