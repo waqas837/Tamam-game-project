@@ -62,7 +62,10 @@ const Drawtool = () => {
   let position = { x: 0, y: window.innerHeight / 2 };
   let lastPointerPosition = { x: 0, y: 0 };
   const [currentCropImg, setcurrentCropImg] = useState();
-
+  const getCanvasSizeCB = (width, height) => {
+    let customSize = { width, height }
+    resizeCanvas(customSize)
+  };
   const handleDownload = (format) => {
     // Save current background
     const currentBackground = canvas.backgroundImage;
@@ -1050,7 +1053,6 @@ const Drawtool = () => {
   let tools = [{ name: 'select', icon: cursorIcon }, { name: 'zoom', icon: zoom }, { name: 'crop', icon: crop }, { name: 'shapes', icon: shapes }, { name: 'brush', icon: brush }, { name: 'pencil', icon: cursorIcon }, { name: 'fill', icon: fill }, { name: 'image', icon: image }, { name: 'layers', icon: layer }, { name: 'undo', icon: undo }, { name: 'texter', icon: textertool },]
   return (
     <>
-      <CropperTool />
       <div className="flex relative">
         <div>
           <div>
@@ -1370,6 +1372,9 @@ const Drawtool = () => {
           </div>
 
           <div className='flex items-center justify-center h-screen'>
+            <div>
+            </div>
+            <CropperTool selectedTool={selectedTool} getCanvasSizeCB={getCanvasSizeCB} />
             <canvas
               style={{ border: "1px solid red" }}
               ref={canvasRef}
@@ -1378,7 +1383,9 @@ const Drawtool = () => {
             ></canvas>
           </div>
         </div>
-      </div></>
+      </div>
+
+    </>
   );
 };
 

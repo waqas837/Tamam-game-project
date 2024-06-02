@@ -1,6 +1,6 @@
 import React, { useState, useRef } from 'react';
 
-const CropperTool = () => {
+const CropperTool = ({ selectedTool, getCanvasSizeCB }) => {
   const [isDrawing, setIsDrawing] = useState(false);
   const [startPos, setStartPos] = useState({ x: 0, y: 0 });
   const [rect, setRect] = useState({ width: 0, height: 0, left: 0, top: 0 });
@@ -10,6 +10,7 @@ const CropperTool = () => {
   const containerRef = useRef(null);
 
   const handleMouseDown = (e) => {
+    if (isDrawn) return
     setStartPos({ x: e.clientX, y: e.clientY });
     setRect({ width: 0, height: 0, left: e.clientX, top: e.clientY });
     setCurrentPos({ x: e.clientX, y: e.clientY });
@@ -45,8 +46,9 @@ const CropperTool = () => {
   };
 
   const handleConfirm = () => {
-    alert(`Rectangle confirmed with Width: ${rect.width}px, Height: ${rect.height}px`);
+    // alert(`Rectangle confirmed with Width: ${rect.width}px, Height: ${rect.height}px`);
     setIsDrawn(false);
+    getCanvasSizeCB(rect.width, rect.height)
   };
 
   const handleCancel = () => {
@@ -55,6 +57,9 @@ const CropperTool = () => {
   };
 
   const cornerBoxSize = 8; // Size of the corner boxes
+  if (selectedTool !== "crop") {
+    return <div></div>
+  };
 
   return (
     <div
@@ -64,12 +69,13 @@ const CropperTool = () => {
       onMouseUp={handleMouseUp}
       onWheel={handleWheel}
       style={{
-        width: '100vw',
+        width: '93vw',
         height: '100vh',
         position: 'fixed', // Ensure it overlays everything
         overflow: 'hidden',
         cursor: isDrawing ? 'crosshair' : 'default',
-        zIndex: "100" // set max value of zindex
+        zIndex: "100", // set max value of zindex
+        marginRight: "auto"
       }}
     >
       <div
@@ -81,7 +87,6 @@ const CropperTool = () => {
           position: 'absolute',
           top: 0,
           left: 0,
-          background: 'lightgray',
         }}
       >
         {(isDrawing || isDrawn) && (
@@ -182,7 +187,10 @@ const CropperTool = () => {
             {isDrawn && (
               <>
                 <button
-                  onClick={handleConfirm}
+                  onClick={(e) => {
+                    e.stopPropagation(); // Prevent event from bubbling to parent elements
+                    handleConfirm(); // Call your confirm function
+                  }}
                   style={{
                     position: 'absolute',
                     left: `${rect.left + rect.width + 10}px`,
