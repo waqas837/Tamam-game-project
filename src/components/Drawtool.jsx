@@ -4,6 +4,7 @@ import delicon from "../assets/delicon.svg"
 import edit from "../assets/edit.svg"
 import reset from "../assets/reset.svg"
 import backgroundTransparent from "../assets/trans.jpg"
+import CropperTool from './CropperTool';
 
 
 const Drawtool = () => {
@@ -35,7 +36,6 @@ const Drawtool = () => {
   const [randomAngle, setRandomAngle] = useState(false);
   const [showTexterTool, setshowTexterTool] = useState(false);
   const isDeleting = useRef(false);
-
   // state variables for image filter
   const [isImage, setisImage] = useState(false);
   // state variables for layers
@@ -61,7 +61,7 @@ const Drawtool = () => {
   let textIndex = 0;
   let position = { x: 0, y: window.innerHeight / 2 };
   let lastPointerPosition = { x: 0, y: 0 };
-
+  const [currentCropImg, setcurrentCropImg] = useState();
 
   const handleDownload = (format) => {
     // Save current background
@@ -461,13 +461,16 @@ const Drawtool = () => {
   }, [isImage, currentObjectimg]);
 
 
-
-
-
-
   const resizeCanvas = (newSize) => {
     if (canvas) {
       setCanvasSize(newSize);
+      fabric.Image.fromURL(backgroundTransparent, function (img) {
+        // add background image
+        canvas.setBackgroundImage(img, canvas.renderAll.bind(canvas), {
+          scaleX: canvas.width / img.width, // times to fit the canvas by scale formula
+          scaleY: canvas.height / img.height
+        });
+      });;
     }
   };
 
@@ -566,8 +569,6 @@ const Drawtool = () => {
     }
 
   };
-
-
   // Function to handle mouse move event and update delete icon position
   const handleMouseMove = (e) => {
     if (canvas && currentObject) {
@@ -590,7 +591,6 @@ const Drawtool = () => {
     setShowSizeCropModal(true);
     let isDrawing = false;
     let rect = null;
-
     if (canvas) {
       canvas.off('mouse:down');
       canvas.off('mouse:move');
@@ -649,7 +649,7 @@ const Drawtool = () => {
             height: height,
           });
 
-          fabric.Image.fromURL(croppedDataURL, (croppedImage) => {
+          fabric.Image.fromURL(backgroundTransparent, (croppedImage) => {
             if (!croppedImage) {
               console.error('Cropped image could not be loaded.');
               return;
@@ -664,6 +664,7 @@ const Drawtool = () => {
               selectable: false,
             });
             canvas.clear();
+            setcurrentCropImg(croppedImage)
             canvas.setBackgroundImage(croppedImage, canvas.renderAll.bind(canvas), {
               scaleX: canvas.width / croppedImage.width,
               scaleY: canvas.height / croppedImage.height
@@ -1048,351 +1049,336 @@ const Drawtool = () => {
 
   let tools = [{ name: 'select', icon: cursorIcon }, { name: 'zoom', icon: zoom }, { name: 'crop', icon: crop }, { name: 'shapes', icon: shapes }, { name: 'brush', icon: brush }, { name: 'pencil', icon: cursorIcon }, { name: 'fill', icon: fill }, { name: 'image', icon: image }, { name: 'layers', icon: layer }, { name: 'undo', icon: undo }, { name: 'texter', icon: textertool },]
   return (
-    <div className="flex relative">
-      <div>
+    <>
+      <CropperTool />
+      <div className="flex relative">
         <div>
-          {/* save drawing */}
-          <button onClick={handleSaveDrawing} className="fixed top-0 z-20 right-10 rounded-l-md p-2 bg-gray-800 text-white hover:bg-yellow-300 hover:text-black">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 9.776c.112-.017.227-.026.344-.026h15.812c.117 0 .232.009.344.026m-16.5 0a2.25 2.25 0 0 0-1.883 2.542l.857 6a2.25 2.25 0 0 0 2.227 1.932H19.05a2.25 2.25 0 0 0 2.227-1.932l.857-6a2.25 2.25 0 0 0-1.883-2.542m-16.5 0V6A2.25 2.25 0 0 1 6 3.75h3.879a1.5 1.5 0 0 1 1.06.44l2.122 2.12a1.5 1.5 0 0 0 1.06.44H18A2.25 2.25 0 0 1 20.25 9v.776" />
-            </svg>
-          </button>
-          {/* download drawings */}
-          <button
-            type="button"
-            onClick={toggleDropdown}
-            className="fixed top-0 right-0 z-20 inline-flex justify-center px-2 py-2 text-sm font-medium text-white bg-gray-800 shadow-md hover:bg-yellow-300 hover:text-black focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50"
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" className="size-6">
-              <path stroke-linecap="round" stroke-linejoin="round" d="m9 13.5 3 3m0 0 3-3m-3 3v-6m1.06-4.19-2.12-2.12a1.5 1.5 0 0 0-1.061-.44H4.5A2.25 2.25 0 0 0 2.25 6v12a2.25 2.25 0 0 0 2.25 2.25h15A2.25 2.25 0 0 0 21.75 18V9a2.25 2.25 0 0 0-2.25-2.25h-5.379a1.5 1.5 0 0 1-1.06-.44Z" />
-            </svg>
+          <div>
+            {/* save drawing */}
+            <button onClick={handleSaveDrawing} className="fixed top-0 z-20 right-10 rounded-l-md p-2 bg-gray-800 text-white hover:bg-yellow-300 hover:text-black">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 9.776c.112-.017.227-.026.344-.026h15.812c.117 0 .232.009.344.026m-16.5 0a2.25 2.25 0 0 0-1.883 2.542l.857 6a2.25 2.25 0 0 0 2.227 1.932H19.05a2.25 2.25 0 0 0 2.227-1.932l.857-6a2.25 2.25 0 0 0-1.883-2.542m-16.5 0V6A2.25 2.25 0 0 1 6 3.75h3.879a1.5 1.5 0 0 1 1.06.44l2.122 2.12a1.5 1.5 0 0 0 1.06.44H18A2.25 2.25 0 0 1 20.25 9v.776" />
+              </svg>
+            </button>
+            {/* download drawings */}
+            <button
+              type="button"
+              onClick={toggleDropdown}
+              className="fixed top-0 right-0 z-20 inline-flex justify-center px-2 py-2 text-sm font-medium text-white bg-gray-800 shadow-md hover:bg-yellow-300 hover:text-black focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" className="size-6">
+                <path stroke-linecap="round" stroke-linejoin="round" d="m9 13.5 3 3m0 0 3-3m-3 3v-6m1.06-4.19-2.12-2.12a1.5 1.5 0 0 0-1.061-.44H4.5A2.25 2.25 0 0 0 2.25 6v12a2.25 2.25 0 0 0 2.25 2.25h15A2.25 2.25 0 0 0 21.75 18V9a2.25 2.25 0 0 0-2.25-2.25h-5.379a1.5 1.5 0 0 1-1.06-.44Z" />
+              </svg>
 
-            {isOpen && <div className="relative inline-block text-left my-3">
-              <div
-                className="origin-top-right absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5"
-                role="menu"
-                aria-orientation="vertical"
-                aria-labelledby="options-menu"
-              >
-                <div className="py-1" role="none">
-                  <button
-                    onClick={() => handleDownload('jpg')}
-                    className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900"
-                    role="menuitem"
-                  >
-                    JPG
-                  </button>
-                  <button
-                    onClick={() => handleDownload('png')}
-                    className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900"
-                    role="menuitem"
-                  >
-                    PNG
-                  </button>
-                  <button
-                    onClick={() => handleDownload('pdf')}
-                    className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900"
-                    role="menuitem"
-                  >
-                    PDF
-                  </button>
-                  <button
-                    onClick={() => handleDownload('svg')}
-                    className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900"
-                    role="menuitem"
-                  >
-                    SVG
-                  </button>
+              {isOpen && <div className="relative inline-block text-left my-3">
+                <div
+                  className="origin-top-right absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5"
+                  role="menu"
+                  aria-orientation="vertical"
+                  aria-labelledby="options-menu"
+                >
+                  <div className="py-1" role="none">
+                    <button
+                      onClick={() => handleDownload('jpg')}
+                      className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900"
+                      role="menuitem"
+                    >
+                      JPG
+                    </button>
+                    <button
+                      onClick={() => handleDownload('png')}
+                      className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900"
+                      role="menuitem"
+                    >
+                      PNG
+                    </button>
+                    <button
+                      onClick={() => handleDownload('pdf')}
+                      className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900"
+                      role="menuitem"
+                    >
+                      PDF
+                    </button>
+                    <button
+                      onClick={() => handleDownload('svg')}
+                      className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900"
+                      role="menuitem"
+                    >
+                      SVG
+                    </button>
+                  </div>
                 </div>
-              </div>
-            </div>}
-          </button>
-        </div>
+              </div>}
+            </button>
+          </div>
 
-        {/* <button onClick={handleLoadDrawing} className="absolute top-[55%] left-0  w-full p-2 bg-yellow-500 hover:bg-yellow-400 rounded">
-          Load Drawing
-        </button>
-        <button onClick={handleExportAsImage} className="absolute top-[60%] left-0  w-full p-2 bg-blue-500 hover:bg-blue-400 rounded">
-          Export as PNG
-        </button> */}
+          {/* <button onClick={handleLoadDrawing} className="absolute top-[55%] left-0  w-full p-2 bg-yellow-500 hover:bg-yellow-400 rounded">
+      Load Drawing
+    </button>
+    <button onClick={handleExportAsImage} className="absolute top-[60%] left-0  w-full p-2 bg-blue-500 hover:bg-blue-400 rounded">
+      Export as PNG
+    </button> */}
 
-        <div className="fixed z-30 bg-gray-900 w-[97px] mt-3 ml-2 rounded-lg shadow-lg m-auto text-white">
-          {tools.map((tool) => (
-            <div className='py-1 relative'>
-              <button
-                key={tool.name}
-                className={`w-24 p-2 bg-transparent focus:bg-yellow-300 rounded-lg hover:bg-yellow-300 hover:text-black ${selectedTool === tool.name ? 'bg-yellow-300 text-black rounded-lg' : 'bg-gray-600 rounded-lg'}`}
-                onClick={() => handleSelectTool(tool.name)}
-              >
-                <span className='flex items-center space-x-1'><span>{tool.icon}</span>  <span>{tool.name.charAt(0).toUpperCase() + tool.name.slice(1)}</span></span>
-              </button>
-              {
-                tool.name === selectedTool &&
-                // List all tools here...
-                // 1.oom tool
-                selectedTool === 'zoom' &&
-                <div className="fixed left-24 top-9 p-2 flex flex-col">
-                  <button
-                    className="w-24 p-2 bg-gray-700 hover:bg-yellow-600 rounded"
-                    onClick={() => handleZoom(true)}
-                  >
-                    Zoom In
-                  </button>
-                  <button
-                    className="w-24 p-2 bg-gray-700 hover:bg-yellow-600 rounded"
-                    onClick={() => handleZoom(false)}
-                  >
-                    Zoom Out
-                  </button>
-                </div>
-              }
-              {/* 2.shape tools */}
-              {
-                tool.name === selectedTool &&
-                <div className='fixed left-[97px] top-[100px] p-2 flex flex-col'>
-                  {selectedTool === 'shapes' &&
-                    ["Rectangle", "Circle", "Polygon"].map((tool, index) => (
-                      <button
-                        key={index}
-                        className={`w-full p-2 bg-gray-700 hover:bg-yellow-600 rounded ${selectedTool === tool ? 'bg-yellow-500' : 'bg-gray-600'}`}
-                        onClick={() => handleDrawShapes(tool)}
-                      >
-                        {tool.charAt(0).toUpperCase() + tool.slice(1)}
-                      </button>
-                    ))}
-                </div>
-
-              }
-              {/* brush tool */}
-              {
-                tool.name === selectedTool &&
-                <div className='fixed left-[97px] top-0 p-2 flex flex-col'>
-                  {selectedTool === 'brush' && (
-                    <div className="grid grid-cols-2 gap-1 p-2 text-white bg-gray-600 border rounded-md border-yellow-200">
-                      <label className="block mb-2">Brush Color:</label>
-                      <input className='text-black' type="color" value={brushColor} onChange={handleBrushColorChange} />
-                      <label className="block mb-2">Brush Size:</label>
-                      <input className='text-black' type="number" value={brushSize} onChange={handleBrushSizeChange} min="1" max="100" />
-                      <label className="block mb-2">Text Content:</label>
-                      <input type="text" value={textContent} onChange={(e) => setTextContent(e.target.value)} className="border p-2 w-full text-black" />
-                      <label className="block mb-2">Font Family:</label>
-                      <select value={fontFamily} onChange={(e) => setFontFamily(e.target.value)} className="border p-2 w-full text-black">
-                        {/* Add Google Fonts here */}
-                        <option value="Arial">Arial</option>
-                        <option value="Helvetica">Helvetica</option>
-                        <option value="Times New Roman">Times New Roman</option>
-                        {/* Add more fonts as needed */}
-                      </select>
-                      <label className="block mb-2">Letter Spacing:</label>
-                      <input type="number" value={letterSpacing} onChange={(e) => setLetterSpacing(e.target.value)} className="border p-2 w-full text-black" />
-                      <label className="block mb-2">Word Spacing:</label>
-                      <input type="number" value={wordSpacing} onChange={(e) => setWordSpacing(e.target.value)} className="border p-2 w-full text-black" />
-                      <label className="block mb-2">Font Weight:</label>
-                      <select value={fontWeight} onChange={(e) => setFontWeight(e.target.value)} className="border p-2 w-full text-black">
-                        <option value="normal">Normal</option>
-                        <option value="bold">Bold</option>
-                      </select>
-                      <label className="block mb-2">Font Style:</label>
-                      <select value={fontStyle} onChange={(e) => setFontStyle(e.target.value)} className="border p-2 w-full text-black">
-                        <option value="normal">Normal</option>
-                        <option value="italic">Italic</option>
-                      </select>
-                      <label className="block mb-2">Text Decoration:</label>
-                      <select value={textDecoration} onChange={(e) => setTextDecoration(e.target.value)} className="border p-2 w-full text-black">
-                        <option value="">None</option>
-                        <option value="underline">Underline</option>
-                        <option value="line-through">Strikethrough</option>
-                      </select>
-                      <label className="block mb-2">Random Angle:</label>
-                      <input className='text-black' type="checkbox" checked={randomAngle} onChange={(e) => setRandomAngle(e.target.checked)} />
-                      <button
-                        onClick={handleAddText}
-                        className="w-full mt-4 bg-yellow-500 hover:bg-yellow-600 text-black p-2 rounded"
-                      >
-                        Start Drawing
-                      </button>
-                    </div>
-                  )}
-                </div>
-              }
-
-              {/* fill */}
-              {
-                tool.name === selectedTool &&
-                <div className='fixed left-[97px] top-52 p-2 flex flex-col'>
-                  {selectedTool === 'fill' && (
-                    <div className="p-4 mb-2 bg-gray-700 rounded border border-yellow-300">
-                      <label className="block mb-2">Fill Type</label>
-                      <select value={fillType} onChange={(e) => setFillType(e.target.value)} className="w-full mb-2 text-black">
-                        <option value="solid">Solid</option>
-                        <option value="gradient">Gradient</option>
-                      </select>
-                      {fillType === 'solid' && (
-                        <div>
-                          <label className="block mb-2">Fill Color</label>
-                          <input type="color" value={fillColor} onChange={(e) => setFillColor(e.target.value)} className="w-full mb-2" />
-                        </div>
-                      )}
-                      {fillType === 'gradient' && (
-                        <div>
-                          <label className="block mb-2">Gradient Start Color</label>
-                          <input type="color" value={gradientStartColor} onChange={(e) => setGradientStartColor(e.target.value)} className="w-full mb-2" />
-                          <label className="block mb-2">Gradient End Color</label>
-                          <input type="color" value={gradientEndColor} onChange={(e) => setGradientEndColor(e.target.value)} className="w-full mb-2" />
-                        </div>
-                      )}
-                      <button onClick={handleBackgroundFill} className="w-full p-2 bg-yellow-600 hover:bg-yellow-500 rounded">
-                        Apply Background Fill
-                      </button>
-                    </div>
-                  )}
-                </div>
-              }
-              {/* Image tool */}
-              {
-                tool.name === selectedTool &&
-                <div className='fixed left-[97px] top-80 p-2'>
-                  {selectedTool === "image" && isImage &&
-                    <>
-                      <form className="max-w-sm mx-auto">
-                        <select ref={selectRef} onChange={(e) => { applyImageEffects(e.target.value) }} className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
-                          <option selected>Choose a Filter</option>
-                          <option value="reset">Reset</option>
-                          <option value="grayscale">Grayscale</option>
-                          <option value="sepia">Sepia</option>
-                          <option value="brightness">Brightness</option>
-                          <option value="contrast">Contrast</option>
-                          <option value="blur">Blur</option>
+          <div className="fixed z-30 bg-gray-900 w-[97px] mt-3 ml-2 rounded-lg shadow-lg m-auto text-white">
+            {tools.map((tool) => (
+              <div className='py-1 relative'>
+                <button
+                  key={tool.name}
+                  className={`w-24 p-2 bg-transparent focus:bg-yellow-300 rounded-lg hover:bg-yellow-300 hover:text-black ${selectedTool === tool.name ? 'bg-yellow-300 text-black rounded-lg' : 'bg-gray-600 rounded-lg'}`}
+                  onClick={() => handleSelectTool(tool.name)}
+                >
+                  <span className='flex items-center space-x-1'><span>{tool.icon}</span>  <span>{tool.name.charAt(0).toUpperCase() + tool.name.slice(1)}</span></span>
+                </button>
+                {tool.name === selectedTool &&
+                  // List all tools here...
+                  // 1.oom tool
+                  selectedTool === 'zoom' &&
+                  <div className="fixed left-24 top-9 p-2 flex flex-col">
+                    <button
+                      className="w-24 p-2 bg-gray-700 hover:bg-yellow-600 rounded"
+                      onClick={() => handleZoom(true)}
+                    >
+                      Zoom In
+                    </button>
+                    <button
+                      className="w-24 p-2 bg-gray-700 hover:bg-yellow-600 rounded"
+                      onClick={() => handleZoom(false)}
+                    >
+                      Zoom Out
+                    </button>
+                  </div>}
+                {/* 2.shape tools */}
+                {tool.name === selectedTool &&
+                  <div className='fixed left-[97px] top-[100px] p-2 flex flex-col'>
+                    {selectedTool === 'shapes' &&
+                      ["Rectangle", "Circle", "Polygon"].map((tool, index) => (
+                        <button
+                          key={index}
+                          className={`w-full p-2 bg-gray-700 hover:bg-yellow-600 rounded ${selectedTool === tool ? 'bg-yellow-500' : 'bg-gray-600'}`}
+                          onClick={() => handleDrawShapes(tool)}
+                        >
+                          {tool.charAt(0).toUpperCase() + tool.slice(1)}
+                        </button>
+                      ))}
+                  </div>}
+                {/* brush tool */}
+                {tool.name === selectedTool &&
+                  <div className='fixed left-[97px] top-0 p-2 flex flex-col'>
+                    {selectedTool === 'brush' && (
+                      <div className="grid grid-cols-2 gap-1 p-2 text-white bg-gray-600 border rounded-md border-yellow-200">
+                        <label className="block mb-2">Brush Color:</label>
+                        <input className='text-black' type="color" value={brushColor} onChange={handleBrushColorChange} />
+                        <label className="block mb-2">Brush Size:</label>
+                        <input className='text-black' type="number" value={brushSize} onChange={handleBrushSizeChange} min="1" max="100" />
+                        <label className="block mb-2">Text Content:</label>
+                        <input type="text" value={textContent} onChange={(e) => setTextContent(e.target.value)} className="border p-2 w-full text-black" />
+                        <label className="block mb-2">Font Family:</label>
+                        <select value={fontFamily} onChange={(e) => setFontFamily(e.target.value)} className="border p-2 w-full text-black">
+                          {/* Add Google Fonts here */}
+                          <option value="Arial">Arial</option>
+                          <option value="Helvetica">Helvetica</option>
+                          <option value="Times New Roman">Times New Roman</option>
+                          {/* Add more fonts as needed */}
                         </select>
-                      </form>
+                        <label className="block mb-2">Letter Spacing:</label>
+                        <input type="number" value={letterSpacing} onChange={(e) => setLetterSpacing(e.target.value)} className="border p-2 w-full text-black" />
+                        <label className="block mb-2">Word Spacing:</label>
+                        <input type="number" value={wordSpacing} onChange={(e) => setWordSpacing(e.target.value)} className="border p-2 w-full text-black" />
+                        <label className="block mb-2">Font Weight:</label>
+                        <select value={fontWeight} onChange={(e) => setFontWeight(e.target.value)} className="border p-2 w-full text-black">
+                          <option value="normal">Normal</option>
+                          <option value="bold">Bold</option>
+                        </select>
+                        <label className="block mb-2">Font Style:</label>
+                        <select value={fontStyle} onChange={(e) => setFontStyle(e.target.value)} className="border p-2 w-full text-black">
+                          <option value="normal">Normal</option>
+                          <option value="italic">Italic</option>
+                        </select>
+                        <label className="block mb-2">Text Decoration:</label>
+                        <select value={textDecoration} onChange={(e) => setTextDecoration(e.target.value)} className="border p-2 w-full text-black">
+                          <option value="">None</option>
+                          <option value="underline">Underline</option>
+                          <option value="line-through">Strikethrough</option>
+                        </select>
+                        <label className="block mb-2">Random Angle:</label>
+                        <input className='text-black' type="checkbox" checked={randomAngle} onChange={(e) => setRandomAngle(e.target.checked)} />
+                        <button
+                          onClick={handleAddText}
+                          className="w-full mt-4 bg-yellow-500 hover:bg-yellow-600 text-black p-2 rounded"
+                        >
+                          Start Drawing
+                        </button>
+                      </div>
+                    )}
+                  </div>}
 
-                    </>}
-                </div>
-              }
-              {/* layers */}
-              {
-                tool.name === selectedTool &&
-                <div className='fixed left-[110px] top-[270px]'>
-                  <div className="flex-1 overflow-y-auto p-2 broder border-yellow-300 rounded-md">
-                    {/* <div className="mb-4">
+                {/* fill */}
+                {tool.name === selectedTool &&
+                  <div className='fixed left-[97px] top-52 p-2 flex flex-col'>
+                    {selectedTool === 'fill' && (
+                      <div className="p-4 mb-2 bg-gray-700 rounded border border-yellow-300">
+                        <label className="block mb-2">Fill Type</label>
+                        <select value={fillType} onChange={(e) => setFillType(e.target.value)} className="w-full mb-2 text-black">
+                          <option value="solid">Solid</option>
+                          <option value="gradient">Gradient</option>
+                        </select>
+                        {fillType === 'solid' && (
+                          <div>
+                            <label className="block mb-2">Fill Color</label>
+                            <input type="color" value={fillColor} onChange={(e) => setFillColor(e.target.value)} className="w-full mb-2" />
+                          </div>
+                        )}
+                        {fillType === 'gradient' && (
+                          <div>
+                            <label className="block mb-2">Gradient Start Color</label>
+                            <input type="color" value={gradientStartColor} onChange={(e) => setGradientStartColor(e.target.value)} className="w-full mb-2" />
+                            <label className="block mb-2">Gradient End Color</label>
+                            <input type="color" value={gradientEndColor} onChange={(e) => setGradientEndColor(e.target.value)} className="w-full mb-2" />
+                          </div>
+                        )}
+                        <button onClick={handleBackgroundFill} className="w-full p-2 bg-yellow-600 hover:bg-yellow-500 rounded">
+                          Apply Background Fill
+                        </button>
+                      </div>
+                    )}
+                  </div>}
+                {/* Image tool */}
+                {tool.name === selectedTool &&
+                  <div className='fixed left-[97px] top-80 p-2'>
+                    {selectedTool === "image" && isImage &&
+                      <>
+                        <form className="max-w-sm mx-auto">
+                          <select ref={selectRef} onChange={(e) => { applyImageEffects(e.target.value); }} className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+                            <option selected>Choose a Filter</option>
+                            <option value="reset">Reset</option>
+                            <option value="grayscale">Grayscale</option>
+                            <option value="sepia">Sepia</option>
+                            <option value="brightness">Brightness</option>
+                            <option value="contrast">Contrast</option>
+                            <option value="blur">Blur</option>
+                          </select>
+                        </form>
+
+                      </>}
+                  </div>}
+                {/* layers */}
+                {tool.name === selectedTool &&
+                  <div className='fixed left-[110px] top-[270px]'>
+                    <div className="flex-1 overflow-y-auto p-2 broder border-yellow-300 rounded-md">
+                      {/* <div className="mb-4">
                   <button className="w-full p-2 mb-2 bg-gray-700 hover:bg-gray-600 rounded" onClick={addLayer}>
                     Add Layer
                   </button>
                 </div> */}
-                    {layers.map(layer => (
-                      <div key={layer.id} className={`p-2 rounded ${selectedLayer === layer ? 'bg-yellow-600' : 'bg-yellow-700 hover:bg-yellow-600'}`}>
-                        <button className="text-left w-full" onClick={() => setSelectedLayer(layer)}>
-                          Layer {layers.indexOf(layer) + 1}
-                        </button>
-                      </div>
-                    ))}
-                    {/* Layer actions */}
-                    {selectedLayer && (
-                      <div className="p-4">
-                        <button className="p-2 mb-2 bg-red-500 hover:bg-red-400 rounded" onClick={deleteLayer}>
-                          Delete Layer
-                        </button>
-                        <button className="p-2 mb-2 bg-gray-700 hover:bg-gray-600 rounded" onClick={moveLayerUp}>
-                          Move Layer Up
-                        </button>
-                        <button className="p-2 mb-2 bg-gray-700 hover:bg-gray-600 rounded" onClick={moveLayerDown}>
-                          Move Layer Down
-                        </button>
-                        <button className="p-2 mb-2 bg-gray-700 hover:bg-gray-600 rounded" onClick={toggleLayerVisibility}>
-                          {selectedLayer.visible ? 'Hide Layer' : 'Show Layer'}
-                        </button>
-                        <button className="p-2 mb-2 bg-gray-700 hover:bg-gray-600 rounded" onClick={toggleLayerLock}>
-                          {selectedLayer.lockMovementX ? 'Unlock Layer' : 'Lock Layer'}
-                        </button>
+                      {layers.map(layer => (
+                        <div key={layer.id} className={`p-2 rounded ${selectedLayer === layer ? 'bg-yellow-600' : 'bg-yellow-700 hover:bg-yellow-600'}`}>
+                          <button className="text-left w-full" onClick={() => setSelectedLayer(layer)}>
+                            Layer {layers.indexOf(layer) + 1}
+                          </button>
+                        </div>
+                      ))}
+                      {/* Layer actions */}
+                      {selectedLayer && (
+                        <div className="p-4">
+                          <button className="p-2 mb-2 bg-red-500 hover:bg-red-400 rounded" onClick={deleteLayer}>
+                            Delete Layer
+                          </button>
+                          <button className="p-2 mb-2 bg-gray-700 hover:bg-gray-600 rounded" onClick={moveLayerUp}>
+                            Move Layer Up
+                          </button>
+                          <button className="p-2 mb-2 bg-gray-700 hover:bg-gray-600 rounded" onClick={moveLayerDown}>
+                            Move Layer Down
+                          </button>
+                          <button className="p-2 mb-2 bg-gray-700 hover:bg-gray-600 rounded" onClick={toggleLayerVisibility}>
+                            {selectedLayer.visible ? 'Hide Layer' : 'Show Layer'}
+                          </button>
+                          <button className="p-2 mb-2 bg-gray-700 hover:bg-gray-600 rounded" onClick={toggleLayerLock}>
+                            {selectedLayer.lockMovementX ? 'Unlock Layer' : 'Lock Layer'}
+                          </button>
 
 
+                        </div>
+                      )}
+                    </div>
+                  </div>}
+                {/* Crop / resize canvas tool */}
+                {tool.name === selectedTool &&
+                  <div className='fixed left-[110px] top-[10px]'>
+                    {showSizeCropModal && (
+                      <div>
+                        <div className="bg-gray-700 p-8 rounded border border-yellow-400">
+                          <h2 className="text-2xl mb-4">Size/Crop Canvas</h2>
+                          <div className="mb-4">
+                            <label className="block mb-2">Width:</label>
+                            <input
+                              type="number"
+                              value={customSize.width}
+                              onChange={(e) => setCustomSize({ ...customSize, width: e.target.value })}
+                              className="border p-2 w-full text-black" />
+                          </div>
+                          <div className="mb-4">
+                            <label className="block mb-2">Height:</label>
+                            <input
+                              type="number"
+                              value={customSize.height}
+                              onChange={(e) => setCustomSize({ ...customSize, height: e.target.value })}
+                              className="border p-2 w-full text-black" />
+                          </div>
+                          <div className="flex justify-between">
+                            <button
+                              onClick={handleDefaultSize}
+                              className="bg-gray-500 hover:bg-gray-600 text-white px-3 py-2 rounded"
+                            >
+                              Default Size
+                            </button>
+                            <button
+                              onClick={handleSizeCropSubmit}
+                              className="bg-blue-500 hover:bg-blue-600 text-white px-3 py-2 rounded"
+                            >
+                              Apply
+                            </button>
+                            <button
+                              onClick={() => setShowSizeCropModal(false)}
+                              className="bg-red-500 hover:bg-red-600 text-white px-3 py-2 rounded"
+                            >
+                              Cancel
+                            </button>
+                          </div>
+                        </div>
                       </div>
                     )}
-                  </div>
-                </div>
-              }
-              {/* Crop / resize canvas tool */}
-              {
-                tool.name === selectedTool &&
-                <div className='fixed left-[110px] top-[10px]'>
-                  {showSizeCropModal && (
-                    <div>
-                      <div className="bg-gray-700 p-8 rounded border border-yellow-400">
-                        <h2 className="text-2xl mb-4">Size/Crop Canvas</h2>
-                        <div className="mb-4">
-                          <label className="block mb-2">Width:</label>
-                          <input
-                            type="number"
-                            value={customSize.width}
-                            onChange={(e) => setCustomSize({ ...customSize, width: e.target.value })}
-                            className="border p-2 w-full text-black"
-                          />
-                        </div>
-                        <div className="mb-4">
-                          <label className="block mb-2">Height:</label>
-                          <input
-                            type="number"
-                            value={customSize.height}
-                            onChange={(e) => setCustomSize({ ...customSize, height: e.target.value })}
-                            className="border p-2 w-full text-black"
-                          />
-                        </div>
-                        <div className="flex justify-between">
-                          <button
-                            onClick={handleDefaultSize}
-                            className="bg-gray-500 hover:bg-gray-600 text-white px-3 py-2 rounded"
-                          >
-                            Default Size
-                          </button>
-                          <button
-                            onClick={handleSizeCropSubmit}
-                            className="bg-blue-500 hover:bg-blue-600 text-white px-3 py-2 rounded"
-                          >
-                            Apply
-                          </button>
-                          <button
-                            onClick={() => setShowSizeCropModal(false)}
-                            className="bg-red-500 hover:bg-red-600 text-white px-3 py-2 rounded"
-                          >
-                            Cancel
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              }
+                  </div>}
+              </div>
+            ))}
+          </div>
+          {selectedObject && (
+            <div className="p-4">
+              <button className="w-full p-2 mb-2 bg-red-500 hover:bg-red-400 rounded" onClick={handleDeleteObject}>
+                Delete
+              </button>
+              <button className="w-full p-2 mb-2 bg-blue-500 hover:bg-blue-400 rounded" onClick={handleRotateObject}>
+                Rotate
+              </button>
+              {/* Add more object-specific actions here */}
             </div>
-          ))}
+          )}
         </div>
-        {selectedObject && (
-          <div className="p-4">
-            <button className="w-full p-2 mb-2 bg-red-500 hover:bg-red-400 rounded" onClick={handleDeleteObject}>
-              Delete
-            </button>
-            <button className="w-full p-2 mb-2 bg-blue-500 hover:bg-blue-400 rounded" onClick={handleRotateObject}>
-              Rotate
-            </button>
-            {/* Add more object-specific actions here */}
+        <div className="flex-1 p-4">
+          <div className="flex z-40 fixed top-0 items-center w-full max-w-xs p-2 space-x-4 rtl:space-x-reverse bg-white opacity-45 text-black divide-x rtl:divide-x-reverse divide-gray-200 rounded-lg shadow dark:text-gray-400 dark:divide-gray-700 space-x dark:bg-gray-800">
+            <div className="ps-4 text-sm font-normal">Canvas Size: {Math.round(width)} x {Math.round(height)}
+            </div>
           </div>
-        )}
-      </div>
-      <div className="flex-1 p-4">
-        <div className="flex z-40 fixed top-0 items-center w-full max-w-xs p-2 space-x-4 rtl:space-x-reverse bg-white opacity-45 text-black divide-x rtl:divide-x-reverse divide-gray-200 rounded-lg shadow dark:text-gray-400 dark:divide-gray-700 space-x dark:bg-gray-800">
-          <div className="ps-4 text-sm font-normal">Canvas Size: {Math.round(width)} x {Math.round(height)}
-          </div>
-        </div>
 
-        <div className='flex items-center justify-center h-screen'>
-          <canvas
-            style={{ border: "1px solid red" }}
-            ref={canvasRef}
-            width={canvasSize.width}
-            height={canvasSize.height}
-          ></canvas>
+          <div className='flex items-center justify-center h-screen'>
+            <canvas
+              style={{ border: "1px solid red" }}
+              ref={canvasRef}
+              width={canvasSize.width}
+              height={canvasSize.height}
+            ></canvas>
+          </div>
         </div>
-      </div>
-    </div>
+      </div></>
   );
 };
 
