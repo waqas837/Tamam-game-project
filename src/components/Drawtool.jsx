@@ -129,6 +129,8 @@ const Drawtool = () => {
         isDrawingMode: false,
 
       });
+      canvas.setWidth(2000); // Set canvas width larger than the container for scrolling
+      canvas.setHeight(2000); // Set canvas height larger than the container for scrolling
       fabric.Object.prototype.transparentCorners = false; // Ensure corner colors are visible
       fabric.Object.prototype.cornerColor = '#3f51b5'; // Change corner color
       fabric.Object.prototype.cornerSize = 20;
@@ -468,13 +470,21 @@ const Drawtool = () => {
   const resizeCanvas = (newSize) => {
     if (canvas) {
       setCanvasSize(newSize);
-      fabric.Image.fromURL(backgroundTransparent, function (img) {
-        // add background image
-        canvas.setBackgroundImage(img, canvas.renderAll.bind(canvas), {
-          scaleX: canvas.width / img.width, // times to fit the canvas by scale formula
-          scaleY: canvas.height / img.height
+      // Check if the canvas already has a fill color
+      const currentFill = canvas.backgroundColor;
+      if (currentFill) {
+        // Apply the fill color
+        canvas.setBackgroundColor(currentFill, canvas.renderAll.bind(canvas));
+      } else {
+        // Add background image if no fill color is present
+        fabric.Image.fromURL(backgroundTransparent, function (img) {
+          canvas.setBackgroundImage(img, canvas.renderAll.bind(canvas), {
+            scaleX: canvas.width / img.width,
+            scaleY: canvas.height / img.height
+          });
         });
-      });;
+      }
+
     }
   };
 
@@ -589,104 +599,105 @@ const Drawtool = () => {
     setshowTexterTool(true)
   }
 
-  // cropCanvasSize
+  // cropCanvasSize; This function may needed more
   const cropCanvasSize = () => {
-    canvas.isDrawingMode = false;
-    setShowSizeCropModal(true);
-    let isDrawing = false;
-    let rect = null;
-    if (canvas) {
-      canvas.off('mouse:down');
-      canvas.off('mouse:move');
-      canvas.off('mouse:up');
+    return;
+    // canvas.isDrawingMode = false;
+    // setShowSizeCropModal(true);
+    // let isDrawing = false;
+    // let rect = null;
+    // if (canvas) {
+    //   canvas.off('mouse:down');
+    //   canvas.off('mouse:move');
+    //   canvas.off('mouse:up');
 
-      canvas.on('mouse:down', (options) => {
-        if (!rect) {
-          isDrawing = true;
-          const pointer = canvas.getPointer(options.e);
-          rect = new fabric.Rect({
-            left: pointer.x,
-            top: pointer.y,
-            width: 0,
-            height: 0,
-            fill: 'transparent',
-            stroke: 'black',
-            strokeWidth: 2,
-            selectable: false,
-          });
-          canvas.add(rect);
-        }
-      });
+    //   canvas.on('mouse:down', (options) => {
+    //     if (!rect) {
+    //       isDrawing = true;
+    //       const pointer = canvas.getPointer(options.e);
+    //       rect = new fabric.Rect({
+    //         left: pointer.x,
+    //         top: pointer.y,
+    //         width: 0,
+    //         height: 0,
+    //         fill: 'transparent',
+    //         stroke: 'black',
+    //         strokeWidth: 2,
+    //         selectable: false,
+    //       });
+    //       canvas.add(rect);
+    //     }
+    //   });
 
-      canvas.on('mouse:move', (options) => {
-        if (!isDrawing) return;
-        if (rect) {
-          const pointer = canvas.getPointer(options.e);
-          rect.set({
-            width: pointer.x - rect.left,
-            height: pointer.y - rect.top
-          });
-          canvas.renderAll();
-        }
-      });
+    //   canvas.on('mouse:move', (options) => {
+    //     if (!isDrawing) return;
+    //     if (rect) {
+    //       const pointer = canvas.getPointer(options.e);
+    //       rect.set({
+    //         width: pointer.x - rect.left,
+    //         height: pointer.y - rect.top
+    //       });
+    //       canvas.renderAll();
+    //     }
+    //   });
 
-      canvas.on('mouse:up', () => {
-        if (rect) {
-          const zoom = canvas.getZoom();
-          const left = rect.left / zoom;
-          const top = rect.top / zoom;
-          const width = rect.width / zoom;
-          const height = rect.height / zoom;
+    //   canvas.on('mouse:up', () => {
+    //     if (rect) {
+    //       const zoom = canvas.getZoom();
+    //       const left = rect.left / zoom;
+    //       const top = rect.top / zoom;
+    //       const width = rect.width / zoom;
+    //       const height = rect.height / zoom;
 
-          if (width <= 0 || height <= 0) {
-            console.error('Invalid rectangle dimensions for cropping.');
-            canvas.remove(rect);
-            rect = null;
-            isDrawing = false;
-            return;
-          }
+    //       if (width <= 0 || height <= 0) {
+    //         console.error('Invalid rectangle dimensions for cropping.');
+    //         canvas.remove(rect);
+    //         rect = null;
+    //         isDrawing = false;
+    //         return;
+    //       }
 
-          const croppedDataURL = canvas.toDataURL({
-            left: left,
-            top: top,
-            width: width,
-            height: height,
-          });
+    //       const croppedDataURL = canvas.toDataURL({
+    //         left: left,
+    //         top: top,
+    //         width: width,
+    //         height: height,
+    //       });
 
-          fabric.Image.fromURL(backgroundTransparent, (croppedImage) => {
-            if (!croppedImage) {
-              console.error('Cropped image could not be loaded.');
-              return;
-            }
-            canvas.setWidth(width);
-            canvas.setHeight(height);
-            croppedImage.set({
-              left: 0,
-              top: 0,
-              scaleX: 1,
-              scaleY: 1,
-              selectable: false,
-            });
-            canvas.clear();
-            setcurrentCropImg(croppedImage)
-            canvas.setBackgroundImage(croppedImage, canvas.renderAll.bind(canvas), {
-              scaleX: canvas.width / croppedImage.width,
-              scaleY: canvas.height / croppedImage.height
-            });
-            // canvas.add(croppedImage);
-            canvas.setZoom(1); // Reset zoom to 1
-            canvas.renderAll();
-            canvas.calcOffset(); // Recalculate the canvas offset
-            console.log('Cropped image added and canvas updated.');
-            canvas.off("mouse:move")
-            canvas.off("mouse:down")
-          });
+    //       fabric.Image.fromURL(backgroundTransparent, (croppedImage) => {
+    //         if (!croppedImage) {
+    //           console.error('Cropped image could not be loaded.');
+    //           return;
+    //         }
+    //         canvas.setWidth(width);
+    //         canvas.setHeight(height);
+    //         croppedImage.set({
+    //           left: 0,
+    //           top: 0,
+    //           scaleX: 1,
+    //           scaleY: 1,
+    //           selectable: false,
+    //         });
+    //         canvas.clear();
+    //         setcurrentCropImg(croppedImage)
+    //         canvas.setBackgroundImage(croppedImage, canvas.renderAll.bind(canvas), {
+    //           scaleX: canvas.width / croppedImage.width,
+    //           scaleY: canvas.height / croppedImage.height
+    //         });
+    //         // canvas.add(croppedImage);
+    //         canvas.setZoom(1); // Reset zoom to 1
+    //         canvas.renderAll();
+    //         canvas.calcOffset(); // Recalculate the canvas offset
+    //         console.log('Cropped image added and canvas updated.');
+    //         canvas.off("mouse:move")
+    //         canvas.off("mouse:down")
+    //       });
 
-          rect = null; // Reset the rect variable
-          isDrawing = false; // Reset the drawing flag
-        }
-      });
-    }
+    //       rect = null; // Reset the rect variable
+    //       isDrawing = false; // Reset the drawing flag
+    //     }
+    //   });
+    // }
   };
 
 
@@ -1016,39 +1027,39 @@ const Drawtool = () => {
     }
   };
   // icons list
-  let cursorIcon = <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
-    <path stroke-linecap="round" stroke-linejoin="round" d="M15.042 21.672 13.684 16.6m0 0-2.51 2.225.569-9.47 5.227 7.917-3.286-.672Zm-7.518-.267A8.25 8.25 0 1 1 20.25 10.5M8.288 14.212A5.25 5.25 0 1 1 17.25 10.5" />
+  let cursorIcon = <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="size-6">
+    <path strokeLinecap="round" strokeLinejoin="round" d="M15.042 21.672 13.684 16.6m0 0-2.51 2.225.569-9.47 5.227 7.917-3.286-.672Zm-7.518-.267A8.25 8.25 0 1 1 20.25 10.5M8.288 14.212A5.25 5.25 0 1 1 17.25 10.5" />
   </svg>;
-  let zoom = <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
-    <path stroke-linecap="round" stroke-linejoin="round" d="m15.75 15.75-2.489-2.489m0 0a3.375 3.375 0 1 0-4.773-4.773 3.375 3.375 0 0 0 4.774 4.774ZM21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+  let zoom = <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="size-6">
+    <path strokeLinecap="round" strokeLinejoin="round" d="m15.75 15.75-2.489-2.489m0 0a3.375 3.375 0 1 0-4.773-4.773 3.375 3.375 0 0 0 4.774 4.774ZM21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
   </svg>;
-  let crop = <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
-    <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 7.125C2.25 6.504 2.754 6 3.375 6h6c.621 0 1.125.504 1.125 1.125v3.75c0 .621-.504 1.125-1.125 1.125h-6a1.125 1.125 0 0 1-1.125-1.125v-3.75ZM14.25 8.625c0-.621.504-1.125 1.125-1.125h5.25c.621 0 1.125.504 1.125 1.125v8.25c0 .621-.504 1.125-1.125 1.125h-5.25a1.125 1.125 0 0 1-1.125-1.125v-8.25ZM3.75 16.125c0-.621.504-1.125 1.125-1.125h5.25c.621 0 1.125.504 1.125 1.125v2.25c0 .621-.504 1.125-1.125 1.125h-5.25a1.125 1.125 0 0 1-1.125-1.125v-2.25Z" />
+  let crop = <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="size-6">
+    <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 7.125C2.25 6.504 2.754 6 3.375 6h6c.621 0 1.125.504 1.125 1.125v3.75c0 .621-.504 1.125-1.125 1.125h-6a1.125 1.125 0 0 1-1.125-1.125v-3.75ZM14.25 8.625c0-.621.504-1.125 1.125-1.125h5.25c.621 0 1.125.504 1.125 1.125v8.25c0 .621-.504 1.125-1.125 1.125h-5.25a1.125 1.125 0 0 1-1.125-1.125v-8.25ZM3.75 16.125c0-.621.504-1.125 1.125-1.125h5.25c.621 0 1.125.504 1.125 1.125v2.25c0 .621-.504 1.125-1.125 1.125h-5.25a1.125 1.125 0 0 1-1.125-1.125v-2.25Z" />
   </svg>;
 
-  let shapes = <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
-    <path stroke-linecap="round" stroke-linejoin="round" d="M6 6.878V6a2.25 2.25 0 0 1 2.25-2.25h7.5A2.25 2.25 0 0 1 18 6v.878m-12 0c.235-.083.487-.128.75-.128h10.5c.263 0 .515.045.75.128m-12 0A2.25 2.25 0 0 0 4.5 9v.878m13.5-3A2.25 2.25 0 0 1 19.5 9v.878m0 0a2.246 2.246 0 0 0-.75-.128H5.25c-.263 0-.515.045-.75.128m15 0A2.25 2.25 0 0 1 21 12v6a2.25 2.25 0 0 1-2.25 2.25H5.25A2.25 2.25 0 0 1 3 18v-6c0-.98.626-1.813 1.5-2.122" />
+  let shapes = <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="size-6">
+    <path strokeLinecap="round" strokeLinejoin="round" d="M6 6.878V6a2.25 2.25 0 0 1 2.25-2.25h7.5A2.25 2.25 0 0 1 18 6v.878m-12 0c.235-.083.487-.128.75-.128h10.5c.263 0 .515.045.75.128m-12 0A2.25 2.25 0 0 0 4.5 9v.878m13.5-3A2.25 2.25 0 0 1 19.5 9v.878m0 0a2.246 2.246 0 0 0-.75-.128H5.25c-.263 0-.515.045-.75.128m15 0A2.25 2.25 0 0 1 21 12v6a2.25 2.25 0 0 1-2.25 2.25H5.25A2.25 2.25 0 0 1 3 18v-6c0-.98.626-1.813 1.5-2.122" />
   </svg>
-  let brush = <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
-    <path stroke-linecap="round" stroke-linejoin="round" d="M9.53 16.122a3 3 0 0 0-5.78 1.128 2.25 2.25 0 0 1-2.4 2.245 4.5 4.5 0 0 0 8.4-2.245c0-.399-.078-.78-.22-1.128Zm0 0a15.998 15.998 0 0 0 3.388-1.62m-5.043-.025a15.994 15.994 0 0 1 1.622-3.395m3.42 3.42a15.995 15.995 0 0 0 4.764-4.648l3.876-5.814a1.151 1.151 0 0 0-1.597-1.597L14.146 6.32a15.996 15.996 0 0 0-4.649 4.763m3.42 3.42a6.776 6.776 0 0 0-3.42-3.42" />
+  let brush = <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="size-6">
+    <path strokeLinecap="round" strokeLinejoin="round" d="M9.53 16.122a3 3 0 0 0-5.78 1.128 2.25 2.25 0 0 1-2.4 2.245 4.5 4.5 0 0 0 8.4-2.245c0-.399-.078-.78-.22-1.128Zm0 0a15.998 15.998 0 0 0 3.388-1.62m-5.043-.025a15.994 15.994 0 0 1 1.622-3.395m3.42 3.42a15.995 15.995 0 0 0 4.764-4.648l3.876-5.814a1.151 1.151 0 0 0-1.597-1.597L14.146 6.32a15.996 15.996 0 0 0-4.649 4.763m3.42 3.42a6.776 6.776 0 0 0-3.42-3.42" />
   </svg>;
-  let fill = <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
-    <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 3v1.5M4.5 8.25H3m18 0h-1.5M4.5 12H3m18 0h-1.5m-15 3.75H3m18 0h-1.5M8.25 19.5V21M12 3v1.5m0 15V21m3.75-18v1.5m0 15V21m-9-1.5h10.5a2.25 2.25 0 0 0 2.25-2.25V6.75a2.25 2.25 0 0 0-2.25-2.25H6.75A2.25 2.25 0 0 0 4.5 6.75v10.5a2.25 2.25 0 0 0 2.25 2.25Zm.75-12h9v9h-9v-9Z" />
+  let fill = <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="size-6">
+    <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 3v1.5M4.5 8.25H3m18 0h-1.5M4.5 12H3m18 0h-1.5m-15 3.75H3m18 0h-1.5M8.25 19.5V21M12 3v1.5m0 15V21m3.75-18v1.5m0 15V21m-9-1.5h10.5a2.25 2.25 0 0 0 2.25-2.25V6.75a2.25 2.25 0 0 0-2.25-2.25H6.75A2.25 2.25 0 0 0 4.5 6.75v10.5a2.25 2.25 0 0 0 2.25 2.25Zm.75-12h9v9h-9v-9Z" />
   </svg>
-  let image = <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
-    <path stroke-linecap="round" stroke-linejoin="round" d="m2.25 15.75 5.159-5.159a2.25 2.25 0 0 1 3.182 0l5.159 5.159m-1.5-1.5 1.409-1.409a2.25 2.25 0 0 1 3.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 0 0 1.5-1.5V6a1.5 1.5 0 0 0-1.5-1.5H3.75A1.5 1.5 0 0 0 2.25 6v12a1.5 1.5 0 0 0 1.5 1.5Zm10.5-11.25h.008v.008h-.008V8.25Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Z" />
-  </svg>
-
-  let layer = <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
-    <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+  let image = <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="size-6">
+    <path strokeLinecap="round" strokeLinejoin="round" d="m2.25 15.75 5.159-5.159a2.25 2.25 0 0 1 3.182 0l5.159 5.159m-1.5-1.5 1.409-1.409a2.25 2.25 0 0 1 3.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 0 0 1.5-1.5V6a1.5 1.5 0 0 0-1.5-1.5H3.75A1.5 1.5 0 0 0 2.25 6v12a1.5 1.5 0 0 0 1.5 1.5Zm10.5-11.25h.008v.008h-.008V8.25Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Z" />
   </svg>
 
-  let undo = <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
-    <path stroke-linecap="round" stroke-linejoin="round" d="m15 15-6 6m0 0-6-6m6 6V9a6 6 0 0 1 12 0v3" />
+  let layer = <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="size-6">
+    <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
   </svg>
 
-  let textertool = <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
-    <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z" />
+  let undo = <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="size-6">
+    <path strokeLinecap="round" strokeLinejoin="round" d="m15 15-6 6m0 0-6-6m6 6V9a6 6 0 0 1 12 0v3" />
+  </svg>
+
+  let textertool = <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="size-6">
+    <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z" />
   </svg>
   // Encode the SVG
   const svgIcon = `
@@ -1069,8 +1080,8 @@ const Drawtool = () => {
           <div>
             {/* save drawing */}
             <button onClick={handleSaveDrawing} className="fixed top-0 z-20 right-10 rounded-l-md p-2 bg-gray-800 text-white hover:bg-yellow-300 hover:text-black">
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 9.776c.112-.017.227-.026.344-.026h15.812c.117 0 .232.009.344.026m-16.5 0a2.25 2.25 0 0 0-1.883 2.542l.857 6a2.25 2.25 0 0 0 2.227 1.932H19.05a2.25 2.25 0 0 0 2.227-1.932l.857-6a2.25 2.25 0 0 0-1.883-2.542m-16.5 0V6A2.25 2.25 0 0 1 6 3.75h3.879a1.5 1.5 0 0 1 1.06.44l2.122 2.12a1.5 1.5 0 0 0 1.06.44H18A2.25 2.25 0 0 1 20.25 9v.776" />
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="size-6">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 9.776c.112-.017.227-.026.344-.026h15.812c.117 0 .232.009.344.026m-16.5 0a2.25 2.25 0 0 0-1.883 2.542l.857 6a2.25 2.25 0 0 0 2.227 1.932H19.05a2.25 2.25 0 0 0 2.227-1.932l.857-6a2.25 2.25 0 0 0-1.883-2.542m-16.5 0V6A2.25 2.25 0 0 1 6 3.75h3.879a1.5 1.5 0 0 1 1.06.44l2.122 2.12a1.5 1.5 0 0 0 1.06.44H18A2.25 2.25 0 0 1 20.25 9v.776" />
               </svg>
             </button>
             {/* download drawings */}
@@ -1079,8 +1090,8 @@ const Drawtool = () => {
               onClick={toggleDropdown}
               className="fixed top-0 right-0 z-20 inline-flex justify-center px-2 py-2 text-sm font-medium text-white bg-gray-800 shadow-md hover:bg-yellow-300 hover:text-black focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50"
             >
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" className="size-6">
-                <path stroke-linecap="round" stroke-linejoin="round" d="m9 13.5 3 3m0 0 3-3m-3 3v-6m1.06-4.19-2.12-2.12a1.5 1.5 0 0 0-1.061-.44H4.5A2.25 2.25 0 0 0 2.25 6v12a2.25 2.25 0 0 0 2.25 2.25h15A2.25 2.25 0 0 0 21.75 18V9a2.25 2.25 0 0 0-2.25-2.25h-5.379a1.5 1.5 0 0 1-1.06-.44Z" />
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="size-6">
+                <path strokeLinecap="round" strokeLinejoin="round" d="m9 13.5 3 3m0 0 3-3m-3 3v-6m1.06-4.19-2.12-2.12a1.5 1.5 0 0 0-1.061-.44H4.5A2.25 2.25 0 0 0 2.25 6v12a2.25 2.25 0 0 0 2.25 2.25h15A2.25 2.25 0 0 0 21.75 18V9a2.25 2.25 0 0 0-2.25-2.25h-5.379a1.5 1.5 0 0 1-1.06-.44Z" />
               </svg>
 
               {isOpen && <div className="relative inline-block text-left my-3">
@@ -1133,8 +1144,8 @@ const Drawtool = () => {
     </button> */}
 
           <div className="fixed z-30 bg-gray-900 w-[97px] mt-3 ml-2 rounded-lg shadow-lg m-auto text-white">
-            {tools.map((tool) => (
-              <div className='py-1 relative'>
+            {tools.map((tool, index) => (
+              <div key={index} className='py-1 relative'>
                 <button
                   key={tool.name}
                   className={`w-24 p-2 bg-transparent focus:bg-yellow-300 rounded-lg hover:bg-yellow-300 hover:text-black ${selectedTool === tool.name ? 'bg-yellow-300 text-black rounded-lg' : 'bg-gray-600 rounded-lg'}`}
@@ -1319,15 +1330,15 @@ const Drawtool = () => {
                   <div className='fixed left-[110px] top-[10px]'>
                     {showSizeCropModal && (
                       <div>
-                        <div className="bg-gray-700 p-8 rounded border border-yellow-400">
-                          <h2 className="text-2xl mb-4">Size/Crop Canvas</h2>
+                        <div className="bg-gray-700 p-2 rounded border border-yellow-400">
+                          <h2 className="text-2xl mb-4">Custom size</h2>
                           <div className="mb-4">
                             <label className="block mb-2">Width:</label>
                             <input
                               type="number"
                               value={customSize.width}
                               onChange={(e) => setCustomSize({ ...customSize, width: e.target.value })}
-                              className="border p-2 w-full text-black" />
+                              className="border p-2 w-6/12 text-black" />
                           </div>
                           <div className="mb-4">
                             <label className="block mb-2">Height:</label>
@@ -1335,15 +1346,15 @@ const Drawtool = () => {
                               type="number"
                               value={customSize.height}
                               onChange={(e) => setCustomSize({ ...customSize, height: e.target.value })}
-                              className="border p-2 w-full text-black" />
+                              className="border p-2 w-6/12 text-black" />
                           </div>
                           <div className="flex justify-between">
-                            <button
+                            {/* <button
                               onClick={handleDefaultSize}
                               className="bg-gray-500 hover:bg-gray-600 text-white px-3 py-2 rounded"
                             >
                               Default Size
-                            </button>
+                            </button> */}
                             <button
                               onClick={handleSizeCropSubmit}
                               className="bg-blue-500 hover:bg-blue-600 text-white px-3 py-2 rounded"
@@ -1382,10 +1393,13 @@ const Drawtool = () => {
             </div>
           </div>
 
-          <div className='flex items-center justify-center h-screen'>
-            <div>
-            </div>
-            <CropperTool selectedTool={selectedTool} getCanvasSizeCB={getCanvasSizeCB} />
+          <div className='flex items-center justify-center overflow-auto h-screen w-screen p-4 custom-scrollbar'>
+            <CropperTool
+              selectedTool={selectedTool}
+              getCanvasSizeCB={getCanvasSizeCB}
+              showSizeCropModal={showSizeCropModal}
+              setShowSizeCropModal={setShowSizeCropModal}
+            />
             <canvas
               ref={canvasRef}
               width={canvasSize.width}

@@ -1,7 +1,7 @@
 import React, { useState, useRef } from 'react';
 import "./Drawtool.css"
 
-const CropperTool = ({ selectedTool, getCanvasSizeCB }) => {
+const CropperTool = ({ selectedTool, getCanvasSizeCB, showSizeCropModal, setShowSizeCropModal }) => {
   const [isDrawing, setIsDrawing] = useState(false);
   const [startPos, setStartPos] = useState({ x: 0, y: 0 });
   const [rect, setRect] = useState({ width: 0, height: 0, left: 0, top: 0 });
@@ -52,6 +52,7 @@ const CropperTool = ({ selectedTool, getCanvasSizeCB }) => {
     return <div></div>;
   }
 
+
   return (
     <div
       className='mycanvas'
@@ -60,13 +61,14 @@ const CropperTool = ({ selectedTool, getCanvasSizeCB }) => {
       onMouseMove={handleMouseMove}
       onMouseUp={handleMouseUp}
       style={{
-        width: '93vw',
+        width: showSizeCropModal ? '88vw' : "93vw",
         height: '100vh',
         position: 'fixed', // Ensure it overlays everything
         overflow: 'hidden',
         cursor: isDrawing ? 'crosshair' : 'default',
         zIndex: "100", // set max value of zindex
-        marginRight: "auto"
+        marginRight: "auto",
+        marginLeft: showSizeCropModal ? "500px" : "100px"
       }}
     >
       {(isDrawing || isDrawn) && (
