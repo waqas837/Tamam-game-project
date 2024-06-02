@@ -5,6 +5,7 @@ import edit from "../assets/edit.svg"
 import reset from "../assets/reset.svg"
 import backgroundTransparent from "../assets/trans.jpg"
 import CropperTool from './CropperTool';
+import "./Drawtool.css"
 
 
 const Drawtool = () => {
@@ -1049,6 +1050,16 @@ const Drawtool = () => {
   let textertool = <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
     <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z" />
   </svg>
+  // Encode the SVG
+  const svgIcon = `
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24">
+    <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
+  </svg>
+  `;
+
+  // Encode the SVG to base64
+  const encodedSvgIcon = btoa(svgIcon);
+  const dataUrl = `url("data:image/svg+xml;base64,${encodedSvgIcon}"), auto`;
 
   let tools = [{ name: 'select', icon: cursorIcon }, { name: 'zoom', icon: zoom }, { name: 'crop', icon: crop }, { name: 'shapes', icon: shapes }, { name: 'brush', icon: brush }, { name: 'pencil', icon: cursorIcon }, { name: 'fill', icon: fill }, { name: 'image', icon: image }, { name: 'layers', icon: layer }, { name: 'undo', icon: undo }, { name: 'texter', icon: textertool },]
   return (
@@ -1376,7 +1387,6 @@ const Drawtool = () => {
             </div>
             <CropperTool selectedTool={selectedTool} getCanvasSizeCB={getCanvasSizeCB} />
             <canvas
-              style={{ border: "1px solid red" }}
               ref={canvasRef}
               width={canvasSize.width}
               height={canvasSize.height}
