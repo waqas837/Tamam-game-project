@@ -1143,7 +1143,7 @@ const Drawtool = () => {
       Export as PNG
     </button> */}
 
-          <div className="fixed z-30 bg-gray-900 w-[97px] mt-3 ml-2 rounded-lg shadow-lg m-auto text-white">
+          <div className="h-screen fixed z-30 bg-gray-900 w-[97px] mt-3 ml-2 rounded-lg shadow-lg m-auto text-white">
             {tools.map((tool, index) => (
               <div key={index} className='py-1 relative'>
                 <button

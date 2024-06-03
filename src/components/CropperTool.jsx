@@ -8,11 +8,16 @@ const CropperTool = ({ selectedTool, getCanvasSizeCB, showSizeCropModal, setShow
   const [isDrawn, setIsDrawn] = useState(false);
   const containerRef = useRef(null);
 
+  const getPointerPosition = (e) => {
+    const rect = containerRef.current.getBoundingClientRect();
+    const x = (e.touches ? e.touches[0].clientX : e.clientX) - rect.left;
+    const y = (e.touches ? e.touches[0].clientY : e.clientY) - rect.top;
+    return { x, y };
+  };
+
   const handleMouseDown = (e) => {
     if (isDrawn) return;
-    const rect = containerRef.current.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
+    const { x, y } = getPointerPosition(e);
     setStartPos({ x, y });
     setRect({ width: 0, height: 0, left: x, top: y });
     setIsDrawing(true);
@@ -20,9 +25,7 @@ const CropperTool = ({ selectedTool, getCanvasSizeCB, showSizeCropModal, setShow
 
   const handleMouseMove = (e) => {
     if (!isDrawing) return;
-    const rect = containerRef.current.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
+    const { x, y } = getPointerPosition(e);
     const width = x - startPos.x;
     const height = y - startPos.y;
     setRect({
@@ -33,7 +36,7 @@ const CropperTool = ({ selectedTool, getCanvasSizeCB, showSizeCropModal, setShow
     });
   };
 
-  const handleMouseUp = () => {
+  const handleMouseUp = (e) => {
     setIsDrawing(false);
     setIsDrawn(true);
   };
@@ -52,7 +55,6 @@ const CropperTool = ({ selectedTool, getCanvasSizeCB, showSizeCropModal, setShow
     return <div></div>;
   }
 
-
   return (
     <div
       className='mycanvas'
@@ -60,6 +62,10 @@ const CropperTool = ({ selectedTool, getCanvasSizeCB, showSizeCropModal, setShow
       onMouseDown={handleMouseDown}
       onMouseMove={handleMouseMove}
       onMouseUp={handleMouseUp}
+
+      onTouchStart={handleMouseDown}
+      onTouchMove={handleMouseMove}
+      onTouchEnd={handleMouseUp}
       style={{
         width: showSizeCropModal ? '88vw' : "93vw",
         height: '100vh',
@@ -170,7 +176,7 @@ const CropperTool = ({ selectedTool, getCanvasSizeCB, showSizeCropModal, setShow
             <>
               <button
                 onClick={(e) => {
-                  e.stopPropagation(); // Prevent event from bubbling to parent elements
+                  // e.stopPropagation(); // Prevent event from bubbling to parent elements
                   handleConfirm(); // Call your confirm function
                 }}
                 style={{
