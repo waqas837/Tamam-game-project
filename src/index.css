@@ -4,14 +4,14 @@
 
 
 body {
-    background: rgb(120, 118, 118);
+  background: rgb(120, 118, 118);
 }
+
 .custom-scrollbar::-webkit-scrollbar {
-    width: 12px;
-  }
-  
-  .custom-scrollbar::-webkit-scrollbar-thumb {
-    background-color: rgba(0, 0, 0, 0.5);
-    border-radius: 6px;
-  }
-  
+  width: 12px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background-color: rgba(130, 129, 129, 0.5);
+  border-radius: 6px;
+}

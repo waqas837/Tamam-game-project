@@ -3,7 +3,7 @@ import { fabric } from 'fabric';
 import delicon from "../assets/delicon.svg"
 import edit from "../assets/edit.svg"
 import reset from "../assets/reset.svg"
-import backgroundTransparent from "../assets/trans.jpg"
+import backgroundTransparent from "../assets/trans.png"
 import CropperTool from './CropperTool';
 import "./Drawtool.css"
 
@@ -52,10 +52,16 @@ const Drawtool = () => {
   const [deleteIconPosition, setDeleteIconPosition] = useState({ x: 0, y: 0 });
   const [currentObjectimgt, setcurrentObjectimgt] = useState()
   const selectRef = useRef(null);
-
   const isDrawingRef = useRef(false);
   const [fontSize, setFontSize] = useState(20); // Initial font size
   const [textColor, setTextColor] = useState('#000000'); // Initial text color
+  const [borderCanvas, setborderCanvas] = useState(false); // Initial text color
+  const [backgroundColor, setbackgroundColor] = useState(false);
+
+
+
+
+
   const textToDraw = "Your paragraph to draw";
   const minFontSize = 8;
   const maxFontSize = 300;
@@ -67,6 +73,22 @@ const Drawtool = () => {
     let customSize = { width, height }
     resizeCanvas(customSize)
   };
+  //  set border active to the canvas
+  useEffect(() => {
+    if (canvas) {
+      console.log("selectedTool", selectedTool, backgroundColor);
+      if (selectedTool === "select") {
+        canvas.on('mouse:up', (options) => {
+          if (backgroundColor) {
+            setborderCanvas(true)
+          } else {
+            setborderCanvas(false)
+          }
+        })
+      }
+    }
+  }, [selectedTool, backgroundColor, borderCanvas]);
+
   const handleDownload = (format) => {
     // Save current background
     const currentBackground = canvas.backgroundImage;
@@ -140,7 +162,9 @@ const Drawtool = () => {
           scaleX: canvas.width / img.width, // times to fit the canvas by scale formula
           scaleY: canvas.height / img.height
         });
-      });;
+      });
+
+
       // delete icon
       const img = document.createElement('img');
       img.src = delicon
@@ -154,9 +178,6 @@ const Drawtool = () => {
       fabric.Object.prototype.transparentCorners = false;
       fabric.Object.prototype.cornerColor = 'blue';
       fabric.Object.prototype.cornerStyle = 'circle';
-
-
-
       // 1.Delete control for Fabric objects
       fabric.Object.prototype.controls.deleteControl = new fabric.Control({
         x: 0.55,
@@ -369,6 +390,10 @@ const Drawtool = () => {
 
   const handleColorChange = (color) => {
     setTextColor(color);
+  };
+
+  const changefillcolor = (e) => {
+    setFillType(e.target.value)
   };
 
   // const handleDownloadForTexter = () => {
@@ -701,7 +726,19 @@ const Drawtool = () => {
   };
 
 
-
+  // removeBackgroundColor
+  const removeBackgroundColor = () => {
+    if (canvas) {
+      fabric.Image.fromURL(backgroundTransparent, function (img) {
+        canvas.setBackgroundImage(img, canvas.renderAll.bind(canvas), {
+          scaleX: canvas.width / img.width,
+          scaleY: canvas.height / img.height
+        });
+      });
+      setborderCanvas(false)
+      setbackgroundColor(false)
+    }
+  };
 
   const handleSelectTool = (tool) => {
     setSelectedTool(tool); // please integrate one of that tool.
@@ -902,13 +939,15 @@ const Drawtool = () => {
   };
 
   const handleBackgroundFill = () => {
+
     if (fillType === 'solid') {
       canvas.setBackgroundImage(null); // Remove background image
       canvas.setBackgroundColor(fillColor, canvas.renderAll.bind(canvas));
+      setbackgroundColor(true)
       // set the whole canvas background
     } else if (fillType === 'gradient') {
       canvas.setBackgroundImage(null); // Remove background image
-
+      setbackgroundColor(true)
       // Define the gradient object
       let gradient = new fabric.Gradient({
         type: "linear",
@@ -1143,7 +1182,7 @@ const Drawtool = () => {
       Export as PNG
     </button> */}
 
-          <div className="h-screen fixed z-30 bg-gray-900 w-[97px] mt-3 ml-2 rounded-lg shadow-lg m-auto text-white">
+          <div className="h-screen bg-gray-900 w-[97px] mt-3 ml-2 rounded-lg shadow-lg m-auto text-white">
             {tools.map((tool, index) => (
               <div key={index} className='py-1 relative'>
                 <button
@@ -1157,7 +1196,7 @@ const Drawtool = () => {
                   // List all tools here...
                   // 1.oom tool
                   selectedTool === 'zoom' &&
-                  <div className="fixed left-24 top-9 p-2 flex flex-col">
+                  <div className="fixed left-24 top-9 p-2 flex flex-col z-50">
                     <button
                       className="w-24 p-2 bg-gray-700 hover:bg-yellow-600 rounded"
                       onClick={() => handleZoom(true)}
@@ -1173,7 +1212,7 @@ const Drawtool = () => {
                   </div>}
                 {/* 2.shape tools */}
                 {tool.name === selectedTool &&
-                  <div className='fixed left-[97px] top-[100px] p-2 flex flex-col'>
+                  <div className='fixed left-[97px] top-[100px] p-2 flex flex-col z-50'>
                     {selectedTool === 'shapes' &&
                       ["Rectangle", "Circle", "Polygon"].map((tool, index) => (
                         <button
@@ -1187,7 +1226,7 @@ const Drawtool = () => {
                   </div>}
                 {/* brush tool */}
                 {tool.name === selectedTool &&
-                  <div className='fixed left-[97px] top-0 p-2 flex flex-col'>
+                  <div className='fixed left-[97px] top-0 p-2 flex flex-col z-50'>
                     {selectedTool === 'brush' && (
                       <div className="grid grid-cols-2 gap-1 p-2 text-white bg-gray-600 border rounded-md border-yellow-200">
                         <label className="block mb-2">Brush Color:</label>
@@ -1238,11 +1277,11 @@ const Drawtool = () => {
 
                 {/* fill */}
                 {tool.name === selectedTool &&
-                  <div className='fixed left-[97px] top-52 p-2 flex flex-col'>
+                  <div className='fixed left-[97px] top-52 p-2 flex flex-col z-50'>
                     {selectedTool === 'fill' && (
                       <div className="p-4 mb-2 bg-gray-700 rounded border border-yellow-300">
                         <label className="block mb-2">Fill Type</label>
-                        <select value={fillType} onChange={(e) => setFillType(e.target.value)} className="w-full mb-2 text-black">
+                        <select value={fillType} onChange={(e) => changefillcolor(e)} className="w-full mb-2 text-black">
                           <option value="solid">Solid</option>
                           <option value="gradient">Gradient</option>
                         </select>
@@ -1260,7 +1299,7 @@ const Drawtool = () => {
                             <input type="color" value={gradientEndColor} onChange={(e) => setGradientEndColor(e.target.value)} className="w-full mb-2" />
                           </div>
                         )}
-                        <button onClick={handleBackgroundFill} className="w-full p-2 bg-yellow-600 hover:bg-yellow-500 rounded">
+                        <button onTouchStart={handleBackgroundFill} onClick={handleBackgroundFill} className="w-full p-2 bg-yellow-600 hover:bg-yellow-500 rounded">
                           Apply Background Fill
                         </button>
                       </div>
@@ -1268,7 +1307,7 @@ const Drawtool = () => {
                   </div>}
                 {/* Image tool */}
                 {tool.name === selectedTool &&
-                  <div className='fixed left-[97px] top-80 p-2'>
+                  <div className='fixed left-[97px] top-80 p-2 z-50'>
                     {selectedTool === "image" && isImage &&
                       <>
                         <form className="max-w-sm mx-auto">
@@ -1287,7 +1326,7 @@ const Drawtool = () => {
                   </div>}
                 {/* layers */}
                 {tool.name === selectedTool &&
-                  <div className='fixed left-[110px] top-[270px]'>
+                  <div className='fixed left-[110px] top-[270px] z-50'>
                     <div className="flex-1 overflow-y-auto p-2 broder border-yellow-300 rounded-md">
                       {/* <div className="mb-4">
                   <button className="w-full p-2 mb-2 bg-gray-700 hover:bg-gray-600 rounded" onClick={addLayer}>
@@ -1327,7 +1366,7 @@ const Drawtool = () => {
                   </div>}
                 {/* Crop / resize canvas tool */}
                 {tool.name === selectedTool &&
-                  <div className='fixed left-[110px] top-[10px]'>
+                  <div className='fixed left-[110px] top-[10px] z-50'>
                     {showSizeCropModal && (
                       <div>
                         <div className="bg-gray-700 p-2 rounded border border-yellow-400">
@@ -1388,22 +1427,36 @@ const Drawtool = () => {
           )}
         </div>
         <div className="flex-1 p-4">
-          <div className="flex z-40 fixed top-0 items-center w-full max-w-xs p-2 space-x-4 rtl:space-x-reverse bg-white opacity-45 text-black divide-x rtl:divide-x-reverse divide-gray-200 rounded-lg shadow dark:text-gray-400 dark:divide-gray-700 space-x dark:bg-gray-800">
+          {/* <div className="flex z-40 fixed top-0 items-center w-full max-w-xs p-2 space-x-4 rtl:space-x-reverse bg-white opacity-45 text-black divide-x rtl:divide-x-reverse divide-gray-200 rounded-lg shadow dark:text-gray-400 dark:divide-gray-700 space-x dark:bg-gray-800">
             <div className="ps-4 text-sm font-normal">Canvas Size: {Math.round(width)} x {Math.round(height)}
             </div>
-          </div>
+          </div> */}
 
-          <div className='flex items-center justify-center overflow-auto h-screen w-screen p-4 custom-scrollbar'>
+          <div className='flex justify-center h-[screen]'>
             <CropperTool
               selectedTool={selectedTool}
               getCanvasSizeCB={getCanvasSizeCB}
               showSizeCropModal={showSizeCropModal}
               setShowSizeCropModal={setShowSizeCropModal}
             />
+            {/* direct conditions are not allowed, while there are needed to  */}
+            <div className='relative'>
+              {borderCanvas ? <div className='flex flex-col p-3 space-y-2'> <button className='bg-black rounded-full text-white p-2 text-lg font-bold' onClick={removeBackgroundColor}><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+                <path stroke-linecap="round" stroke-linejoin="round" d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" />
+              </svg>
+              </button>
+                <button className='bg-black rounded-full text-white p-2 text-lg font-bold' onClick={() => { setborderCanvas(false) }}>
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" />
+                  </svg>
+
+                </button></div> : ""}
+            </div>
             <canvas
               ref={canvasRef}
               width={canvasSize.width}
               height={canvasSize.height}
+              style={{ border: borderCanvas ? "2px solid yellow" : "none" }}
             ></canvas>
           </div>
         </div>

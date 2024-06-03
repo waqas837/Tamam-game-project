@@ -74,7 +74,7 @@ const CropperTool = ({ selectedTool, getCanvasSizeCB, showSizeCropModal, setShow
         cursor: isDrawing ? 'crosshair' : 'default',
         zIndex: "100", // set max value of zindex
         marginRight: "auto",
-        marginLeft: showSizeCropModal ? "500px" : "100px"
+        marginLeft: showSizeCropModal ? "0px" : "0px"
       }}
     >
       {(isDrawing || isDrawn) && (
@@ -215,7 +215,7 @@ const CropperTool = ({ selectedTool, getCanvasSizeCB, showSizeCropModal, setShow
           )}
         </>
       )}
-      <div style={{ position: 'absolute', bottom: 0, left: 0, padding: '10px', fontSize: '14px', color: 'blue' }}>
+      <div style={{ position: 'absolute', bottom: 10, left: 10, padding: '10px', fontSize: '14px', color: 'lightgray' }}>
         {`Width: ${rect.width}px, Height: ${rect.height}px`}
       </div>
     </div>
