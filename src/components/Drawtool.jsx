@@ -353,7 +353,7 @@ const Drawtool = () => {
       lastPointerPosition = { x: pointer.x, y: pointer.y };
       draw(canvas, brushColor);
     }
-  }, 7); // Throttling
+  }, 10); // Throttling
 
   function throttle(func, limit) {
     let inThrottle;
@@ -641,9 +641,6 @@ const Drawtool = () => {
   // handleTexture
   const handleBrushMain = (canvas) => {
     setactiveBlock({ brush: !activeBlock.brush });
-    canvas.on("mouse:down", (e) => handleMouseDown(e, canvas));
-    canvas.on("mouse:move", (e) => handleMouseMovet(e, canvas, brushColor));
-    canvas.on("mouse:up", handleMouseUp);
   };
 
   // cropCanvasSize; This function may needed more
@@ -807,9 +804,9 @@ const Drawtool = () => {
 
   const handleBrushColorChange = (e) => {
     setBrushColor(e.target.value);
-    if (selectedTool === "brush") {
-      canvas.freeDrawingBrush.color = e.target.value;
-    }
+    // if (selectedTool === "brush") {
+    //   canvas.freeDrawingBrush.color = e.target.value;
+    // }
   };
 
   const handleBrushSizeChange = (e) => {
@@ -947,22 +944,25 @@ const Drawtool = () => {
   };
 
   const handleAddText = () => {
+    canvas.on("mouse:down", (e) => handleMouseDown(e, canvas));
+    canvas.on("mouse:move", (e) => handleMouseMovet(e, canvas, brushColor));
+    canvas.on("mouse:up", handleMouseUp);
     setactiveBlock({ brush: !activeBlock.brush });
-    const text = new fabric.Textbox(textContent, {
-      left: 50,
-      top: 50,
-      fill: brushColor,
-      fontFamily: fontFamily,
-      fontSize: brushSize,
-      fontWeight: fontWeight,
-      fontStyle: fontStyle,
-      textDecoration: textDecoration,
-      charSpacing: letterSpacing * 10,
-      lineHeight: wordSpacing * 10,
-      angle: randomAngle ? Math.random() * 360 : 0,
-    });
-    canvas.add(text);
-    canvas.renderAll();
+    // const text = new fabric.Textbox(textContent, {
+    //   left: 50,
+    //   top: 50,
+    //   fill: brushColor,
+    //   fontFamily: fontFamily,
+    //   fontSize: brushSize,
+    //   fontWeight: fontWeight,
+    //   fontStyle: fontStyle,
+    //   textDecoration: textDecoration,
+    //   charSpacing: letterSpacing * 10,
+    //   lineHeight: wordSpacing * 10,
+    //   angle: randomAngle ? Math.random() * 360 : 0,
+    // });
+    // canvas.add(text);
+    // canvas.renderAll();
   };
 
   const handleBackgroundFill = () => {
@@ -1403,7 +1403,7 @@ const Drawtool = () => {
                       <input
                         className="text-black"
                         type="color"
-                        value={brushColor}
+                        // value={brushColor}
                         onChange={handleBrushColorChange}
                       />
                       <label className="block mb-2">Brush Size:</label>
