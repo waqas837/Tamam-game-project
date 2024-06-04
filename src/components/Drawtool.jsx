@@ -35,7 +35,6 @@ const Drawtool = () => {
   const [textDecoration, setTextDecoration] = useState('');
   const [brushSize, setBrushSize] = useState(10);
   const [randomAngle, setRandomAngle] = useState(false);
-  const [showTexterTool, setshowTexterTool] = useState(false);
   const isDeleting = useRef(false);
   // state variables for image filter
   const [isImage, setisImage] = useState(false);
@@ -57,10 +56,13 @@ const Drawtool = () => {
   const [textColor, setTextColor] = useState('#000000'); // Initial text color
   const [borderCanvas, setborderCanvas] = useState(false); // Initial text color
   const [backgroundColor, setbackgroundColor] = useState(false);
-
-
-
-
+  const [activeBlock, setactiveBlock] = useState({
+    zoom: false,
+    crop: false,
+    shapes: false,
+    brush: false,
+    fill: false,
+  });
 
   const textToDraw = "Your paragraph to draw";
   const minFontSize = 8;
@@ -76,7 +78,6 @@ const Drawtool = () => {
   //  set border active to the canvas
   useEffect(() => {
     if (canvas) {
-      console.log("selectedTool", selectedTool, backgroundColor);
       if (selectedTool === "select") {
         canvas.on('mouse:up', (options) => {
           if (backgroundColor) {
@@ -616,13 +617,12 @@ const Drawtool = () => {
   };
   // handleTexture
   const handleBrushMain = (canvas) => {
+    setactiveBlock({ brush: !activeBlock.brush })
     canvas.on('mouse:down', (e) => handleMouseDown(e, canvas));
     canvas.on('mouse:move', (e) => handleMouseMovet(e, canvas));
     canvas.on('mouse:up', handleMouseUp);
   }
-  const handleTexture = () => {
-    setshowTexterTool(true)
-  }
+
 
   // cropCanvasSize; This function may needed more
   const cropCanvasSize = () => {
@@ -751,18 +751,21 @@ const Drawtool = () => {
         // canvas.freeDrawingBrush.color = brushColor;
         // canvas.freeDrawingBrush.width = brushSize;
         handleBrushMain(canvas)
-
         break;
       // we will add a pencil or other shapes we can draw
       case 'zoom':
+        setactiveBlock({ zoom: !activeBlock.zoom })
         canvas.isDrawingMode = false;
         break;
       case 'crop':
         cropCanvasSize()
+        setactiveBlock({ crop: !activeBlock.crop })
         break;
       case 'fill':
-        canvas.isDrawingMode = false;
-        // Implement fill functionality
+        setactiveBlock({ fill: !activeBlock.fill })
+        break;
+      case 'shapes':
+        setactiveBlock({ shapes: !activeBlock.shapes })
         break;
       case 'image':
         canvas.isDrawingMode = false;
@@ -776,11 +779,7 @@ const Drawtool = () => {
       case 'undo':
         handleUndo();
         break;
-        // Implement texter tool
-        break;
-      case 'texter':
-        handleTexture();
-        break;
+
       default:
         canvas.isDrawingMode = false;
     }
@@ -921,6 +920,7 @@ const Drawtool = () => {
   };
 
   const handleAddText = () => {
+    setactiveBlock({ brush: !activeBlock.brush })
     const text = new fabric.Textbox(textContent, {
       left: 50,
       top: 50,
@@ -1097,21 +1097,8 @@ const Drawtool = () => {
     <path strokeLinecap="round" strokeLinejoin="round" d="m15 15-6 6m0 0-6-6m6 6V9a6 6 0 0 1 12 0v3" />
   </svg>
 
-  let textertool = <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="size-6">
-    <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z" />
-  </svg>
-  // Encode the SVG
-  const svgIcon = `
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24">
-    <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
-  </svg>
-  `;
 
-  // Encode the SVG to base64
-  const encodedSvgIcon = btoa(svgIcon);
-  const dataUrl = `url("data:image/svg+xml;base64,${encodedSvgIcon}"), auto`;
-
-  let tools = [{ name: 'select', icon: cursorIcon }, { name: 'zoom', icon: zoom }, { name: 'crop', icon: crop }, { name: 'shapes', icon: shapes }, { name: 'brush', icon: brush }, { name: 'pencil', icon: cursorIcon }, { name: 'fill', icon: fill }, { name: 'image', icon: image }, { name: 'layers', icon: layer }, { name: 'undo', icon: undo }, { name: 'texter', icon: textertool },]
+  let tools = [{ name: 'select', icon: cursorIcon }, { name: 'zoom', icon: zoom }, { name: 'crop', icon: crop }, { name: 'shapes', icon: shapes }, { name: 'brush', icon: brush }, { name: 'pencil', icon: cursorIcon }, { name: 'fill', icon: fill }, { name: 'image', icon: image }, { name: 'layers', icon: layer }, { name: 'undo', icon: undo }]
   return (
     <>
       <div className="flex relative">
@@ -1192,10 +1179,7 @@ const Drawtool = () => {
                 >
                   <span className='flex items-center space-x-1'><span>{tool.icon}</span>  <span>{tool.name.charAt(0).toUpperCase() + tool.name.slice(1)}</span></span>
                 </button>
-                {tool.name === selectedTool &&
-                  // List all tools here...
-                  // 1.oom tool
-                  selectedTool === 'zoom' &&
+                {tool.name === selectedTool && selectedTool === 'zoom' && activeBlock.zoom &&
                   <div className="fixed left-24 top-9 p-2 flex flex-col z-50">
                     <button
                       className="w-24 p-2 bg-gray-700 hover:bg-yellow-600 rounded"
@@ -1211,9 +1195,9 @@ const Drawtool = () => {
                     </button>
                   </div>}
                 {/* 2.shape tools */}
-                {tool.name === selectedTool &&
+                {selectedTool === 'shapes' && activeBlock.shapes &&
                   <div className='fixed left-[97px] top-[100px] p-2 flex flex-col z-50'>
-                    {selectedTool === 'shapes' &&
+                    {
                       ["Rectangle", "Circle", "Polygon"].map((tool, index) => (
                         <button
                           key={index}
@@ -1225,85 +1209,83 @@ const Drawtool = () => {
                       ))}
                   </div>}
                 {/* brush tool */}
-                {tool.name === selectedTool &&
+                {selectedTool === 'brush' && activeBlock.brush &&
                   <div className='fixed left-[97px] top-0 p-2 flex flex-col z-50'>
-                    {selectedTool === 'brush' && (
-                      <div className="grid grid-cols-2 gap-1 p-2 text-white bg-gray-600 border rounded-md border-yellow-200">
-                        <label className="block mb-2">Brush Color:</label>
-                        <input className='text-black' type="color" value={brushColor} onChange={handleBrushColorChange} />
-                        <label className="block mb-2">Brush Size:</label>
-                        <input className='text-black' type="number" value={brushSize} onChange={handleBrushSizeChange} min="1" max="100" />
-                        <label className="block mb-2">Text Content:</label>
-                        <input type="text" value={textContent} onChange={(e) => setTextContent(e.target.value)} className="border p-2 w-full text-black" />
-                        <label className="block mb-2">Font Family:</label>
-                        <select value={fontFamily} onChange={(e) => setFontFamily(e.target.value)} className="border p-2 w-full text-black">
-                          {/* Add Google Fonts here */}
-                          <option value="Arial">Arial</option>
-                          <option value="Helvetica">Helvetica</option>
-                          <option value="Times New Roman">Times New Roman</option>
-                          {/* Add more fonts as needed */}
-                        </select>
-                        <label className="block mb-2">Letter Spacing:</label>
-                        <input type="number" value={letterSpacing} onChange={(e) => setLetterSpacing(e.target.value)} className="border p-2 w-full text-black" />
-                        <label className="block mb-2">Word Spacing:</label>
-                        <input type="number" value={wordSpacing} onChange={(e) => setWordSpacing(e.target.value)} className="border p-2 w-full text-black" />
-                        <label className="block mb-2">Font Weight:</label>
-                        <select value={fontWeight} onChange={(e) => setFontWeight(e.target.value)} className="border p-2 w-full text-black">
-                          <option value="normal">Normal</option>
-                          <option value="bold">Bold</option>
-                        </select>
-                        <label className="block mb-2">Font Style:</label>
-                        <select value={fontStyle} onChange={(e) => setFontStyle(e.target.value)} className="border p-2 w-full text-black">
-                          <option value="normal">Normal</option>
-                          <option value="italic">Italic</option>
-                        </select>
-                        <label className="block mb-2">Text Decoration:</label>
-                        <select value={textDecoration} onChange={(e) => setTextDecoration(e.target.value)} className="border p-2 w-full text-black">
-                          <option value="">None</option>
-                          <option value="underline">Underline</option>
-                          <option value="line-through">Strikethrough</option>
-                        </select>
-                        <label className="block mb-2">Random Angle:</label>
-                        <input className='text-black' type="checkbox" checked={randomAngle} onChange={(e) => setRandomAngle(e.target.checked)} />
-                        <button
-                          onClick={handleAddText}
-                          className="w-full mt-4 bg-yellow-500 hover:bg-yellow-600 text-black p-2 rounded"
-                        >
-                          Start Drawing
-                        </button>
-                      </div>
-                    )}
+                    <div className="grid grid-cols-2 gap-1 p-2 text-white bg-gray-600 border rounded-md border-yellow-200">
+                      <label className="block mb-2">Brush Color:</label>
+                      <input className='text-black' type="color" value={brushColor} onChange={handleBrushColorChange} />
+                      <label className="block mb-2">Brush Size:</label>
+                      <input className='text-black' type="number" value={brushSize} onChange={handleBrushSizeChange} min="1" max="100" />
+                      <label className="block mb-2">Text Content:</label>
+                      <input type="text" value={textContent} onChange={(e) => setTextContent(e.target.value)} className="border p-2 w-full text-black" />
+                      <label className="block mb-2">Font Family:</label>
+                      <select value={fontFamily} onChange={(e) => setFontFamily(e.target.value)} className="border p-2 w-full text-black">
+                        {/* Add Google Fonts here */}
+                        <option value="Arial">Arial</option>
+                        <option value="Helvetica">Helvetica</option>
+                        <option value="Times New Roman">Times New Roman</option>
+                        {/* Add more fonts as needed */}
+                      </select>
+                      <label className="block mb-2">Letter Spacing:</label>
+                      <input type="number" value={letterSpacing} onChange={(e) => setLetterSpacing(e.target.value)} className="border p-2 w-full text-black" />
+                      <label className="block mb-2">Word Spacing:</label>
+                      <input type="number" value={wordSpacing} onChange={(e) => setWordSpacing(e.target.value)} className="border p-2 w-full text-black" />
+                      <label className="block mb-2">Font Weight:</label>
+                      <select value={fontWeight} onChange={(e) => setFontWeight(e.target.value)} className="border p-2 w-full text-black">
+                        <option value="normal">Normal</option>
+                        <option value="bold">Bold</option>
+                      </select>
+                      <label className="block mb-2">Font Style:</label>
+                      <select value={fontStyle} onChange={(e) => setFontStyle(e.target.value)} className="border p-2 w-full text-black">
+                        <option value="normal">Normal</option>
+                        <option value="italic">Italic</option>
+                      </select>
+                      <label className="block mb-2">Text Decoration:</label>
+                      <select value={textDecoration} onChange={(e) => setTextDecoration(e.target.value)} className="border p-2 w-full text-black">
+                        <option value="">None</option>
+                        <option value="underline">Underline</option>
+                        <option value="line-through">Strikethrough</option>
+                      </select>
+                      <label className="block mb-2">Random Angle:</label>
+                      <input className='text-black' type="checkbox" checked={randomAngle} onChange={(e) => setRandomAngle(e.target.checked)} />
+                      <button
+                        onClick={handleAddText}
+                        className="w-full mt-4 bg-yellow-500 hover:bg-yellow-600 text-black p-2 rounded"
+                      >
+                        Start Drawing
+                      </button>
+                    </div>
+
                   </div>}
 
                 {/* fill */}
-                {tool.name === selectedTool &&
+                {selectedTool === 'fill' && activeBlock.fill &&
                   <div className='fixed left-[97px] top-52 p-2 flex flex-col z-50'>
-                    {selectedTool === 'fill' && (
-                      <div className="p-4 mb-2 bg-gray-700 rounded border border-yellow-300">
-                        <label className="block mb-2">Fill Type</label>
-                        <select value={fillType} onChange={(e) => changefillcolor(e)} className="w-full mb-2 text-black">
-                          <option value="solid">Solid</option>
-                          <option value="gradient">Gradient</option>
-                        </select>
-                        {fillType === 'solid' && (
-                          <div>
-                            <label className="block mb-2">Fill Color</label>
-                            <input type="color" value={fillColor} onChange={(e) => setFillColor(e.target.value)} className="w-full mb-2" />
-                          </div>
-                        )}
-                        {fillType === 'gradient' && (
-                          <div>
-                            <label className="block mb-2">Gradient Start Color</label>
-                            <input type="color" value={gradientStartColor} onChange={(e) => setGradientStartColor(e.target.value)} className="w-full mb-2" />
-                            <label className="block mb-2">Gradient End Color</label>
-                            <input type="color" value={gradientEndColor} onChange={(e) => setGradientEndColor(e.target.value)} className="w-full mb-2" />
-                          </div>
-                        )}
-                        <button onTouchStart={handleBackgroundFill} onClick={handleBackgroundFill} className="w-full p-2 bg-yellow-600 hover:bg-yellow-500 rounded">
-                          Apply Background Fill
-                        </button>
-                      </div>
-                    )}
+                    <div className="p-4 mb-2 bg-gray-700 rounded border border-yellow-300">
+                      <label className="block mb-2">Fill Type</label>
+                      <select value={fillType} onChange={(e) => changefillcolor(e)} className="w-full mb-2 text-black">
+                        <option value="solid">Solid</option>
+                        <option value="gradient">Gradient</option>
+                      </select>
+                      {fillType === 'solid' && (
+                        <div>
+                          <label className="block mb-2">Fill Color</label>
+                          <input type="color" value={fillColor} onChange={(e) => setFillColor(e.target.value)} className="w-full mb-2" />
+                        </div>
+                      )}
+                      {fillType === 'gradient' && (
+                        <div>
+                          <label className="block mb-2">Gradient Start Color</label>
+                          <input type="color" value={gradientStartColor} onChange={(e) => setGradientStartColor(e.target.value)} className="w-full mb-2" />
+                          <label className="block mb-2">Gradient End Color</label>
+                          <input type="color" value={gradientEndColor} onChange={(e) => setGradientEndColor(e.target.value)} className="w-full mb-2" />
+                        </div>
+                      )}
+                      <button onTouchStart={handleBackgroundFill} onClick={handleBackgroundFill} className="w-full p-2 bg-yellow-600 hover:bg-yellow-500 rounded">
+                        Apply Background Fill
+                      </button>
+                    </div>
+
                   </div>}
                 {/* Image tool */}
                 {tool.name === selectedTool &&
@@ -1367,7 +1349,7 @@ const Drawtool = () => {
                 {/* Crop / resize canvas tool */}
                 {tool.name === selectedTool &&
                   <div className='fixed left-[110px] top-[10px] z-50'>
-                    {showSizeCropModal && (
+                    {showSizeCropModal && activeBlock.crop && (
                       <div>
                         <div className="bg-gray-700 p-2 rounded border border-yellow-400">
                           <h2 className="text-2xl mb-4">Custom size</h2>
