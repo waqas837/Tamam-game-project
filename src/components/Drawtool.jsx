@@ -344,17 +344,32 @@ const Drawtool = () => {
     const pointer = canvas.getPointer(options.e);
     position = { x: pointer.x, y: pointer.y };
     lastPointerPosition = { x: pointer.x, y: pointer.y };
-    draw(canvas);
+    // draw(canvas);
   };
 
-  const handleMouseMovet = (options, canvas) => {
+  const handleMouseMovet = throttle((options, canvas, brushColor) => {
     if (isDrawingRef.current) {
       const pointer = canvas.getPointer(options.e);
       lastPointerPosition = { x: pointer.x, y: pointer.y };
-      draw(canvas);
+      draw(canvas, brushColor);
     }
-  };
-  const draw = (canvas) => {
+  }, 7); // Throttling
+
+  function throttle(func, limit) {
+    let inThrottle;
+    return function () {
+      const args = arguments;
+      const context = this;
+      if (!inThrottle) {
+        func.apply(context, args);
+        inThrottle = true;
+        setTimeout(() => (inThrottle = false), limit);
+      }
+    };
+  }
+
+  const draw = (canvas, brushColor) => {
+    console.log("brushColor at draw", brushColor);
     if (canvas) {
       const newDistance = distance(position, lastPointerPosition);
       let currentFontSize = fontSize;
@@ -376,7 +391,7 @@ const Drawtool = () => {
           top: position.y,
           fontFamily: "Georgia",
           fontSize: currentFontSize,
-          fill: "#FFFFFF", // Set text color dynamically
+          fill: brushColor, // Set text color dynamically
           selectable: false,
         });
         canvas.add(textObject);
@@ -627,7 +642,7 @@ const Drawtool = () => {
   const handleBrushMain = (canvas) => {
     setactiveBlock({ brush: !activeBlock.brush });
     canvas.on("mouse:down", (e) => handleMouseDown(e, canvas));
-    canvas.on("mouse:move", (e) => handleMouseMovet(e, canvas));
+    canvas.on("mouse:move", (e) => handleMouseMovet(e, canvas, brushColor));
     canvas.on("mouse:up", handleMouseUp);
   };
 
