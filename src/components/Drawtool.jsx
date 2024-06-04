@@ -1,38 +1,55 @@
-import React, { useEffect, useRef, useState } from 'react';
-import { fabric } from 'fabric';
-import delicon from "../assets/delicon.svg"
-import edit from "../assets/edit.svg"
-import reset from "../assets/reset.svg"
-import backgroundTransparent from "../assets/trans.png"
-import CropperTool from './CropperTool';
-import "./Drawtool.css"
-
+import React, { useEffect, useRef, useState } from "react";
+import { fabric } from "fabric";
+import "fabric-history";
+import delicon from "../assets/delicon.svg";
+import edit from "../assets/edit.svg";
+import reset from "../assets/reset.svg";
+import backgroundTransparent from "../assets/trans.png";
+import CropperTool from "./CropperTool";
+import "./Drawtool.css";
+import { useHotkeys } from "react-hotkeys-hook";
 
 const Drawtool = () => {
   const canvasRef = useRef(null);
   const [canvas, setCanvas] = useState(null);
+  // hot keys
+  useHotkeys(
+    "ctrl+z",
+    () => {
+      if (canvas) {
+        canvas.undo();
+      }
+    },
+    [canvas]
+  );
   const [width, setWidth] = useState(null);
   const [height, setHeight] = useState(null);
   const [selectedTool, setSelectedTool] = useState(null);
-  const [brushColor, setBrushColor] = useState('#000000');
-  const [canvasSize, setCanvasSize] = useState({ width: window.innerWidth - 256, height: window.innerHeight });
+  const [brushColor, setBrushColor] = useState("#000000");
+  const [canvasSize, setCanvasSize] = useState({
+    width: window.innerWidth - 256,
+    height: window.innerHeight,
+  });
   const [selectedObject, setSelectedObject] = useState(null);
   const [zoomLevel, setZoomLevel] = useState(1);
   const [showSizeCropModal, setShowSizeCropModal] = useState(false);
-  const [customSize, setCustomSize] = useState({ width: canvasSize.width, height: canvasSize.height });
+  const [customSize, setCustomSize] = useState({
+    width: canvasSize.width,
+    height: canvasSize.height,
+  });
   // State variables for background fill
-  const [fillColor, setFillColor] = useState('#ffffff');
-  const [fillType, setFillType] = useState('solid'); // 'solid' or 'gradient'
-  const [gradientStartColor, setGradientStartColor] = useState('#ffffff');
-  const [gradientEndColor, setGradientEndColor] = useState('#000000');
+  const [fillColor, setFillColor] = useState("#ffffff");
+  const [fillType, setFillType] = useState("solid"); // 'solid' or 'gradient'
+  const [gradientStartColor, setGradientStartColor] = useState("#ffffff");
+  const [gradientEndColor, setGradientEndColor] = useState("#000000");
   // New state variables for brush/pen tool
-  const [textContent, setTextContent] = useState('');
-  const [fontFamily, setFontFamily] = useState('Arial');
+  const [textContent, setTextContent] = useState("");
+  const [fontFamily, setFontFamily] = useState("Arial");
   const [letterSpacing, setLetterSpacing] = useState(0);
   const [wordSpacing, setWordSpacing] = useState(0);
-  const [fontWeight, setFontWeight] = useState('normal');
-  const [fontStyle, setFontStyle] = useState('normal');
-  const [textDecoration, setTextDecoration] = useState('');
+  const [fontWeight, setFontWeight] = useState("normal");
+  const [fontStyle, setFontStyle] = useState("normal");
+  const [textDecoration, setTextDecoration] = useState("");
   const [brushSize, setBrushSize] = useState(10);
   const [randomAngle, setRandomAngle] = useState(false);
   const isDeleting = useRef(false);
@@ -44,16 +61,15 @@ const Drawtool = () => {
   const [history, setHistory] = useState([]);
   const [redoHistory, setRedoHistory] = useState([]);
   const [isOpen, setIsOpen] = useState(false);
-  const toggleDropdown = () => setIsOpen(!isOpen);
-  const [currentObjectimg, setcurrentObjectimg] = useState()
+  const [currentObjectimg, setcurrentObjectimg] = useState();
   const [deleteIconVisible, setDeleteIconVisible] = useState(false);
   const [currentObject, setcurrentObject] = useState({ x: 0, y: 0 });
   const [deleteIconPosition, setDeleteIconPosition] = useState({ x: 0, y: 0 });
-  const [currentObjectimgt, setcurrentObjectimgt] = useState()
+  const [currentObjectimgt, setcurrentObjectimgt] = useState();
   const selectRef = useRef(null);
   const isDrawingRef = useRef(false);
   const [fontSize, setFontSize] = useState(20); // Initial font size
-  const [textColor, setTextColor] = useState('#000000'); // Initial text color
+  const [textColor, setTextColor] = useState("#000000"); // Initial text color
   const [borderCanvas, setborderCanvas] = useState(false); // Initial text color
   const [backgroundColor, setbackgroundColor] = useState(false);
   const [activeBlock, setactiveBlock] = useState({
@@ -64,6 +80,7 @@ const Drawtool = () => {
     fill: false,
   });
 
+  const toggleDropdown = () => setIsOpen(!isOpen);
   const textToDraw = "Your paragraph to draw";
   const minFontSize = 8;
   const maxFontSize = 300;
@@ -72,20 +89,20 @@ const Drawtool = () => {
   let lastPointerPosition = { x: 0, y: 0 };
   const [currentCropImg, setcurrentCropImg] = useState();
   const getCanvasSizeCB = (width, height) => {
-    let customSize = { width, height }
-    resizeCanvas(customSize)
+    let customSize = { width, height };
+    resizeCanvas(customSize);
   };
   //  set border active to the canvas
   useEffect(() => {
     if (canvas) {
       if (selectedTool === "select") {
-        canvas.on('mouse:up', (options) => {
+        canvas.on("mouse:up", (options) => {
           if (backgroundColor) {
-            setborderCanvas(true)
+            setborderCanvas(true);
           } else {
-            setborderCanvas(false)
+            setborderCanvas(false);
           }
-        })
+        });
       }
     }
   }, [selectedTool, backgroundColor, borderCanvas]);
@@ -103,7 +120,7 @@ const Drawtool = () => {
   const exportCanvas = (format) => {
     // Logic for high-resolution export
     let highResolution = true;
-    let lowResolution = false
+    let lowResolution = false;
     if (highResolution) {
       const exportWidth = canvas.width * 2; // Example: doubling the width for higher resolution
       const exportHeight = canvas.height * 2; // Example: doubling the height for higher resolution
@@ -120,9 +137,9 @@ const Drawtool = () => {
       canvas.setDimensions({ width: exportWidth, height: exportHeight });
     }
     // Choose format based on user selection or default
-    format = format || 'png';
+    format = format || "png";
 
-    if (format === 'pdf' || format === 'svg') {
+    if (format === "pdf" || format === "svg") {
       // Handle PDF and SVG exports using Fabric.js methods
       // Example:
       const data = canvas.toSVG(); // For SVG export
@@ -131,14 +148,14 @@ const Drawtool = () => {
       // Send data to server for PDF generation and download
     } else {
       // For image formats (jpg, png)
-      const dataURL = canvas.toDataURL({ format: 'image/' + format });
+      const dataURL = canvas.toDataURL({ format: "image/" + format });
       downloadURI(dataURL, `drawing.${format}`);
     }
   };
 
   // Helper function to trigger download
   const downloadURI = (uri, name) => {
-    const link = document.createElement('a');
+    const link = document.createElement("a");
     link.download = name;
     link.href = uri;
     document.body.appendChild(link);
@@ -150,41 +167,39 @@ const Drawtool = () => {
     const initCanvas = () => {
       const canvas = new fabric.Canvas(canvasRef.current, {
         isDrawingMode: false,
-
       });
       canvas.setWidth(2000); // Set canvas width larger than the container for scrolling
       canvas.setHeight(2000); // Set canvas height larger than the container for scrolling
       fabric.Object.prototype.transparentCorners = false; // Ensure corner colors are visible
-      fabric.Object.prototype.cornerColor = '#3f51b5'; // Change corner color
+      fabric.Object.prototype.cornerColor = "#3f51b5"; // Change corner color
       fabric.Object.prototype.cornerSize = 20;
       fabric.Image.fromURL(backgroundTransparent, function (img) {
         // add background image
         canvas.setBackgroundImage(img, canvas.renderAll.bind(canvas), {
           scaleX: canvas.width / img.width, // times to fit the canvas by scale formula
-          scaleY: canvas.height / img.height
+          scaleY: canvas.height / img.height,
         });
       });
 
-
       // delete icon
-      const img = document.createElement('img');
-      img.src = delicon
+      const img = document.createElement("img");
+      img.src = delicon;
       // reset icon
-      const resetImg = document.createElement('img');
+      const resetImg = document.createElement("img");
       resetImg.src = reset;
       // edit icon
-      const editImg = document.createElement('img');
+      const editImg = document.createElement("img");
       editImg.src = edit;
 
       fabric.Object.prototype.transparentCorners = false;
-      fabric.Object.prototype.cornerColor = 'blue';
-      fabric.Object.prototype.cornerStyle = 'circle';
+      fabric.Object.prototype.cornerColor = "blue";
+      fabric.Object.prototype.cornerStyle = "circle";
       // 1.Delete control for Fabric objects
       fabric.Object.prototype.controls.deleteControl = new fabric.Control({
         x: 0.55,
         y: -0.6,
         offsetY: 16,
-        cursorStyle: 'pointer',
+        cursorStyle: "pointer",
         mouseUpHandler: deleteObject,
         render: renderIconDelete,
         cornerSize: 30,
@@ -200,7 +215,7 @@ const Drawtool = () => {
           canvas.requestRenderAll();
           setTimeout(() => {
             isDeleting.current = false;
-          }, 200);  // small delay to ensure state is managed
+          }, 200); // small delay to ensure state is managed
         }
       }
 
@@ -216,8 +231,7 @@ const Drawtool = () => {
 
       //   ...........ends delete............
 
-
-      // 2. Reset control 
+      // 2. Reset control
       // fabric.Object.prototype.controls.resetControl = new fabric.Control({
       //   x: 0.55,
       //   y: 0.48,
@@ -248,20 +262,20 @@ const Drawtool = () => {
       // };
 
       // 3.edit...
-      fabric.Object.prototype.controls.editControl = new fabric.Control({
-        x: 0.56,
-        y: 0.40,
-        offsetY: 16,
-        cursorStyle: 'pointer',
-        mouseUpHandler: editObject,
-        render: renderIconEdit,
-        cornerSize: 30,
-      });
+      // fabric.Object.prototype.controls.editControl = new fabric.Control({
+      //   x: 0.56,
+      //   y: 0.4,
+      //   offsetY: 16,
+      //   cursorStyle: "pointer",
+      //   mouseUpHandler: editObject,
+      //   render: renderIconEdit,
+      //   cornerSize: 30,
+      // });
 
-      function editObject(eventData, transform) {
-        const target = transform.target;
-        alert("You can edit and continue its design")
-      }
+      // function editObject(eventData, transform) {
+      //   const target = transform.target;
+      //   alert("You can edit and continue its design");
+      // }
 
       // Render Edit icon function
       function renderIconEdit(ctx, left, top, styleOverride, fabricObject) {
@@ -273,56 +287,52 @@ const Drawtool = () => {
         ctx.restore();
       }
 
-
-
       //////////edit ends////////////
       canvas.on("text:changed", () => {
         updateHistory();
       });
-      canvas.on('selection:created', (e) => {
+      canvas.on("selection:created", (e) => {
         let obj = canvas.getActiveObject();
-        setcurrentObject(obj)
+        setcurrentObject(obj);
         setSelectedObject(e.target);
       });
 
-      canvas.on('selection:updated', (e) => {
+      canvas.on("selection:updated", (e) => {
         let obj = canvas.getActiveObject();
-        setcurrentObject(obj)
+        setcurrentObject(obj);
         if (obj && obj.type === "image") {
-          setisImage(obj)
-          setcurrentObjectimg(obj)
+          setisImage(obj);
+          setcurrentObjectimg(obj);
         }
         setSelectedObject(e.target);
       });
 
-      canvas.on('selection:cleared', () => {
-        setcurrentObject(null)
+      canvas.on("selection:cleared", () => {
+        setcurrentObject(null);
         setSelectedObject(null);
       });
       // texter tool
       return canvas;
     };
     const canvasElement = initCanvas();
-    setCanvas(canvasElement)
+    setCanvas(canvasElement);
     const updateHistory = () => {
       const canvasState = JSON.stringify(canvasElement.toJSON());
-      setHistory(prevHistory => [...prevHistory, canvasState]);
+      setHistory((prevHistory) => [...prevHistory, canvasState]);
     };
 
-
-    canvasElement.on('object:added', updateHistory);
-    canvasElement.on('object:modified', updateHistory);
-    canvasElement.on('object:removed', updateHistory);
-    canvasElement.on('mouse:move', handleMouseMove);
+    canvasElement.on("object:added", updateHistory);
+    canvasElement.on("object:modified", updateHistory);
+    canvasElement.on("object:removed", updateHistory);
+    canvasElement.on("mouse:move", handleMouseMove);
     // Cleanup on unmount
     return () => {
-      canvasElement.off('object:added', updateHistory);
-      canvasElement.off('object:modified', updateHistory);
-      canvasElement.off('object:removed', updateHistory);
+      canvasElement.off("object:added", updateHistory);
+      canvasElement.off("object:modified", updateHistory);
+      canvasElement.off("object:removed", updateHistory);
       canvasElement.dispose();
     };
   }, []);
-
 
   // texter tool
   const handleMouseUp = () => {
@@ -357,11 +367,14 @@ const Drawtool = () => {
       const stepSize = textWidth(letter, currentFontSize);
 
       if (newDistance > stepSize) {
-        const angle = Math.atan2(lastPointerPosition.y - position.y, lastPointerPosition.x - position.x);
+        const angle = Math.atan2(
+          lastPointerPosition.y - position.y,
+          lastPointerPosition.x - position.x
+        );
         const textObject = new fabric.Text(letter, {
           left: position.x,
           top: position.y,
-          fontFamily: 'Georgia',
+          fontFamily: "Georgia",
           fontSize: currentFontSize,
           fill: "#FFFFFF", // Set text color dynamically
           selectable: false,
@@ -374,15 +387,15 @@ const Drawtool = () => {
     }
   };
 
-  const distance = (pt1, pt2) => Math.sqrt((pt2.x - pt1.x) ** 2 + (pt2.y - pt1.y) ** 2);
+  const distance = (pt1, pt2) =>
+    Math.sqrt((pt2.x - pt1.x) ** 2 + (pt2.y - pt1.y) ** 2);
 
   const textWidth = (string, size) => {
-    const tempCanvas = document.createElement('canvas');
-    const tempContext = tempCanvas.getContext('2d');
-    tempContext.font = size + 'px Georgia';
+    const tempCanvas = document.createElement("canvas");
+    const tempContext = tempCanvas.getContext("2d");
+    tempContext.font = size + "px Georgia";
     return tempContext.measureText(string).width;
   };
-
 
   // These two below are not working...
   const handleFontSizeChange = (event) => {
@@ -394,7 +407,7 @@ const Drawtool = () => {
   };
 
   const changefillcolor = (e) => {
-    setFillType(e.target.value)
+    setFillType(e.target.value);
   };
 
   // const handleDownloadForTexter = () => {
@@ -424,7 +437,6 @@ const Drawtool = () => {
 
   //     canvas.isDrawingMode = true;
 
-
   //     const imgElement = document.createElement('img');
   //     imgElement.src = imgg;
 
@@ -447,7 +459,6 @@ const Drawtool = () => {
   //           y <= img.top + img.height * img.scaleY
   //         );
   //       };
-
 
   //       canvas.on('mouse:down', (opt) => {
   //         const { x, y } = canvas.getPointer(opt.e);
@@ -492,7 +503,6 @@ const Drawtool = () => {
     }
   }, [isImage, currentObjectimg]);
 
-
   const resizeCanvas = (newSize) => {
     if (canvas) {
       setCanvasSize(newSize);
@@ -506,31 +516,27 @@ const Drawtool = () => {
         fabric.Image.fromURL(backgroundTransparent, function (img) {
           canvas.setBackgroundImage(img, canvas.renderAll.bind(canvas), {
             scaleX: canvas.width / img.width,
-            scaleY: canvas.height / img.height
+            scaleY: canvas.height / img.height,
           });
         });
       }
-
     }
   };
 
-
   function handleDrawShapes(shape) {
     switch (shape) {
-      case 'Rectangle':
+      case "Rectangle":
         drawRect();
         break;
-      case 'Circle':
+      case "Circle":
         drawCircle();
         break;
-      case 'Polygon':
-
+      case "Polygon":
         break;
 
       default:
         break;
     }
-
   }
   // drawing shapes
   // 1. rectangle
@@ -539,7 +545,7 @@ const Drawtool = () => {
     let startPosition = { x: 0, y: 0 };
     let rect = null;
     if (canvas) {
-      canvas.on('mouse:down', (options) => {
+      canvas.on("mouse:down", (options) => {
         isDrawing = true;
         const pointer = canvas.getPointer(options.e);
         startPosition = { x: pointer.x, y: pointer.y };
@@ -548,26 +554,29 @@ const Drawtool = () => {
           top: startPosition.y,
           width: 0,
           height: 0,
-          fill: 'transparent',
-          stroke: 'black',
+          fill: "transparent",
+          stroke: "black",
           strokeWidth: 2,
         });
         canvas.add(rect);
       });
 
-      canvas.on('mouse:move', (options) => {
+      canvas.on("mouse:move", (options) => {
         if (!isDrawing) return;
         const pointer = canvas.getPointer(options.e);
-        rect.set({ width: pointer.x - startPosition.x, height: pointer.y - startPosition.y });
+        rect.set({
+          width: pointer.x - startPosition.x,
+          height: pointer.y - startPosition.y,
+        });
         canvas.renderAll();
       });
 
-      canvas.on('mouse:up', () => {
+      canvas.on("mouse:up", () => {
         isDrawing = false;
         rect.setCoords();
-      })
+      });
     }
-  }
+  };
   // 2. circle
   const drawCircle = () => {
     if (canvas) {
@@ -575,7 +584,7 @@ const Drawtool = () => {
       let circle = null;
       let startPosition = { x: 0, y: 0 };
 
-      canvas.on('mouse:down', (options) => {
+      canvas.on("mouse:down", (options) => {
         isDrawing = true;
         const pointer = canvas.getPointer(options.e);
         startPosition = { x: pointer.x, y: pointer.y };
@@ -586,15 +595,15 @@ const Drawtool = () => {
             left: startPosition.x,
             top: startPosition.y,
             radius: 0,
-            fill: 'transparent',
-            stroke: 'black',
+            fill: "transparent",
+            stroke: "black",
             strokeWidth: 2,
           });
           canvas.add(circle);
         }
       });
 
-      canvas.on('mouse:move', (options) => {
+      canvas.on("mouse:move", (options) => {
         if (!isDrawing) return;
         const pointer = canvas.getPointer(options.e);
         const radius = Math.abs(pointer.x - startPosition.x);
@@ -602,12 +611,11 @@ const Drawtool = () => {
         canvas.renderAll();
       });
 
-      canvas.on('mouse:up', () => {
+      canvas.on("mouse:up", () => {
         isDrawing = false;
         circle = null; // Reset circle for next draw
       });
     }
-
   };
   // Function to handle mouse move event and update delete icon position
   const handleMouseMove = (e) => {
@@ -617,12 +625,11 @@ const Drawtool = () => {
   };
   // handleTexture
   const handleBrushMain = (canvas) => {
-    setactiveBlock({ brush: !activeBlock.brush })
-    canvas.on('mouse:down', (e) => handleMouseDown(e, canvas));
-    canvas.on('mouse:move', (e) => handleMouseMovet(e, canvas));
-    canvas.on('mouse:up', handleMouseUp);
-  }
-
+    setactiveBlock({ brush: !activeBlock.brush });
+    canvas.on("mouse:down", (e) => handleMouseDown(e, canvas));
+    canvas.on("mouse:move", (e) => handleMouseMovet(e, canvas));
+    canvas.on("mouse:up", handleMouseUp);
+  };
 
   // cropCanvasSize; This function may needed more
   const cropCanvasSize = () => {
@@ -725,61 +732,59 @@ const Drawtool = () => {
     // }
   };
 
-
   // removeBackgroundColor
   const removeBackgroundColor = () => {
     if (canvas) {
       fabric.Image.fromURL(backgroundTransparent, function (img) {
         canvas.setBackgroundImage(img, canvas.renderAll.bind(canvas), {
           scaleX: canvas.width / img.width,
-          scaleY: canvas.height / img.height
+          scaleY: canvas.height / img.height,
         });
       });
-      setborderCanvas(false)
-      setbackgroundColor(false)
+      setborderCanvas(false);
+      setbackgroundColor(false);
     }
   };
 
   const handleSelectTool = (tool) => {
     setSelectedTool(tool); // please integrate one of that tool.
     switch (tool) {
-      case 'select':
+      case "select":
         canvas.isDrawingMode = false;
         break;
-      case 'brush':
+      case "brush":
         // canvas.isDrawingMode = true;
         // canvas.freeDrawingBrush.color = brushColor;
         // canvas.freeDrawingBrush.width = brushSize;
-        handleBrushMain(canvas)
+        handleBrushMain(canvas);
         break;
       // we will add a pencil or other shapes we can draw
-      case 'zoom':
-        setactiveBlock({ zoom: !activeBlock.zoom })
+      case "zoom":
+        setactiveBlock({ zoom: !activeBlock.zoom });
         canvas.isDrawingMode = false;
         break;
-      case 'crop':
-        cropCanvasSize()
-        setactiveBlock({ crop: !activeBlock.crop })
+      case "crop":
+        cropCanvasSize();
+        setactiveBlock({ crop: !activeBlock.crop });
         break;
-      case 'fill':
-        setactiveBlock({ fill: !activeBlock.fill })
+      case "fill":
+        setactiveBlock({ fill: !activeBlock.fill });
         break;
-      case 'shapes':
-        setactiveBlock({ shapes: !activeBlock.shapes })
+      case "shapes":
+        setactiveBlock({ shapes: !activeBlock.shapes });
         break;
-      case 'image':
+      case "image":
         canvas.isDrawingMode = false;
         handleAddImage();
         break;
-      case 'layers':
+      case "layers":
         canvas.isDrawingMode = false;
-        addLayer()
+        addLayer();
         // Implement layers functionality
         break;
-      case 'undo':
+      case "undo":
         handleUndo();
         break;
-
       default:
         canvas.isDrawingMode = false;
     }
@@ -787,22 +792,23 @@ const Drawtool = () => {
 
   const handleBrushColorChange = (e) => {
     setBrushColor(e.target.value);
-    if (selectedTool === 'brush') {
+    if (selectedTool === "brush") {
       canvas.freeDrawingBrush.color = e.target.value;
     }
   };
 
   const handleBrushSizeChange = (e) => {
     setBrushSize(e.target.value);
-    if (selectedTool === 'brush') {
+    if (selectedTool === "brush") {
       canvas.freeDrawingBrush.width = e.target.value;
     }
   };
 
   const handleAddImage = () => {
-    const fileInput = document.createElement('input');
-    fileInput.type = 'file';
-    fileInput.accept = 'image/*';
+    if (isImage) return;
+    const fileInput = document.createElement("input");
+    fileInput.type = "file";
+    fileInput.accept = "image/*";
     fileInput.onchange = (e) => {
       const file = e.target.files[0];
       const reader = new FileReader();
@@ -813,7 +819,7 @@ const Drawtool = () => {
           img.scaleToHeight(canvasSize.height / 2);
           canvas.add(img);
           canvas.renderAll();
-          setisImage(img)
+          setisImage(img);
         });
       };
       reader.readAsDataURL(file);
@@ -824,32 +830,36 @@ const Drawtool = () => {
   // Apply image filters
   const applyImageEffects = (selectedFilter) => {
     switch (selectedFilter) {
-      case 'reset':
+      case "reset":
         isImage.filters = [];
         isImage.applyFilters(); // Apply no filters
         canvas.renderAll(); // Render canvas
         return; // Exit function early for reset
-      case 'grayscale':
+      case "grayscale":
         isImage.filters.push(new fabric.Image.filters.Grayscale());
         isImage.applyFilters();
         break;
-      case 'sepia':
+      case "sepia":
         isImage.filters.push(new fabric.Image.filters.Sepia());
         isImage.applyFilters();
         break;
-      case 'invert':
+      case "invert":
         isImage.filters.push(new fabric.Image.filters.Invert());
         isImage.applyFilters();
         break;
-      case 'brightness':
-        isImage.filters.push(new fabric.Image.filters.Brightness({ brightness: 0.5 }));
+      case "brightness":
+        isImage.filters.push(
+          new fabric.Image.filters.Brightness({ brightness: 0.5 })
+        );
         isImage.applyFilters();
         break;
-      case 'contrast':
-        isImage.filters.push(new fabric.Image.filters.Contrast({ contrast: 0.5 }));
+      case "contrast":
+        isImage.filters.push(
+          new fabric.Image.filters.Contrast({ contrast: 0.5 })
+        );
         isImage.applyFilters();
         break;
-      case 'blur':
+      case "blur":
         isImage.filters.push(new fabric.Image.filters.Blur({ blur: 0.5 }));
         isImage.applyFilters();
         break;
@@ -861,20 +871,19 @@ const Drawtool = () => {
     canvas.renderAll();
   };
 
-
-
   const handleUndo = () => {
     if (history.length > 0) {
       const previousState = history[history.length - 1];
-      setRedoHistory(prevRedoHistory => [JSON.stringify(canvas.toJSON()), ...prevRedoHistory]);
-      setHistory(prevHistory => prevHistory.slice(0, -1));
+      setRedoHistory((prevRedoHistory) => [
+        JSON.stringify(canvas.toJSON()),
+        ...prevRedoHistory,
+      ]);
+      setHistory((prevHistory) => prevHistory.slice(0, -1));
       canvas.loadFromJSON(previousState, () => {
         canvas.renderAll();
       });
     }
   };
-
-
 
   // const handleRedo = () => {
   //   if (redoHistory.length > 0) {
@@ -915,12 +924,15 @@ const Drawtool = () => {
   };
 
   const handleDefaultSize = () => {
-    resizeCanvas({ width: window.innerWidth - 256, height: window.innerHeight });
+    resizeCanvas({
+      width: window.innerWidth - 256,
+      height: window.innerHeight,
+    });
     setShowSizeCropModal(false);
   };
 
   const handleAddText = () => {
-    setactiveBlock({ brush: !activeBlock.brush })
+    setactiveBlock({ brush: !activeBlock.brush });
     const text = new fabric.Textbox(textContent, {
       left: 50,
       top: 50,
@@ -939,15 +951,14 @@ const Drawtool = () => {
   };
 
   const handleBackgroundFill = () => {
-
-    if (fillType === 'solid') {
+    if (fillType === "solid") {
       canvas.setBackgroundImage(null); // Remove background image
       canvas.setBackgroundColor(fillColor, canvas.renderAll.bind(canvas));
-      setbackgroundColor(true)
+      setbackgroundColor(true);
       // set the whole canvas background
-    } else if (fillType === 'gradient') {
+    } else if (fillType === "gradient") {
       canvas.setBackgroundImage(null); // Remove background image
-      setbackgroundColor(true)
+      setbackgroundColor(true);
       // Define the gradient object
       let gradient = new fabric.Gradient({
         type: "linear",
@@ -962,21 +973,19 @@ const Drawtool = () => {
         colorStops: [
           { offset: 0, color: gradientStartColor },
           { offset: 0.2, color: gradientEndColor },
-
         ],
       });
       canvas.set("backgroundColor", gradient);
       canvas.renderAll();
     }
-  }
-
+  };
 
   // layer management functions
   const addLayer = () => {
     const newLayer = new fabric.Rect({
       width: 500,
       height: 500,
-      fill: 'rgba(0, 0, 0, 0)',
+      fill: "rgba(0, 0, 0, 0)",
       selectable: true,
       left: canvasSize.width / 2 - 50, // Center horizontally
       top: canvasSize.height / 2 - 50, // Center vertically
@@ -990,7 +999,7 @@ const Drawtool = () => {
   const deleteLayer = () => {
     if (selectedLayer) {
       canvas.remove(selectedLayer);
-      setLayers(layers.filter(layer => layer !== selectedLayer));
+      setLayers(layers.filter((layer) => layer !== selectedLayer));
       setSelectedLayer(null);
       canvas.renderAll();
     }
@@ -1001,7 +1010,12 @@ const Drawtool = () => {
       const index = layers.indexOf(selectedLayer);
       if (index !== -1 && index < layers.length - 1) {
         canvas.moveTo(selectedLayer, index + 1);
-        setLayers([...layers.slice(0, index), layers[index + 1], layers[index], ...layers.slice(index + 2)]);
+        setLayers([
+          ...layers.slice(0, index),
+          layers[index + 1],
+          layers[index],
+          ...layers.slice(index + 2),
+        ]);
         setSelectedLayer(layers[index + 1]);
       }
     }
@@ -1012,7 +1026,12 @@ const Drawtool = () => {
       const index = layers.indexOf(selectedLayer);
       if (index > 0) {
         canvas.moveTo(selectedLayer, index - 1);
-        setLayers([...layers.slice(0, index - 1), layers[index], layers[index - 1], ...layers.slice(index + 1)]);
+        setLayers([
+          ...layers.slice(0, index - 1),
+          layers[index],
+          layers[index - 1],
+          ...layers.slice(index + 1),
+        ]);
         setSelectedLayer(layers[index - 1]);
       }
     }
@@ -1036,78 +1055,202 @@ const Drawtool = () => {
     }
   };
 
-
   // saved drawing functions
   const handleExportAsImage = () => {
     const dataURL = canvas.toDataURL({
-      format: 'png',
-      quality: 1.0
+      format: "png",
+      quality: 1.0,
     });
-    const link = document.createElement('a');
+    const link = document.createElement("a");
     link.href = dataURL;
-    link.download = 'drawing.png';
+    link.download = "drawing.png";
     link.click();
   };
 
   // handleSaveDrawing
   const handleSaveDrawing = () => {
     const json = JSON.stringify(canvas.toJSON());
-    localStorage.setItem('savedDrawing', json);
-    alert('Drawing saved!');
+    localStorage.setItem("savedDrawing", json);
+    alert("Drawing saved!");
   };
   // handleLoadDrawing
   const handleLoadDrawing = () => {
-    const json = localStorage.getItem('savedDrawing');
+    const json = localStorage.getItem("savedDrawing");
     if (json) {
       canvas.loadFromJSON(json, canvas.renderAll.bind(canvas));
-      alert('Drawing loaded!');
+      alert("Drawing loaded!");
     } else {
-      alert('No saved drawing found!');
+      alert("No saved drawing found!");
     }
   };
   // icons list
-  let cursorIcon = <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="size-6">
-    <path strokeLinecap="round" strokeLinejoin="round" d="M15.042 21.672 13.684 16.6m0 0-2.51 2.225.569-9.47 5.227 7.917-3.286-.672Zm-7.518-.267A8.25 8.25 0 1 1 20.25 10.5M8.288 14.212A5.25 5.25 0 1 1 17.25 10.5" />
-  </svg>;
-  let zoom = <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="size-6">
-    <path strokeLinecap="round" strokeLinejoin="round" d="m15.75 15.75-2.489-2.489m0 0a3.375 3.375 0 1 0-4.773-4.773 3.375 3.375 0 0 0 4.774 4.774ZM21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
-  </svg>;
-  let crop = <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="size-6">
-    <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 7.125C2.25 6.504 2.754 6 3.375 6h6c.621 0 1.125.504 1.125 1.125v3.75c0 .621-.504 1.125-1.125 1.125h-6a1.125 1.125 0 0 1-1.125-1.125v-3.75ZM14.25 8.625c0-.621.504-1.125 1.125-1.125h5.25c.621 0 1.125.504 1.125 1.125v8.25c0 .621-.504 1.125-1.125 1.125h-5.25a1.125 1.125 0 0 1-1.125-1.125v-8.25ZM3.75 16.125c0-.621.504-1.125 1.125-1.125h5.25c.621 0 1.125.504 1.125 1.125v2.25c0 .621-.504 1.125-1.125 1.125h-5.25a1.125 1.125 0 0 1-1.125-1.125v-2.25Z" />
-  </svg>;
+  let cursorIcon = (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      fill="none"
+      viewBox="0 0 24 24"
+      strokeWidth="1.5"
+      stroke="currentColor"
+      className="size-6"
+    >
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="M15.042 21.672 13.684 16.6m0 0-2.51 2.225.569-9.47 5.227 7.917-3.286-.672Zm-7.518-.267A8.25 8.25 0 1 1 20.25 10.5M8.288 14.212A5.25 5.25 0 1 1 17.25 10.5"
+      />
+    </svg>
+  );
+  let zoom = (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      fill="none"
+      viewBox="0 0 24 24"
+      strokeWidth="1.5"
+      stroke="currentColor"
+      className="size-6"
+    >
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="m15.75 15.75-2.489-2.489m0 0a3.375 3.375 0 1 0-4.773-4.773 3.375 3.375 0 0 0 4.774 4.774ZM21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
+      />
+    </svg>
+  );
+  let crop = (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      fill="none"
+      viewBox="0 0 24 24"
+      strokeWidth="1.5"
+      stroke="currentColor"
+      className="size-6"
+    >
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="M2.25 7.125C2.25 6.504 2.754 6 3.375 6h6c.621 0 1.125.504 1.125 1.125v3.75c0 .621-.504 1.125-1.125 1.125h-6a1.125 1.125 0 0 1-1.125-1.125v-3.75ZM14.25 8.625c0-.621.504-1.125 1.125-1.125h5.25c.621 0 1.125.504 1.125 1.125v8.25c0 .621-.504 1.125-1.125 1.125h-5.25a1.125 1.125 0 0 1-1.125-1.125v-8.25ZM3.75 16.125c0-.621.504-1.125 1.125-1.125h5.25c.621 0 1.125.504 1.125 1.125v2.25c0 .621-.504 1.125-1.125 1.125h-5.25a1.125 1.125 0 0 1-1.125-1.125v-2.25Z"
+      />
+    </svg>
+  );
 
-  let shapes = <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="size-6">
-    <path strokeLinecap="round" strokeLinejoin="round" d="M6 6.878V6a2.25 2.25 0 0 1 2.25-2.25h7.5A2.25 2.25 0 0 1 18 6v.878m-12 0c.235-.083.487-.128.75-.128h10.5c.263 0 .515.045.75.128m-12 0A2.25 2.25 0 0 0 4.5 9v.878m13.5-3A2.25 2.25 0 0 1 19.5 9v.878m0 0a2.246 2.246 0 0 0-.75-.128H5.25c-.263 0-.515.045-.75.128m15 0A2.25 2.25 0 0 1 21 12v6a2.25 2.25 0 0 1-2.25 2.25H5.25A2.25 2.25 0 0 1 3 18v-6c0-.98.626-1.813 1.5-2.122" />
-  </svg>
-  let brush = <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="size-6">
-    <path strokeLinecap="round" strokeLinejoin="round" d="M9.53 16.122a3 3 0 0 0-5.78 1.128 2.25 2.25 0 0 1-2.4 2.245 4.5 4.5 0 0 0 8.4-2.245c0-.399-.078-.78-.22-1.128Zm0 0a15.998 15.998 0 0 0 3.388-1.62m-5.043-.025a15.994 15.994 0 0 1 1.622-3.395m3.42 3.42a15.995 15.995 0 0 0 4.764-4.648l3.876-5.814a1.151 1.151 0 0 0-1.597-1.597L14.146 6.32a15.996 15.996 0 0 0-4.649 4.763m3.42 3.42a6.776 6.776 0 0 0-3.42-3.42" />
-  </svg>;
-  let fill = <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="size-6">
-    <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 3v1.5M4.5 8.25H3m18 0h-1.5M4.5 12H3m18 0h-1.5m-15 3.75H3m18 0h-1.5M8.25 19.5V21M12 3v1.5m0 15V21m3.75-18v1.5m0 15V21m-9-1.5h10.5a2.25 2.25 0 0 0 2.25-2.25V6.75a2.25 2.25 0 0 0-2.25-2.25H6.75A2.25 2.25 0 0 0 4.5 6.75v10.5a2.25 2.25 0 0 0 2.25 2.25Zm.75-12h9v9h-9v-9Z" />
-  </svg>
-  let image = <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="size-6">
-    <path strokeLinecap="round" strokeLinejoin="round" d="m2.25 15.75 5.159-5.159a2.25 2.25 0 0 1 3.182 0l5.159 5.159m-1.5-1.5 1.409-1.409a2.25 2.25 0 0 1 3.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 0 0 1.5-1.5V6a1.5 1.5 0 0 0-1.5-1.5H3.75A1.5 1.5 0 0 0 2.25 6v12a1.5 1.5 0 0 0 1.5 1.5Zm10.5-11.25h.008v.008h-.008V8.25Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Z" />
-  </svg>
+  let brush = (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      fill="none"
+      viewBox="0 0 24 24"
+      strokeWidth="1.5"
+      stroke="currentColor"
+      className="size-6"
+    >
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="M9.53 16.122a3 3 0 0 0-5.78 1.128 2.25 2.25 0 0 1-2.4 2.245 4.5 4.5 0 0 0 8.4-2.245c0-.399-.078-.78-.22-1.128Zm0 0a15.998 15.998 0 0 0 3.388-1.62m-5.043-.025a15.994 15.994 0 0 1 1.622-3.395m3.42 3.42a15.995 15.995 0 0 0 4.764-4.648l3.876-5.814a1.151 1.151 0 0 0-1.597-1.597L14.146 6.32a15.996 15.996 0 0 0-4.649 4.763m3.42 3.42a6.776 6.776 0 0 0-3.42-3.42"
+      />
+    </svg>
+  );
+  let fill = (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      fill="none"
+      viewBox="0 0 24 24"
+      strokeWidth="1.5"
+      stroke="currentColor"
+      className="size-6"
+    >
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="M8.25 3v1.5M4.5 8.25H3m18 0h-1.5M4.5 12H3m18 0h-1.5m-15 3.75H3m18 0h-1.5M8.25 19.5V21M12 3v1.5m0 15V21m3.75-18v1.5m0 15V21m-9-1.5h10.5a2.25 2.25 0 0 0 2.25-2.25V6.75a2.25 2.25 0 0 0-2.25-2.25H6.75A2.25 2.25 0 0 0 4.5 6.75v10.5a2.25 2.25 0 0 0 2.25 2.25Zm.75-12h9v9h-9v-9Z"
+      />
+    </svg>
+  );
+  let image = (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      fill="none"
+      viewBox="0 0 24 24"
+      strokeWidth="1.5"
+      stroke="currentColor"
+      className="size-6"
+    >
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="m2.25 15.75 5.159-5.159a2.25 2.25 0 0 1 3.182 0l5.159 5.159m-1.5-1.5 1.409-1.409a2.25 2.25 0 0 1 3.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 0 0 1.5-1.5V6a1.5 1.5 0 0 0-1.5-1.5H3.75A1.5 1.5 0 0 0 2.25 6v12a1.5 1.5 0 0 0 1.5 1.5Zm10.5-11.25h.008v.008h-.008V8.25Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Z"
+      />
+    </svg>
+  );
 
-  let layer = <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="size-6">
-    <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
-  </svg>
+  let layer = (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      fill="none"
+      viewBox="0 0 24 24"
+      strokeWidth="1.5"
+      stroke="currentColor"
+      className="size-6"
+    >
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="M12 4.5v15m7.5-7.5h-15"
+      />
+    </svg>
+  );
 
-  let undo = <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="size-6">
-    <path strokeLinecap="round" strokeLinejoin="round" d="m15 15-6 6m0 0-6-6m6 6V9a6 6 0 0 1 12 0v3" />
-  </svg>
+  let undo = (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      fill="none"
+      viewBox="0 0 24 24"
+      strokeWidth="1.5"
+      stroke="currentColor"
+      className="size-6"
+    >
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="m15 15-6 6m0 0-6-6m6 6V9a6 6 0 0 1 12 0v3"
+      />
+    </svg>
+  );
 
-
-  let tools = [{ name: 'select', icon: cursorIcon }, { name: 'zoom', icon: zoom }, { name: 'crop', icon: crop }, { name: 'shapes', icon: shapes }, { name: 'brush', icon: brush }, { name: 'pencil', icon: cursorIcon }, { name: 'fill', icon: fill }, { name: 'image', icon: image }, { name: 'layers', icon: layer }, { name: 'undo', icon: undo }]
+  let tools = [
+    { name: "select", icon: cursorIcon },
+    { name: "zoom", icon: zoom },
+    { name: "crop", icon: crop },
+    // , { name: 'shapes', icon: shapes }
+    { name: "brush", icon: brush },
+    // { name: "pencil", icon: cursorIcon },
+    { name: "fill", icon: fill },
+    { name: "image", icon: image },
+    { name: "layers", icon: layer },
+    { name: "undo", icon: undo },
+  ];
   return (
     <>
       <div className="flex relative">
         <div>
           <div>
             {/* save drawing */}
-            <button onClick={handleSaveDrawing} className="fixed top-0 z-20 right-10 rounded-l-md p-2 bg-gray-800 text-white hover:bg-yellow-300 hover:text-black">
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="size-6">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 9.776c.112-.017.227-.026.344-.026h15.812c.117 0 .232.009.344.026m-16.5 0a2.25 2.25 0 0 0-1.883 2.542l.857 6a2.25 2.25 0 0 0 2.227 1.932H19.05a2.25 2.25 0 0 0 2.227-1.932l.857-6a2.25 2.25 0 0 0-1.883-2.542m-16.5 0V6A2.25 2.25 0 0 1 6 3.75h3.879a1.5 1.5 0 0 1 1.06.44l2.122 2.12a1.5 1.5 0 0 0 1.06.44H18A2.25 2.25 0 0 1 20.25 9v.776" />
+            <button
+              onClick={handleSaveDrawing}
+              className="fixed top-0 z-20 right-10 rounded-l-md p-2 bg-gray-800 text-white hover:bg-yellow-300 hover:text-black"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                strokeWidth="1.5"
+                stroke="currentColor"
+                className="size-6"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M3.75 9.776c.112-.017.227-.026.344-.026h15.812c.117 0 .232.009.344.026m-16.5 0a2.25 2.25 0 0 0-1.883 2.542l.857 6a2.25 2.25 0 0 0 2.227 1.932H19.05a2.25 2.25 0 0 0 2.227-1.932l.857-6a2.25 2.25 0 0 0-1.883-2.542m-16.5 0V6A2.25 2.25 0 0 1 6 3.75h3.879a1.5 1.5 0 0 1 1.06.44l2.122 2.12a1.5 1.5 0 0 0 1.06.44H18A2.25 2.25 0 0 1 20.25 9v.776"
+                />
               </svg>
             </button>
             {/* download drawings */}
@@ -1116,49 +1259,62 @@ const Drawtool = () => {
               onClick={toggleDropdown}
               className="fixed top-0 right-0 z-20 inline-flex justify-center px-2 py-2 text-sm font-medium text-white bg-gray-800 shadow-md hover:bg-yellow-300 hover:text-black focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50"
             >
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="size-6">
-                <path strokeLinecap="round" strokeLinejoin="round" d="m9 13.5 3 3m0 0 3-3m-3 3v-6m1.06-4.19-2.12-2.12a1.5 1.5 0 0 0-1.061-.44H4.5A2.25 2.25 0 0 0 2.25 6v12a2.25 2.25 0 0 0 2.25 2.25h15A2.25 2.25 0 0 0 21.75 18V9a2.25 2.25 0 0 0-2.25-2.25h-5.379a1.5 1.5 0 0 1-1.06-.44Z" />
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                strokeWidth="1.5"
+                stroke="currentColor"
+                className="size-6"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="m9 13.5 3 3m0 0 3-3m-3 3v-6m1.06-4.19-2.12-2.12a1.5 1.5 0 0 0-1.061-.44H4.5A2.25 2.25 0 0 0 2.25 6v12a2.25 2.25 0 0 0 2.25 2.25h15A2.25 2.25 0 0 0 21.75 18V9a2.25 2.25 0 0 0-2.25-2.25h-5.379a1.5 1.5 0 0 1-1.06-.44Z"
+                />
               </svg>
 
-              {isOpen && <div className="relative inline-block text-left my-3">
-                <div
-                  className="origin-top-right absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5"
-                  role="menu"
-                  aria-orientation="vertical"
-                  aria-labelledby="options-menu"
-                >
-                  <div className="py-1" role="none">
-                    <button
-                      onClick={() => handleDownload('jpg')}
-                      className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900"
-                      role="menuitem"
-                    >
-                      JPG
-                    </button>
-                    <button
-                      onClick={() => handleDownload('png')}
-                      className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900"
-                      role="menuitem"
-                    >
-                      PNG
-                    </button>
-                    <button
-                      onClick={() => handleDownload('pdf')}
-                      className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900"
-                      role="menuitem"
-                    >
-                      PDF
-                    </button>
-                    <button
-                      onClick={() => handleDownload('svg')}
-                      className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900"
-                      role="menuitem"
-                    >
-                      SVG
-                    </button>
+              {isOpen && (
+                <div className="relative inline-block text-left my-3">
+                  <div
+                    className="origin-top-right absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5"
+                    role="menu"
+                    aria-orientation="vertical"
+                    aria-labelledby="options-menu"
+                  >
+                    <div className="py-1" role="none">
+                      <button
+                        onClick={() => handleDownload("jpg")}
+                        className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900"
+                        role="menuitem"
+                      >
+                        JPG
+                      </button>
+                      <button
+                        onClick={() => handleDownload("png")}
+                        className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900"
+                        role="menuitem"
+                      >
+                        PNG
+                      </button>
+                      <button
+                        onClick={() => handleDownload("pdf")}
+                        className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900"
+                        role="menuitem"
+                      >
+                        PDF
+                      </button>
+                      <button
+                        onClick={() => handleDownload("svg")}
+                        className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900"
+                        role="menuitem"
+                      >
+                        SVG
+                      </button>
+                    </div>
                   </div>
                 </div>
-              </div>}
+              )}
             </button>
           </div>
 
@@ -1171,55 +1327,92 @@ const Drawtool = () => {
 
           <div className="h-screen bg-gray-900 w-[97px] mt-3 ml-2 rounded-lg shadow-lg m-auto text-white">
             {tools.map((tool, index) => (
-              <div key={index} className='py-1 relative'>
+              <div key={index} className="py-1 relative">
                 <button
                   key={tool.name}
-                  className={`w-24 p-2 bg-transparent focus:bg-yellow-300 rounded-lg hover:bg-yellow-300 hover:text-black ${selectedTool === tool.name ? 'bg-yellow-300 text-black rounded-lg' : 'bg-gray-600 rounded-lg'}`}
+                  className={`w-24 p-2 bg-transparent focus:bg-yellow-300 rounded-lg hover:bg-yellow-300 hover:text-black ${
+                    selectedTool === tool.name
+                      ? "bg-yellow-300 text-black rounded-lg"
+                      : "bg-gray-600 rounded-lg"
+                  }`}
                   onClick={() => handleSelectTool(tool.name)}
                 >
-                  <span className='flex items-center space-x-1'><span>{tool.icon}</span>  <span>{tool.name.charAt(0).toUpperCase() + tool.name.slice(1)}</span></span>
+                  <span className="flex items-center space-x-1">
+                    <span>{tool.icon}</span>{" "}
+                    <span>
+                      {tool.name.charAt(0).toUpperCase() + tool.name.slice(1)}
+                    </span>
+                  </span>
                 </button>
-                {tool.name === selectedTool && selectedTool === 'zoom' && activeBlock.zoom &&
-                  <div className="fixed left-24 top-9 p-2 flex flex-col z-50">
-                    <button
-                      className="w-24 p-2 bg-gray-700 hover:bg-yellow-600 rounded"
-                      onClick={() => handleZoom(true)}
-                    >
-                      Zoom In
-                    </button>
-                    <button
-                      className="w-24 p-2 bg-gray-700 hover:bg-yellow-600 rounded"
-                      onClick={() => handleZoom(false)}
-                    >
-                      Zoom Out
-                    </button>
-                  </div>}
+                {tool.name === selectedTool &&
+                  selectedTool === "zoom" &&
+                  activeBlock.zoom && (
+                    <div className="fixed left-24 top-9 p-2 flex flex-col z-50">
+                      <button
+                        className="w-24 p-2 bg-gray-700 hover:bg-yellow-600 rounded"
+                        onClick={() => handleZoom(true)}
+                      >
+                        Zoom In
+                      </button>
+                      <button
+                        className="w-24 p-2 bg-gray-700 hover:bg-yellow-600 rounded"
+                        onClick={() => handleZoom(false)}
+                      >
+                        Zoom Out
+                      </button>
+                    </div>
+                  )}
                 {/* 2.shape tools */}
-                {selectedTool === 'shapes' && activeBlock.shapes &&
-                  <div className='fixed left-[97px] top-[100px] p-2 flex flex-col z-50'>
-                    {
-                      ["Rectangle", "Circle", "Polygon"].map((tool, index) => (
-                        <button
-                          key={index}
-                          className={`w-full p-2 bg-gray-700 hover:bg-yellow-600 rounded ${selectedTool === tool ? 'bg-yellow-500' : 'bg-gray-600'}`}
-                          onClick={() => handleDrawShapes(tool)}
-                        >
-                          {tool.charAt(0).toUpperCase() + tool.slice(1)}
-                        </button>
-                      ))}
-                  </div>}
+                {selectedTool === "shapes" && activeBlock.shapes && (
+                  <div className="fixed left-[97px] top-[100px] p-2 flex flex-col z-50">
+                    {["Rectangle", "Circle", "Polygon"].map((tool, index) => (
+                      <button
+                        key={index}
+                        className={`w-full p-2 bg-gray-700 hover:bg-yellow-600 rounded ${
+                          selectedTool === tool
+                            ? "bg-yellow-500"
+                            : "bg-gray-600"
+                        }`}
+                        onClick={() => handleDrawShapes(tool)}
+                      >
+                        {tool.charAt(0).toUpperCase() + tool.slice(1)}
+                      </button>
+                    ))}
+                  </div>
+                )}
                 {/* brush tool */}
-                {selectedTool === 'brush' && activeBlock.brush &&
-                  <div className='fixed left-[97px] top-0 p-2 flex flex-col z-50'>
+                {selectedTool === "brush" && activeBlock.brush && (
+                  <div className="fixed left-[97px] top-0 p-2 flex flex-col z-50">
                     <div className="grid grid-cols-2 gap-1 p-2 text-white bg-gray-600 border rounded-md border-yellow-200">
                       <label className="block mb-2">Brush Color:</label>
-                      <input className='text-black' type="color" value={brushColor} onChange={handleBrushColorChange} />
+                      <input
+                        className="text-black"
+                        type="color"
+                        value={brushColor}
+                        onChange={handleBrushColorChange}
+                      />
                       <label className="block mb-2">Brush Size:</label>
-                      <input className='text-black' type="number" value={brushSize} onChange={handleBrushSizeChange} min="1" max="100" />
+                      <input
+                        className="text-black"
+                        type="number"
+                        value={brushSize}
+                        onChange={handleBrushSizeChange}
+                        min="1"
+                        max="100"
+                      />
                       <label className="block mb-2">Text Content:</label>
-                      <input type="text" value={textContent} onChange={(e) => setTextContent(e.target.value)} className="border p-2 w-full text-black" />
+                      <input
+                        type="text"
+                        value={textContent}
+                        onChange={(e) => setTextContent(e.target.value)}
+                        className="border p-2 w-full text-black"
+                      />
                       <label className="block mb-2">Font Family:</label>
-                      <select value={fontFamily} onChange={(e) => setFontFamily(e.target.value)} className="border p-2 w-full text-black">
+                      <select
+                        value={fontFamily}
+                        onChange={(e) => setFontFamily(e.target.value)}
+                        className="border p-2 w-full text-black"
+                      >
                         {/* Add Google Fonts here */}
                         <option value="Arial">Arial</option>
                         <option value="Helvetica">Helvetica</option>
@@ -1227,27 +1420,54 @@ const Drawtool = () => {
                         {/* Add more fonts as needed */}
                       </select>
                       <label className="block mb-2">Letter Spacing:</label>
-                      <input type="number" value={letterSpacing} onChange={(e) => setLetterSpacing(e.target.value)} className="border p-2 w-full text-black" />
+                      <input
+                        type="number"
+                        value={letterSpacing}
+                        onChange={(e) => setLetterSpacing(e.target.value)}
+                        className="border p-2 w-full text-black"
+                      />
                       <label className="block mb-2">Word Spacing:</label>
-                      <input type="number" value={wordSpacing} onChange={(e) => setWordSpacing(e.target.value)} className="border p-2 w-full text-black" />
+                      <input
+                        type="number"
+                        value={wordSpacing}
+                        onChange={(e) => setWordSpacing(e.target.value)}
+                        className="border p-2 w-full text-black"
+                      />
                       <label className="block mb-2">Font Weight:</label>
-                      <select value={fontWeight} onChange={(e) => setFontWeight(e.target.value)} className="border p-2 w-full text-black">
+                      <select
+                        value={fontWeight}
+                        onChange={(e) => setFontWeight(e.target.value)}
+                        className="border p-2 w-full text-black"
+                      >
                         <option value="normal">Normal</option>
                         <option value="bold">Bold</option>
                       </select>
                       <label className="block mb-2">Font Style:</label>
-                      <select value={fontStyle} onChange={(e) => setFontStyle(e.target.value)} className="border p-2 w-full text-black">
+                      <select
+                        value={fontStyle}
+                        onChange={(e) => setFontStyle(e.target.value)}
+                        className="border p-2 w-full text-black"
+                      >
                         <option value="normal">Normal</option>
                         <option value="italic">Italic</option>
                       </select>
                       <label className="block mb-2">Text Decoration:</label>
-                      <select value={textDecoration} onChange={(e) => setTextDecoration(e.target.value)} className="border p-2 w-full text-black">
+                      <select
+                        value={textDecoration}
+                        onChange={(e) => setTextDecoration(e.target.value)}
+                        className="border p-2 w-full text-black"
+                      >
                         <option value="">None</option>
                         <option value="underline">Underline</option>
                         <option value="line-through">Strikethrough</option>
                       </select>
                       <label className="block mb-2">Random Angle:</label>
-                      <input className='text-black' type="checkbox" checked={randomAngle} onChange={(e) => setRandomAngle(e.target.checked)} />
+                      <input
+                        className="text-black"
+                        type="checkbox"
+                        checked={randomAngle}
+                        onChange={(e) => setRandomAngle(e.target.checked)}
+                      />
                       <button
                         onClick={handleAddText}
                         className="w-full mt-4 bg-yellow-500 hover:bg-yellow-600 text-black p-2 rounded"
@@ -1255,45 +1475,82 @@ const Drawtool = () => {
                         Start Drawing
                       </button>
                     </div>
-
-                  </div>}
+                  </div>
+                )}
 
                 {/* fill */}
-                {selectedTool === 'fill' && activeBlock.fill &&
-                  <div className='fixed left-[97px] top-52 p-2 flex flex-col z-50'>
+                {selectedTool === "fill" && activeBlock.fill && (
+                  <div className="fixed left-[97px] top-52 p-2 flex flex-col z-50">
                     <div className="p-4 mb-2 bg-gray-700 rounded border border-yellow-300">
                       <label className="block mb-2">Fill Type</label>
-                      <select value={fillType} onChange={(e) => changefillcolor(e)} className="w-full mb-2 text-black">
+                      <select
+                        value={fillType}
+                        onChange={(e) => changefillcolor(e)}
+                        className="w-full mb-2 text-black"
+                      >
                         <option value="solid">Solid</option>
                         <option value="gradient">Gradient</option>
                       </select>
-                      {fillType === 'solid' && (
+                      {fillType === "solid" && (
                         <div>
                           <label className="block mb-2">Fill Color</label>
-                          <input type="color" value={fillColor} onChange={(e) => setFillColor(e.target.value)} className="w-full mb-2" />
+                          <input
+                            type="color"
+                            value={fillColor}
+                            onChange={(e) => setFillColor(e.target.value)}
+                            className="w-full mb-2"
+                          />
                         </div>
                       )}
-                      {fillType === 'gradient' && (
+                      {fillType === "gradient" && (
                         <div>
-                          <label className="block mb-2">Gradient Start Color</label>
-                          <input type="color" value={gradientStartColor} onChange={(e) => setGradientStartColor(e.target.value)} className="w-full mb-2" />
-                          <label className="block mb-2">Gradient End Color</label>
-                          <input type="color" value={gradientEndColor} onChange={(e) => setGradientEndColor(e.target.value)} className="w-full mb-2" />
+                          <label className="block mb-2">
+                            Gradient Start Color
+                          </label>
+                          <input
+                            type="color"
+                            value={gradientStartColor}
+                            onChange={(e) =>
+                              setGradientStartColor(e.target.value)
+                            }
+                            className="w-full mb-2"
+                          />
+                          <label className="block mb-2">
+                            Gradient End Color
+                          </label>
+                          <input
+                            type="color"
+                            value={gradientEndColor}
+                            onChange={(e) =>
+                              setGradientEndColor(e.target.value)
+                            }
+                            className="w-full mb-2"
+                          />
                         </div>
                       )}
-                      <button onTouchStart={handleBackgroundFill} onClick={handleBackgroundFill} className="w-full p-2 bg-yellow-600 hover:bg-yellow-500 rounded">
+                      <button
+                        onTouchStart={handleBackgroundFill}
+                        onClick={handleBackgroundFill}
+                        className="w-full p-2 bg-yellow-600 hover:bg-yellow-500 rounded"
+                      >
                         Apply Background Fill
                       </button>
                     </div>
-
-                  </div>}
+                  </div>
+                )}
                 {/* Image tool */}
-                {tool.name === selectedTool &&
-                  <div className='fixed left-[97px] top-80 p-2 z-50'>
-                    {selectedTool === "image" && isImage &&
+                {tool.name === selectedTool && (
+                  <div className="fixed left-[97px] top-64 p-2 z-50">
+                    {selectedTool === "image" && isImage && (
                       <>
                         <form className="max-w-sm mx-auto">
-                          <select ref={selectRef} onChange={(e) => { applyImageEffects(e.target.value); }} className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+                          <select
+                            ref={selectRef}
+                            onChange={(e) => {
+                              applyImageEffects(e.target.value);
+                            }}
+                            className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                          >
                             <option selected>Choose a Filter</option>
                             <option value="reset">Reset</option>
                             <option value="grayscale">Grayscale</option>
@@ -1303,21 +1560,32 @@ const Drawtool = () => {
                             <option value="blur">Blur</option>
                           </select>
                         </form>
-
-                      </>}
-                  </div>}
+                      </>
+                    )}
+                  </div>
+                )}
                 {/* layers */}
-                {tool.name === selectedTool &&
-                  <div className='fixed left-[110px] top-[270px] z-50'>
+                {tool.name === selectedTool && (
+                  <div className="fixed left-[110px] top-[270px] z-50">
                     <div className="flex-1 overflow-y-auto p-2 broder border-yellow-300 rounded-md">
                       {/* <div className="mb-4">
                   <button className="w-full p-2 mb-2 bg-gray-700 hover:bg-gray-600 rounded" onClick={addLayer}>
                     Add Layer
                   </button>
                 </div> */}
-                      {layers.map(layer => (
-                        <div key={layer.id} className={`p-2 rounded ${selectedLayer === layer ? 'bg-yellow-600' : 'bg-yellow-700 hover:bg-yellow-600'}`}>
-                          <button className="text-left w-full" onClick={() => setSelectedLayer(layer)}>
+                      {layers.map((layer) => (
+                        <div
+                          key={layer.id}
+                          className={`p-2 rounded ${
+                            selectedLayer === layer
+                              ? "bg-yellow-600"
+                              : "bg-yellow-700 hover:bg-yellow-600"
+                          }`}
+                        >
+                          <button
+                            className="text-left w-full"
+                            onClick={() => setSelectedLayer(layer)}
+                          >
                             Layer {layers.indexOf(layer) + 1}
                           </button>
                         </div>
@@ -1325,30 +1593,48 @@ const Drawtool = () => {
                       {/* Layer actions */}
                       {selectedLayer && (
                         <div className="p-4">
-                          <button className="p-2 mb-2 bg-red-500 hover:bg-red-400 rounded" onClick={deleteLayer}>
+                          <button
+                            className="p-2 mb-2 bg-red-500 hover:bg-red-400 rounded"
+                            onClick={deleteLayer}
+                          >
                             Delete Layer
                           </button>
-                          <button className="p-2 mb-2 bg-gray-700 hover:bg-gray-600 rounded" onClick={moveLayerUp}>
+                          <button
+                            className="p-2 mb-2 bg-gray-700 hover:bg-gray-600 rounded"
+                            onClick={moveLayerUp}
+                          >
                             Move Layer Up
                           </button>
-                          <button className="p-2 mb-2 bg-gray-700 hover:bg-gray-600 rounded" onClick={moveLayerDown}>
+                          <button
+                            className="p-2 mb-2 bg-gray-700 hover:bg-gray-600 rounded"
+                            onClick={moveLayerDown}
+                          >
                             Move Layer Down
                           </button>
-                          <button className="p-2 mb-2 bg-gray-700 hover:bg-gray-600 rounded" onClick={toggleLayerVisibility}>
-                            {selectedLayer.visible ? 'Hide Layer' : 'Show Layer'}
+                          <button
+                            className="p-2 mb-2 bg-gray-700 hover:bg-gray-600 rounded"
+                            onClick={toggleLayerVisibility}
+                          >
+                            {selectedLayer.visible
+                              ? "Hide Layer"
+                              : "Show Layer"}
                           </button>
-                          <button className="p-2 mb-2 bg-gray-700 hover:bg-gray-600 rounded" onClick={toggleLayerLock}>
-                            {selectedLayer.lockMovementX ? 'Unlock Layer' : 'Lock Layer'}
+                          <button
+                            className="p-2 mb-2 bg-gray-700 hover:bg-gray-600 rounded"
+                            onClick={toggleLayerLock}
+                          >
+                            {selectedLayer.lockMovementX
+                              ? "Unlock Layer"
+                              : "Lock Layer"}
                           </button>
-
-
                         </div>
                       )}
                     </div>
-                  </div>}
+                  </div>
+                )}
                 {/* Crop / resize canvas tool */}
-                {tool.name === selectedTool &&
-                  <div className='fixed left-[110px] top-[10px] z-50'>
+                {tool.name === selectedTool && (
+                  <div className="fixed left-[110px] top-[10px] z-50">
                     {showSizeCropModal && activeBlock.crop && (
                       <div>
                         <div className="bg-gray-700 p-2 rounded border border-yellow-400">
@@ -1358,16 +1644,28 @@ const Drawtool = () => {
                             <input
                               type="number"
                               value={customSize.width}
-                              onChange={(e) => setCustomSize({ ...customSize, width: e.target.value })}
-                              className="border p-2 w-6/12 text-black" />
+                              onChange={(e) =>
+                                setCustomSize({
+                                  ...customSize,
+                                  width: e.target.value,
+                                })
+                              }
+                              className="border p-2 w-6/12 text-black"
+                            />
                           </div>
                           <div className="mb-4">
                             <label className="block mb-2">Height:</label>
                             <input
                               type="number"
                               value={customSize.height}
-                              onChange={(e) => setCustomSize({ ...customSize, height: e.target.value })}
-                              className="border p-2 w-6/12 text-black" />
+                              onChange={(e) =>
+                                setCustomSize({
+                                  ...customSize,
+                                  height: e.target.value,
+                                })
+                              }
+                              className="border p-2 w-6/12 text-black"
+                            />
                           </div>
                           <div className="flex justify-between">
                             {/* <button
@@ -1392,16 +1690,23 @@ const Drawtool = () => {
                         </div>
                       </div>
                     )}
-                  </div>}
+                  </div>
+                )}
               </div>
             ))}
           </div>
           {selectedObject && (
             <div className="p-4">
-              <button className="w-full p-2 mb-2 bg-red-500 hover:bg-red-400 rounded" onClick={handleDeleteObject}>
+              <button
+                className="w-full p-2 mb-2 bg-red-500 hover:bg-red-400 rounded"
+                onClick={handleDeleteObject}
+              >
                 Delete
               </button>
-              <button className="w-full p-2 mb-2 bg-blue-500 hover:bg-blue-400 rounded" onClick={handleRotateObject}>
+              <button
+                className="w-full p-2 mb-2 bg-blue-500 hover:bg-blue-400 rounded"
+                onClick={handleRotateObject}
+              >
                 Rotate
               </button>
               {/* Add more object-specific actions here */}
@@ -1414,7 +1719,7 @@ const Drawtool = () => {
             </div>
           </div> */}
 
-          <div className='flex justify-center h-[screen]'>
+          <div className="flex justify-center h-[screen]">
             <CropperTool
               selectedTool={selectedTool}
               getCanvasSizeCB={getCanvasSizeCB}
@@ -1422,17 +1727,54 @@ const Drawtool = () => {
               setShowSizeCropModal={setShowSizeCropModal}
             />
             {/* direct conditions are not allowed, while there are needed to  */}
-            <div className='relative'>
-              {borderCanvas ? <div className='flex flex-col p-3 space-y-2'> <button className='bg-black rounded-full text-white p-2 text-lg font-bold' onClick={removeBackgroundColor}><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
-                <path stroke-linecap="round" stroke-linejoin="round" d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" />
-              </svg>
-              </button>
-                <button className='bg-black rounded-full text-white p-2 text-lg font-bold' onClick={() => { setborderCanvas(false) }}>
-                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" />
-                  </svg>
-
-                </button></div> : ""}
+            <div className="relative">
+              {borderCanvas ? (
+                <div className="flex flex-col p-3 space-y-2">
+                  {" "}
+                  <button
+                    className="bg-black rounded-full text-white p-2 text-lg font-bold"
+                    onClick={removeBackgroundColor}
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke-width="1.5"
+                      stroke="currentColor"
+                      class="size-6"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0"
+                      />
+                    </svg>
+                  </button>
+                  <button
+                    className="bg-black rounded-full text-white p-2 text-lg font-bold"
+                    onClick={() => {
+                      setborderCanvas(false);
+                    }}
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke-width="1.5"
+                      stroke="currentColor"
+                      class="size-6"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        d="m4.5 12.75 6 6 9-13.5"
+                      />
+                    </svg>
+                  </button>
+                </div>
+              ) : (
+                ""
+              )}
             </div>
             <canvas
               ref={canvasRef}
@@ -1443,7 +1785,6 @@ const Drawtool = () => {
           </div>
         </div>
       </div>
-
     </>
   );
 };
