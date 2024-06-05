@@ -330,7 +330,7 @@ const Drawtool = () => {
       canvasElement.off("object:added", updateHistory);
       canvasElement.off("object:modified", updateHistory);
       canvasElement.off("object:removed", updateHistory);
-      canvasElement.dispose();
+      canvasElement.dispose(); // very important
     };
   }, []);
 
@@ -348,7 +348,6 @@ const Drawtool = () => {
   };
 
   const handleMouseMovet = throttle((options) => {
-    console.log("my call time", brushColor);
     if (isDrawingRef.current) {
       const pointer = canvas.getPointer(options.e);
       lastPointerPosition = { x: pointer.x, y: pointer.y };
@@ -1416,7 +1415,7 @@ const Drawtool = () => {
                       <input
                         className="text-black"
                         type="color"
-                        // value={brushColor}
+                        value={brushColor}
                         onChange={handleBrushColorChange}
                       />
                       <label className="block mb-2">Brush Size:</label>
