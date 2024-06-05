@@ -339,19 +339,20 @@ const Drawtool = () => {
     isDrawingRef.current = false;
   };
 
-  const handleMouseDown = (options, canvas) => {
+  const handleMouseDown = (options) => {
     isDrawingRef.current = true;
     const pointer = canvas.getPointer(options.e);
     position = { x: pointer.x, y: pointer.y };
     lastPointerPosition = { x: pointer.x, y: pointer.y };
-    // draw(canvas);
+    // draw();
   };
 
-  const handleMouseMovet = throttle((options, canvas, brushColor) => {
+  const handleMouseMovet = throttle((options) => {
+    console.log("my call time", brushColor);
     if (isDrawingRef.current) {
       const pointer = canvas.getPointer(options.e);
       lastPointerPosition = { x: pointer.x, y: pointer.y };
-      draw(canvas, brushColor);
+      draw();
     }
   }, 10); // Throttling
 
@@ -368,8 +369,7 @@ const Drawtool = () => {
     };
   }
 
-  const draw = (canvas, brushColor) => {
-    console.log("brushColor at draw", brushColor);
+  const draw = () => {
     if (canvas) {
       const newDistance = distance(position, lastPointerPosition);
       let currentFontSize = fontSize;
@@ -804,9 +804,7 @@ const Drawtool = () => {
 
   const handleBrushColorChange = (e) => {
     setBrushColor(e.target.value);
-    // if (selectedTool === "brush") {
-    //   canvas.freeDrawingBrush.color = e.target.value;
-    // }
+    isDrawingRef.current = false; // Reset drawing state
   };
 
   const handleBrushSizeChange = (e) => {
@@ -942,12 +940,27 @@ const Drawtool = () => {
     });
     setShowSizeCropModal(false);
   };
+  useEffect(() => {
+    if (canvas && activeBlock.brush) {
+      // useeffect can capture state correctly if it was else update any where
+      canvas.on("mouse:down", handleMouseDown);
+      canvas.on("mouse:move", handleMouseMovet);
+      canvas.on("mouse:up", handleMouseUp);
+    }
+    // Cleanup function: Detach event listeners when component unmounts
+    return () => {
+      // it will be called if dep updates
+      if (canvas && brushColor) {
+        canvas.off("mouse:down", handleMouseDown);
+        canvas.off("mouse:move", handleMouseMovet);
+        canvas.off("mouse:up", handleMouseUp);
+      }
+    };
+  }, [canvas, brushColor]); // pass deps array it will cause the unmount when state changes,
 
   const handleAddText = () => {
-    canvas.on("mouse:down", (e) => handleMouseDown(e, canvas));
-    canvas.on("mouse:move", (e) => handleMouseMovet(e, canvas, brushColor));
-    canvas.on("mouse:up", handleMouseUp);
     setactiveBlock({ brush: !activeBlock.brush });
+
     // const text = new fabric.Textbox(textContent, {
     //   left: 50,
     //   top: 50,
