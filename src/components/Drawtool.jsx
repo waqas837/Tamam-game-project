@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
+import { Toaster, toast } from "sonner";
 import { fabric } from "fabric";
 import "fabric-history";
 import delicon from "../assets/delicon.svg";
@@ -25,7 +26,7 @@ const Drawtool = () => {
   const [width, setWidth] = useState(null);
   const [height, setHeight] = useState(null);
   const [selectedTool, setSelectedTool] = useState(null);
-  const [brushColor, setBrushColor] = useState("#000000");
+  const [brushColor, setBrushColor] = useState(null);
   const [canvasSize, setCanvasSize] = useState({
     width: window.innerWidth - 256,
     height: window.innerHeight,
@@ -81,7 +82,7 @@ const Drawtool = () => {
   });
 
   const toggleDropdown = () => setIsOpen(!isOpen);
-  const textToDraw = "Your paragraph to draw";
+  const textToDraw = textContent;
   const minFontSize = 8;
   const maxFontSize = 300;
   let textIndex = 0;
@@ -377,7 +378,7 @@ const Drawtool = () => {
         currentFontSize = maxFontSize;
       }
 
-      const letter = textToDraw.charAt(textIndex);
+      const letter = textContent.charAt(textIndex);
       const stepSize = textWidth(letter, currentFontSize);
 
       if (newDistance > stepSize) {
@@ -388,10 +389,14 @@ const Drawtool = () => {
         const textObject = new fabric.Text(letter, {
           left: position.x,
           top: position.y,
-          fontFamily: "Georgia",
-          fontSize: currentFontSize,
+          fontFamily: fontFamily,
+          fontSize: brushSize,
           fill: brushColor, // Set text color dynamically
           selectable: false,
+          fontWeight: fontWeight,
+          styles: { textDecoration: textDecoration },
+          fontStyle: fontStyle,
+          randomAngle: randomAngle,
         });
         canvas.add(textObject);
         textIndex = (textIndex + 1) % textToDraw.length;
@@ -808,9 +813,6 @@ const Drawtool = () => {
 
   const handleBrushSizeChange = (e) => {
     setBrushSize(e.target.value);
-    if (selectedTool === "brush") {
-      canvas.freeDrawingBrush.width = e.target.value;
-    }
   };
 
   const handleAddImage = () => {
@@ -953,28 +955,61 @@ const Drawtool = () => {
         canvas.off("mouse:down", handleMouseDown);
         canvas.off("mouse:move", handleMouseMovet);
         canvas.off("mouse:up", handleMouseUp);
+      } else if (canvas && brushSize) {
+        canvas.off("mouse:down", handleMouseDown);
+        canvas.off("mouse:move", handleMouseMovet);
+        canvas.off("mouse:up", handleMouseUp);
+      } else if (canvas && textContent) {
+        canvas.off("mouse:down", handleMouseDown);
+        canvas.off("mouse:move", handleMouseMovet);
+        canvas.off("mouse:up", handleMouseUp);
+      } else if (canvas && fontFamily) {
+        canvas.off("mouse:down", handleMouseDown);
+        canvas.off("mouse:move", handleMouseMovet);
+        canvas.off("mouse:up", handleMouseUp);
+      } else if (canvas && letterSpacing) {
+        canvas.off("mouse:down", handleMouseDown);
+        canvas.off("mouse:move", handleMouseMovet);
+        canvas.off("mouse:up", handleMouseUp);
+      } else if (canvas && fontWeight) {
+        canvas.off("mouse:down", handleMouseDown);
+        canvas.off("mouse:move", handleMouseMovet);
+        canvas.off("mouse:up", handleMouseUp);
+      } else if (canvas && textDecoration) {
+        canvas.off("mouse:down", handleMouseDown);
+        canvas.off("mouse:move", handleMouseMovet);
+        canvas.off("mouse:up", handleMouseUp);
+      } else if (canvas && fontStyle) {
+        canvas.off("mouse:down", handleMouseDown);
+        canvas.off("mouse:move", handleMouseMovet);
+        canvas.off("mouse:up", handleMouseUp);
+      } else if (canvas && randomAngle) {
+        canvas.off("mouse:down", handleMouseDown);
+        canvas.off("mouse:move", handleMouseMovet);
+        canvas.off("mouse:up", handleMouseUp);
       }
     };
-  }, [canvas, brushColor]); // pass deps array it will cause the unmount when state changes,
+  }, [
+    canvas,
+    brushColor,
+    brushSize,
+    textContent,
+    fontFamily,
+    letterSpacing,
+    fontWeight,
+    textDecoration,
+    fontStyle,
+    randomAngle,
+  ]); // pass deps array it will cause the unmount when state changes,
 
   const handleAddText = () => {
-    setactiveBlock({ brush: !activeBlock.brush });
-
-    // const text = new fabric.Textbox(textContent, {
-    //   left: 50,
-    //   top: 50,
-    //   fill: brushColor,
-    //   fontFamily: fontFamily,
-    //   fontSize: brushSize,
-    //   fontWeight: fontWeight,
-    //   fontStyle: fontStyle,
-    //   textDecoration: textDecoration,
-    //   charSpacing: letterSpacing * 10,
-    //   lineHeight: wordSpacing * 10,
-    //   angle: randomAngle ? Math.random() * 360 : 0,
-    // });
-    // canvas.add(text);
-    // canvas.renderAll();
+    if (brushColor) {
+      setactiveBlock({ brush: !activeBlock.brush });
+    } else if (!brushColor) {
+      toast.error("Please add one color to draw.");
+    } else if (textContent === "") {
+      toast.error(" Please add some text.");
+    }
   };
 
   const handleBackgroundFill = () => {
@@ -1257,6 +1292,7 @@ const Drawtool = () => {
   ];
   return (
     <>
+      <Toaster position="top-center" />
       <div className="flex relative">
         <div>
           <div>
