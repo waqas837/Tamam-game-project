@@ -784,7 +784,14 @@ const Drawtool = () => {
         setactiveBlock({ crop: !activeBlock.crop });
         break;
       case "fill":
-        setactiveBlock({ fill: !activeBlock.fill });
+        if (canvas) {
+          console.log("events are being off");
+          canvas.off("mouse:down", handleMouseDown);
+          canvas.off("mouse:move", handleMouseMovet);
+          canvas.off("mouse:up", handleMouseUp);
+          setactiveBlock({ fill: !activeBlock.fill });
+        }
+
         break;
       case "shapes":
         setactiveBlock({ shapes: !activeBlock.shapes });
@@ -951,39 +958,22 @@ const Drawtool = () => {
     // Cleanup function: Detach event listeners when component unmounts
     return () => {
       // it will be called if dep updates
-      if (canvas && brushColor) {
-        canvas.off("mouse:down", handleMouseDown);
-        canvas.off("mouse:move", handleMouseMovet);
-        canvas.off("mouse:up", handleMouseUp);
-      } else if (canvas && brushSize) {
-        canvas.off("mouse:down", handleMouseDown);
-        canvas.off("mouse:move", handleMouseMovet);
-        canvas.off("mouse:up", handleMouseUp);
-      } else if (canvas && textContent) {
-        canvas.off("mouse:down", handleMouseDown);
-        canvas.off("mouse:move", handleMouseMovet);
-        canvas.off("mouse:up", handleMouseUp);
-      } else if (canvas && fontFamily) {
-        canvas.off("mouse:down", handleMouseDown);
-        canvas.off("mouse:move", handleMouseMovet);
-        canvas.off("mouse:up", handleMouseUp);
-      } else if (canvas && letterSpacing) {
-        canvas.off("mouse:down", handleMouseDown);
-        canvas.off("mouse:move", handleMouseMovet);
-        canvas.off("mouse:up", handleMouseUp);
-      } else if (canvas && fontWeight) {
-        canvas.off("mouse:down", handleMouseDown);
-        canvas.off("mouse:move", handleMouseMovet);
-        canvas.off("mouse:up", handleMouseUp);
-      } else if (canvas && textDecoration) {
-        canvas.off("mouse:down", handleMouseDown);
-        canvas.off("mouse:move", handleMouseMovet);
-        canvas.off("mouse:up", handleMouseUp);
-      } else if (canvas && fontStyle) {
-        canvas.off("mouse:down", handleMouseDown);
-        canvas.off("mouse:move", handleMouseMovet);
-        canvas.off("mouse:up", handleMouseUp);
-      } else if (canvas && randomAngle) {
+      if (
+        canvas &&
+        (activeBlock.brush ||
+          activeBlock.fill ||
+          activeBlock.crop ||
+          activeBlock.shapes ||
+          brushColor ||
+          brushSize ||
+          textContent ||
+          fontFamily ||
+          letterSpacing ||
+          fontWeight ||
+          textDecoration ||
+          fontStyle ||
+          randomAngle)
+      ) {
         canvas.off("mouse:down", handleMouseDown);
         canvas.off("mouse:move", handleMouseMovet);
         canvas.off("mouse:up", handleMouseUp);
@@ -1000,15 +990,22 @@ const Drawtool = () => {
     textDecoration,
     fontStyle,
     randomAngle,
+    activeBlock.fill,
+    activeBlock.crop,
+    activeBlock.shapes,
   ]); // pass deps array it will cause the unmount when state changes,
 
   const handleAddText = () => {
+    if (!brushColor) {
+      toast.error("Please add one color to draw.");
+      return;
+    }
+    if (textContent === "") {
+      toast.error(" Please add some text.");
+      return;
+    }
     if (brushColor) {
       setactiveBlock({ brush: !activeBlock.brush });
-    } else if (!brushColor) {
-      toast.error("Please add one color to draw.");
-    } else if (textContent === "") {
-      toast.error(" Please add some text.");
     }
   };
 
@@ -1292,7 +1289,7 @@ const Drawtool = () => {
   ];
   return (
     <>
-      <Toaster position="top-center" />
+      <Toaster position="top-right" />
       <div className="flex relative">
         <div>
           <div>
