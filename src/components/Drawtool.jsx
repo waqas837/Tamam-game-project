@@ -24,6 +24,8 @@ const Drawtool = () => {
     [canvas]
   );
   const [width, setWidth] = useState(null);
+  const [TextObjects, setTextObjects] = useState();
+  const textDrawGroupRef = useRef(null);
   const [height, setHeight] = useState(null);
   const [selectedTool, setSelectedTool] = useState(null);
   const [brushColor, setBrushColor] = useState(null);
@@ -205,6 +207,14 @@ const Drawtool = () => {
         render: renderIconDelete,
         cornerSize: 30,
       });
+      const initialGroup = new fabric.Group([], {
+        left: 0,
+        top: 0,
+        selectable: false,
+      });
+      textDrawGroupRef.current = initialGroup;
+      canvas.add(initialGroup);
+      setLayers([initialGroup]);
 
       // Delete object function
       function deleteObject(eventData, transform) {
@@ -371,6 +381,7 @@ const Drawtool = () => {
 
   const draw = () => {
     if (canvas) {
+      const groupText = textDrawGroupRef.current;
       const newDistance = distance(position, lastPointerPosition);
       let currentFontSize = fontSize;
 
@@ -394,11 +405,12 @@ const Drawtool = () => {
           fill: brushColor, // Set text color dynamically
           selectable: false,
           fontWeight: fontWeight,
-          styles: { textDecoration: textDecoration },
+          underline: textDecoration,
           fontStyle: fontStyle,
-          randomAngle: randomAngle,
+          randomAngle: true,
         });
         canvas.add(textObject);
+        groupText.addWithUpdate(textObject);
         textIndex = (textIndex + 1) % textToDraw.length;
         position.x += Math.cos(angle) * stepSize;
         position.y += Math.sin(angle) * stepSize;
@@ -802,7 +814,8 @@ const Drawtool = () => {
         break;
       case "layers":
         canvas.isDrawingMode = false;
-        addLayer();
+        getAllLayers();
+        // addLayer();
         // Implement layers functionality
         break;
       case "undo":
@@ -972,7 +985,8 @@ const Drawtool = () => {
           fontWeight ||
           textDecoration ||
           fontStyle ||
-          randomAngle)
+          randomAngle ||
+          selectedTool === "select")
       ) {
         canvas.off("mouse:down", handleMouseDown);
         canvas.off("mouse:move", handleMouseMovet);
@@ -993,6 +1007,7 @@ const Drawtool = () => {
     activeBlock.fill,
     activeBlock.crop,
     activeBlock.shapes,
+    selectedTool === "select",
   ]); // pass deps array it will cause the unmount when state changes,
 
   const handleAddText = () => {
@@ -1039,7 +1054,7 @@ const Drawtool = () => {
     }
   };
 
-  // layer management functions
+  // get layers
   const addLayer = () => {
     const newLayer = new fabric.Rect({
       width: 500,
@@ -1054,7 +1069,20 @@ const Drawtool = () => {
     setLayers([...layers, newLayer]);
     // setSelectedLayer(newLayer); // Select the newly added layer
   };
-
+  // layer management functions
+  const getAllLayers = () => {
+    if (canvas) {
+      setLayers(canvas.getObjects());
+    }
+  };
+  // selectLayer
+  const selectLayer = (layer) => {
+    if (canvas) {
+      setSelectedLayer(layer);
+      canvas.setActiveObject(layer);
+      canvas.renderAll();
+    }
+  };
   const deleteLayer = () => {
     if (selectedLayer) {
       canvas.remove(selectedLayer);
@@ -1644,7 +1672,7 @@ const Drawtool = () => {
                         >
                           <button
                             className="text-left w-full"
-                            onClick={() => setSelectedLayer(layer)}
+                            onClick={() => selectLayer(layer)}
                           >
                             Layer {layers.indexOf(layer) + 1}
                           </button>
