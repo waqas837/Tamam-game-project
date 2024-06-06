@@ -214,7 +214,7 @@ const Drawtool = () => {
       });
       textDrawGroupRef.current = initialGroup;
       canvas.add(initialGroup);
-      setLayers([initialGroup]);
+      // setLayers([initialGroup]);
 
       // Delete object function
       function deleteObject(eventData, transform) {
@@ -433,89 +433,9 @@ const Drawtool = () => {
     setFontSize(parseInt(event.target.value));
   };
 
-  const handleColorChange = (color) => {
-    setTextColor(color);
-  };
-
   const changefillcolor = (e) => {
     setFillType(e.target.value);
   };
-
-  // const handleDownloadForTexter = () => {
-  //   // Export canvas as image
-  //   const dataUrl = canvas.toDataURL({
-  //     format: 'png',
-  //     quality: 1,
-  //   });
-
-  //   // Create download link
-  //   const link = document.createElement('a');
-  //   link.download = 'drawing.png';
-  //   link.href = dataUrl;
-  //   document.body.appendChild(link);
-  //   link.click();
-  //   document.body.removeChild(link);
-  // }
-
-  // Logic if we draw on the image...
-  // useEffect(() => {
-  //   if (canvas) {
-  //     // Set up the brush tool
-  //     const brush = new fabric.PencilBrush(canvas);
-  //     brush.width = 5;
-  //     brush.color = 'black';
-  //     canvas.freeDrawingBrush = brush;
-
-  //     canvas.isDrawingMode = true;
-
-  //     const imgElement = document.createElement('img');
-  //     imgElement.src = imgg;
-
-  //     imgElement.onload = () => {
-  //       const imgInstance = new fabric.Image(imgElement, {
-  //         left: 50,
-  //         top: 50,
-  //       });
-
-  //       canvas.add(imgInstance);
-  //       // This single line causes to show the controlls
-  //       canvas.setActiveObject(imgInstance);
-
-  //       setcurrentObjectimgt(imgInstance)
-  //       const isWithinImage = (x, y, img) => {
-  //         return (
-  //           x >= img.left &&
-  //           x <= img.left + img.width * img.scaleX &&
-  //           y >= img.top &&
-  //           y <= img.top + img.height * img.scaleY
-  //         );
-  //       };
-
-  //       canvas.on('mouse:down', (opt) => {
-  //         const { x, y } = canvas.getPointer(opt.e);
-  //         if (!isWithinImage(x, y, imgInstance)) {
-  //           canvas.isDrawingMode = false;
-  //         } else {
-  //           canvas.isDrawingMode = true;
-  //         }
-  //       });
-
-  //       canvas.on('mouse:move', (opt) => {
-  //         const { x, y } = canvas.getPointer(opt.e);
-  //         if (!isWithinImage(x, y, imgInstance)) {
-  //           canvas.isDrawingMode = false;
-  //         } else {
-  //           canvas.isDrawingMode = true;
-  //         }
-  //       });
-  //       canvas.on('mouse:up', (opt) => {
-  //         console.log("mouse is up")
-  //         canvas.isDrawingMode = false
-  //       })
-
-  //     };
-  //   }
-  // }, [canvas])
 
   useEffect(() => {
     // Update canvas size when canvasSize state changes
@@ -659,107 +579,6 @@ const Drawtool = () => {
     setactiveBlock({ brush: !activeBlock.brush });
   };
 
-  // cropCanvasSize; This function may needed more
-  const cropCanvasSize = () => {
-    return;
-    // canvas.isDrawingMode = false;
-    // setShowSizeCropModal(true);
-    // let isDrawing = false;
-    // let rect = null;
-    // if (canvas) {
-    //   canvas.off('mouse:down');
-    //   canvas.off('mouse:move');
-    //   canvas.off('mouse:up');
-
-    //   canvas.on('mouse:down', (options) => {
-    //     if (!rect) {
-    //       isDrawing = true;
-    //       const pointer = canvas.getPointer(options.e);
-    //       rect = new fabric.Rect({
-    //         left: pointer.x,
-    //         top: pointer.y,
-    //         width: 0,
-    //         height: 0,
-    //         fill: 'transparent',
-    //         stroke: 'black',
-    //         strokeWidth: 2,
-    //         selectable: false,
-    //       });
-    //       canvas.add(rect);
-    //     }
-    //   });
-
-    //   canvas.on('mouse:move', (options) => {
-    //     if (!isDrawing) return;
-    //     if (rect) {
-    //       const pointer = canvas.getPointer(options.e);
-    //       rect.set({
-    //         width: pointer.x - rect.left,
-    //         height: pointer.y - rect.top
-    //       });
-    //       canvas.renderAll();
-    //     }
-    //   });
-
-    //   canvas.on('mouse:up', () => {
-    //     if (rect) {
-    //       const zoom = canvas.getZoom();
-    //       const left = rect.left / zoom;
-    //       const top = rect.top / zoom;
-    //       const width = rect.width / zoom;
-    //       const height = rect.height / zoom;
-
-    //       if (width <= 0 || height <= 0) {
-    //         console.error('Invalid rectangle dimensions for cropping.');
-    //         canvas.remove(rect);
-    //         rect = null;
-    //         isDrawing = false;
-    //         return;
-    //       }
-
-    //       const croppedDataURL = canvas.toDataURL({
-    //         left: left,
-    //         top: top,
-    //         width: width,
-    //         height: height,
-    //       });
-
-    //       fabric.Image.fromURL(backgroundTransparent, (croppedImage) => {
-    //         if (!croppedImage) {
-    //           console.error('Cropped image could not be loaded.');
-    //           return;
-    //         }
-    //         canvas.setWidth(width);
-    //         canvas.setHeight(height);
-    //         croppedImage.set({
-    //           left: 0,
-    //           top: 0,
-    //           scaleX: 1,
-    //           scaleY: 1,
-    //           selectable: false,
-    //         });
-    //         canvas.clear();
-    //         setcurrentCropImg(croppedImage)
-    //         canvas.setBackgroundImage(croppedImage, canvas.renderAll.bind(canvas), {
-    //           scaleX: canvas.width / croppedImage.width,
-    //           scaleY: canvas.height / croppedImage.height
-    //         });
-    //         // canvas.add(croppedImage);
-    //         canvas.setZoom(1); // Reset zoom to 1
-    //         canvas.renderAll();
-    //         canvas.calcOffset(); // Recalculate the canvas offset
-    //         console.log('Cropped image added and canvas updated.');
-    //         canvas.off("mouse:move")
-    //         canvas.off("mouse:down")
-    //       });
-
-    //       rect = null; // Reset the rect variable
-    //       isDrawing = false; // Reset the drawing flag
-    //     }
-    //   });
-    // }
-  };
-
   // removeBackgroundColor
   const removeBackgroundColor = () => {
     if (canvas) {
@@ -792,7 +611,6 @@ const Drawtool = () => {
         canvas.isDrawingMode = false;
         break;
       case "crop":
-        cropCanvasSize();
         setactiveBlock({ crop: !activeBlock.crop });
         break;
       case "fill":
@@ -903,28 +721,15 @@ const Drawtool = () => {
   };
 
   const handleUndo = () => {
-    if (history.length > 0) {
-      const previousState = history[history.length - 1];
-      setRedoHistory((prevRedoHistory) => [
-        JSON.stringify(canvas.toJSON()),
-        ...prevRedoHistory,
-      ]);
-      setHistory((prevHistory) => prevHistory.slice(0, -1));
-      canvas.loadFromJSON(previousState, () => {
-        canvas.renderAll();
-      });
-    }
+    canvas.undo();
+    canvas.setBackgroundImage(
+      backgroundTransparent,
+      canvas.renderAll.bind(canvas)
+    );
   };
 
   // const handleRedo = () => {
-  //   if (redoHistory.length > 0) {
-  //     const nextState = redoHistory[0];
-  //     setHistory(prevHistory => [...prevHistory, JSON.stringify(canvas.toJSON())]);
-  //     setRedoHistory(prevRedoHistory => prevRedoHistory.slice(1));
-  //     canvas.loadFromJSON(nextState, () => {
-  //       canvas.renderAll();
-  //     });
-  //   }
+  // canvas.redo();
   // };
 
   const handleDeleteObject = () => {
