@@ -58,6 +58,7 @@ const Drawtool = () => {
   const isDeleting = useRef(false);
   // state variables for image filter
   const [isImage, setisImage] = useState(false);
+  const lastTime = useRef(Date.now());
   // state variables for layers
   const [layers, setLayers] = useState([]);
   const [selectedLayer, setSelectedLayer] = useState(null);
@@ -355,59 +356,80 @@ const Drawtool = () => {
     const pointer = canvas.getPointer(options.e);
     position = { x: pointer.x, y: pointer.y };
     lastPointerPosition = { x: pointer.x, y: pointer.y };
-    // draw();
   };
 
-  const handleMouseMovet = throttle((options) => {
+  const handleMouseMovet =  (options) => {
     if (isDrawingRef.current) {
       const pointer = canvas.getPointer(options.e);
       lastPointerPosition = { x: pointer.x, y: pointer.y };
-      draw();
+      requestAnimationFrame(draw);
     }
-  }, 10); // Throttling
+  }  
 
-  function throttle(func, limit) {
-    let inThrottle;
-    return function () {
-      const args = arguments;
-      const context = this;
-      if (!inThrottle) {
-        func.apply(context, args);
-        inThrottle = true;
-        setTimeout(() => (inThrottle = false), limit);
-      }
-    };
-  }
+  // function throttle(func, limit) {
+  //   let inThrottle;
+  //   return function () {
+  //     const args = arguments;
+  //     const context = this;
+  //     if (!inThrottle) {
+  //       func.apply(context, args);
+  //       inThrottle = true;
+  //       setTimeout(() => (inThrottle = false), limit);
+  //     }
+  //   };
+  // }
 
   const draw = () => {
     if (canvas) {
+      canvas.selection = false; // it will not show the selection area on canvas
       const groupText = textDrawGroupRef.current;
       const newDistance = distance(position, lastPointerPosition);
-      let currentFontSize = fontSize;
-
-      if (currentFontSize > maxFontSize) {
-        currentFontSize = maxFontSize;
+      // Calculate speed based on previous mouse position
+      const currentTime = Date.now();
+      const timeDifference = currentTime - lastTime.current;
+      let FontSize;
+      if (timeDifference > 0) {
+        const distance = Math.hypot(
+          position.x - lastPointerPosition.x,
+          position.y - lastPointerPosition.y
+        );
+        const speed = distance / timeDifference;
+        // Update font size based on speed
+        const newFontSize = Math.floor(20 + speed * 5000); // Example formula, adjust as needed
+        FontSize = newFontSize;
       }
 
       const letter = textContent.charAt(textIndex);
-      const stepSize = textWidth(letter, currentFontSize);
+      const stepSize = textWidth(letter, 50);
 
       if (newDistance > stepSize) {
         const angle = Math.atan2(
           lastPointerPosition.y - position.y,
           lastPointerPosition.x - position.x
         );
+        // Calculate and set angle based on cursor movement direction
+        // let rotationAngle = null;
+        // if (
+        //   Math.abs(position.x - lastPointerPosition.x) >
+        //   Math.abs(position.y - lastPointerPosition.y)
+        // ) {
+        //   rotationAngle = position.x > lastPointerPosition.x ? 180 : 0; // Right to left or left to right
+        // } else {
+        //   rotationAngle = position.y > lastPointerPosition.y ? 90 : -90; // Top to bottom or bottom to top
+        // };
+        // // Generate random angle for each character
+        const rotationAngleRandom = Math.random() * 80;
         const textObject = new fabric.Text(letter, {
           left: position.x,
           top: position.y,
           fontFamily: fontFamily,
-          fontSize: brushSize,
+          fontSize: FontSize,
           fill: brushColor, // Set text color dynamically
           selectable: false,
           fontWeight: fontWeight,
           underline: textDecoration,
           fontStyle: fontStyle,
-          randomAngle: true,
+          angle: randomAngle ? rotationAngleRandom : null,
         });
         canvas.add(textObject);
         groupText.addWithUpdate(textObject);
@@ -426,11 +448,6 @@ const Drawtool = () => {
     const tempContext = tempCanvas.getContext("2d");
     tempContext.font = size + "px Georgia";
     return tempContext.measureText(string).width;
-  };
-
-  // These two below are not working...
-  const handleFontSizeChange = (event) => {
-    setFontSize(parseInt(event.target.value));
   };
 
   const changefillcolor = (e) => {
@@ -722,10 +739,12 @@ const Drawtool = () => {
 
   const handleUndo = () => {
     canvas.undo();
-    canvas.setBackgroundImage(
-      backgroundTransparent,
-      canvas.renderAll.bind(canvas)
-    );
+    fabric.Image.fromURL(backgroundTransparent, function (img) {
+      canvas.setBackgroundImage(img, canvas.renderAll.bind(canvas), {
+        scaleX: canvas.width / img.width,
+        scaleY: canvas.height / img.height,
+      });
+    });
   };
 
   // const handleRedo = () => {
