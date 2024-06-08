@@ -17,8 +17,6 @@ const Drawtool = () => {
   const [text, setText] = useState(
     "There was a table set out under a tree in front of the house, and the March Hare and the Hatter were having tea at it: a Dormouse was sitting between them, fast asleep, and the other two were using it as a cushion, resting their elbows on it, and talking over its head. 'Very uncomfortable for the Dormouse,' thought Alice; 'only, as it's asleep, I suppose it doesn't mind.'"
   );
-  const [textColor, setTextColor] = useState("#000000");
-  const [bgColor, setBgColor] = useState("#ffffff");
   const [minFontSize] = useState(8);
   const [maxFontSize] = useState(300);
   const [angleDistortion] = useState(0.01);
@@ -38,7 +36,6 @@ const Drawtool = () => {
   );
   const lastUpdateTime = useRef(0); // Track last update time
   const [width, setWidth] = useState(null);
-  const [TextObjects, setTextObjects] = useState();
   const textDrawGroupRef = useRef(null);
   const [height, setHeight] = useState(null);
   const [selectedTool, setSelectedTool] = useState(null);
@@ -72,22 +69,12 @@ const Drawtool = () => {
   const isDeleting = useRef(false);
   // state variables for image filter
   const [isImage, setisImage] = useState(false);
-  const lastTime = useRef(Date.now());
   // state variables for layers
   const [layers, setLayers] = useState([]);
   const [selectedLayer, setSelectedLayer] = useState(null);
-  const [history, setHistory] = useState([]);
-  const [redoHistory, setRedoHistory] = useState([]);
   const [isOpen, setIsOpen] = useState(false);
-  const [currentObjectimg, setcurrentObjectimg] = useState();
-  const [deleteIconVisible, setDeleteIconVisible] = useState(false);
-  const [currentObject, setcurrentObject] = useState({ x: 0, y: 0 });
-  const [deleteIconPosition, setDeleteIconPosition] = useState({ x: 0, y: 0 });
-  const [currentObjectimgt, setcurrentObjectimgt] = useState();
   const selectRef = useRef(null);
   const isDrawingRef = useRef(false);
-  const [fontSize, setFontSize] = useState(20); // Initial font size
-  // const [textColor, setTextColor] = useState("#000000"); // Initial text color
   const [borderCanvas, setborderCanvas] = useState(false); // Initial text color
   const [backgroundColor, setbackgroundColor] = useState(false);
   const [activeBlock, setactiveBlock] = useState({
@@ -120,7 +107,6 @@ const Drawtool = () => {
     mouseDown,
     position,
     textIndex,
-    textColor,
     minFontSize,
     maxFontSize,
     angleDistortion,
@@ -359,54 +345,6 @@ const Drawtool = () => {
         ctx.restore();
       }
 
-      //   ...........ends delete............
-
-      // 2. Reset control
-      // fabric.Object.prototype.controls.resetControl = new fabric.Control({
-      //   x: 0.55,
-      //   y: 0.48,
-      //   offsetY: 16,
-      //   cursorStyle: 'pointer',
-      //   mouseUpHandler: resetObject,
-      //   render: renderIconReset,
-      //   cornerSize: 30,
-      // });
-      // function resetObject(eventData, transform) {
-      //   const target = transform.target;
-      //   target.set({ scaleX: 1, scaleY: 1, angle: 0 });
-      //   target.setCoords();
-      //   target.canvas.requestRenderAll();
-      //     // not working right now but possible
-      //     isImage.filters = [];
-      //     isImage.applyFilters(); // Apply no filters
-      //     canvas.renderAll(); // Render canvas
-
-      // }
-      // function renderIconReset(ctx, left, top, styleOverride, fabricObject) {
-      //   const size = this.cornerSize;
-      //   ctx.save();
-      //   ctx.translate(left, top);
-      //   ctx.rotate(fabric.util.degreesToRadians(fabricObject.angle));
-      //   ctx.drawImage(resetImg, -size / 2, -size / 2, size, size);
-      //   ctx.restore();
-      // };
-
-      // 3.edit...
-      // fabric.Object.prototype.controls.editControl = new fabric.Control({
-      //   x: 0.56,
-      //   y: 0.4,
-      //   offsetY: 16,
-      //   cursorStyle: "pointer",
-      //   mouseUpHandler: editObject,
-      //   render: renderIconEdit,
-      //   cornerSize: 30,
-      // });
-
-      // function editObject(eventData, transform) {
-      //   const target = transform.target;
-      //   alert("You can edit and continue its design");
-      // }
-
       // Render Edit icon function
       function renderIconEdit(ctx, left, top, styleOverride, fabricObject) {
         const size = this.cornerSize;
@@ -418,48 +356,14 @@ const Drawtool = () => {
       }
 
       //////////edit ends////////////
-      // canvas.on("text:changed", () => {
-      //   updateHistory();
-      // });
-      // canvas.on("selection:created", (e) => {
-      //   let obj = canvas.getActiveObject();
-      //   setcurrentObject(obj);
-      //   setSelectedObject(e.target);
-      // });
 
-      // canvas.on("selection:updated", (e) => {
-      //   let obj = canvas.getActiveObject();
-      //   setcurrentObject(obj);
-      //   if (obj && obj.type === "image") {
-      //     setisImage(obj);
-      //     setcurrentObjectimg(obj);
-      //   }
-      //   setSelectedObject(e.target);
-      // });
-
-      // canvas.on("selection:cleared", () => {
-      //   setcurrentObject(null);
-      //   setSelectedObject(null);
-      // });
       // texter tool
       return canvas;
     };
     const canvasElement = initCanvas();
     setCanvas(canvasElement);
-    const updateHistory = () => {
-      const canvasState = JSON.stringify(canvasElement.toJSON());
-      setHistory((prevHistory) => [...prevHistory, canvasState]);
-    };
 
-    // canvasElement.on("object:added", updateHistory);
-    // canvasElement.on("object:modified", updateHistory);
-    // canvasElement.on("object:removed", updateHistory);
-    // canvasElement.on("mouse:move", handleMouseMove);
-    // Cleanup on unmount
     return () => {
-      // canvasElement.off("object:added", updateHistory);
-      // canvasElement.off("object:modified", updateHistory);
-      // canvasElement.off("object:removed", updateHistory);
       canvasElement.dispose(); // very important
     };
   }, []);
@@ -468,105 +372,6 @@ const Drawtool = () => {
   const handleMouseUp = () => {
     isDrawingRef.current = false;
   };
-
-  // const handleMouseDown = (options) => {
-  //   isDrawingRef.current = true;
-  //   const pointer = canvas.getPointer(options.e);
-  //   position = { x: pointer.x, y: pointer.y };
-  //   lastPointerPosition = { x: pointer.x, y: pointer.y };
-  // };
-
-  // const handleMouseMovet =  (options) => {
-  //   if (isDrawingRef.current) {
-  //     const pointer = canvas.getPointer(options.e);
-  //     lastPointerPosition = { x: pointer.x, y: pointer.y };
-  //     requestAnimationFrame(draw);
-  //   }
-  // }
-
-  // function throttle(func, limit) {
-  //   let inThrottle;
-  //   return function () {
-  //     const args = arguments;
-  //     const context = this;
-  //     if (!inThrottle) {
-  //       func.apply(context, args);
-  //       inThrottle = true;
-  //       setTimeout(() => (inThrottle = false), limit);
-  //     }
-  //   };
-  // }
-
-  // const draw = () => {
-  //   if (canvas) {
-  //     canvas.selection = false; // it will not show the selection area on canvas
-  //     const groupText = textDrawGroupRef.current;
-  //     const newDistance = distance(position, lastPointerPosition);
-  //     // Calculate speed based on previous mouse position
-  //     const currentTime = Date.now();
-  //     const timeDifference = currentTime - lastTime.current;
-  //     let FontSize;
-  //     if (timeDifference > 0) {
-  //       const distance = Math.hypot(
-  //         position.x - lastPointerPosition.x,
-  //         position.y - lastPointerPosition.y
-  //       );
-  //       const speed = distance / timeDifference;
-  //       // Update font size based on speed
-  //       const newFontSize = Math.floor(20 + speed * 5000); // Example formula, adjust as needed
-  //       FontSize = newFontSize;
-  //     }
-
-  //     const letter = textContent.charAt(textIndex);
-  //     const stepSize = textWidth(letter, 50);
-
-  //     if (newDistance > stepSize) {
-  //       const angle = Math.atan2(
-  //         lastPointerPosition.y - position.y,
-  //         lastPointerPosition.x - position.x
-  //       );
-  //       // Calculate and set angle based on cursor movement direction
-  //       // let rotationAngle = null;
-  //       // if (
-  //       //   Math.abs(position.x - lastPointerPosition.x) >
-  //       //   Math.abs(position.y - lastPointerPosition.y)
-  //       // ) {
-  //       //   rotationAngle = position.x > lastPointerPosition.x ? 180 : 0; // Right to left or left to right
-  //       // } else {
-  //       //   rotationAngle = position.y > lastPointerPosition.y ? 90 : -90; // Top to bottom or bottom to top
-  //       // };
-  //       // // Generate random angle for each character
-  //       const rotationAngleRandom = Math.random() * 80;
-  //       const textObject = new fabric.Text(letter, {
-  //         left: position.x,
-  //         top: position.y,
-  //         fontFamily: fontFamily,
-  //         fontSize: FontSize,
-  //         fill: brushColor, // Set text color dynamically
-  //         selectable: false,
-  //         fontWeight: fontWeight,
-  //         underline: textDecoration,
-  //         fontStyle: fontStyle,
-  //         angle: randomAngle ? rotationAngleRandom : null,
-  //       });
-  //       canvas.add(textObject);
-  //       groupText.addWithUpdate(textObject);
-  //       textIndex = (textIndex + 1) % textToDraw.length;
-  //       position.x += Math.cos(angle) * stepSize;
-  //       position.y += Math.sin(angle) * stepSize;
-  //     }
-  //   }
-  // };
-
-  // const distance = (pt1, pt2) =>
-  //   Math.sqrt((pt2.x - pt1.x) ** 2 + (pt2.y - pt1.y) ** 2);
-
-  // const textWidth = (string, size) => {
-  //   const tempCanvas = document.createElement("canvas");
-  //   const tempContext = tempCanvas.getContext("2d");
-  //   tempContext.font = size + "px Georgia";
-  //   return tempContext.measureText(string).width;
-  // };
 
   const changefillcolor = (e) => {
     setFillType(e.target.value);
@@ -587,7 +392,7 @@ const Drawtool = () => {
     if (selectRef.current) {
       selectRef.current.selectedIndex = 0;
     }
-  }, [isImage, currentObjectimg]);
+  }, [isImage]);
 
   const resizeCanvas = (newSize) => {
     if (canvas) {
@@ -703,12 +508,7 @@ const Drawtool = () => {
       });
     }
   };
-  // Function to handle mouse move event and update delete icon position
-  const handleMouseMove = (e) => {
-    if (canvas && currentObject) {
-      setDeleteIconPosition({ x: currentObject.left, y: currentObject.top });
-    }
-  };
+
   // handleTexture
   const handleBrushMain = (canvas) => {
     setactiveBlock({ brush: !activeBlock.brush });
@@ -736,9 +536,6 @@ const Drawtool = () => {
         canvas.isDrawingMode = false;
         break;
       case "brush":
-        // canvas.isDrawingMode = true;
-        // canvas.freeDrawingBrush.color = brushColor;
-        // canvas.freeDrawingBrush.width = brushSize;
         handleBrushMain(canvas);
         break;
       // we will add a pencil or other shapes we can draw
@@ -755,10 +552,6 @@ const Drawtool = () => {
         setstartDrawing(false);
 
         if (canvas) {
-          console.log("events are being off");
-          // canvas.off("mouse:down", handleMouseDown);
-          // canvas.off("mouse:move", handleMouseMovet);
-          // canvas.off("mouse:up", handleMouseUp);
           setactiveBlock({ fill: !activeBlock.fill });
         }
 
@@ -768,17 +561,18 @@ const Drawtool = () => {
 
         setactiveBlock({ shapes: !activeBlock.shapes });
         break;
+
       case "image":
         setstartDrawing(false);
         canvas.isDrawingMode = false;
         handleAddImage();
         break;
+
       case "layers":
         setstartDrawing(false);
         canvas.isDrawingMode = false;
         getAllLayers();
-        // addLayer();
-        // Implement layers functionality
+
         break;
       case "undo":
         handleUndo();
@@ -912,54 +706,6 @@ const Drawtool = () => {
     });
     setShowSizeCropModal(false);
   };
-  // useEffect(() => {
-  //   if (canvas && activeBlock.brush) {
-  //     // useeffect can capture state correctly if it was else update any where
-  //     canvas.on("mouse:down", handleMouseDown);
-  //     canvas.on("mouse:move", handleMouseMovet);
-  //     canvas.on("mouse:up", handleMouseUp);
-  //   }
-  //   // Cleanup function: Detach event listeners when component unmounts
-  //   return () => {
-  //     // it will be called if dep updates
-  //     if (
-  //       canvas &&
-  //       (activeBlock.brush ||
-  //         activeBlock.fill ||
-  //         activeBlock.crop ||
-  //         activeBlock.shapes ||
-  //         brushColor ||
-  //         brushSize ||
-  //         textContent ||
-  //         fontFamily ||
-  //         letterSpacing ||
-  //         fontWeight ||
-  //         textDecoration ||
-  //         fontStyle ||
-  //         randomAngle ||
-  //         selectedTool === "select")
-  //     ) {
-  //       canvas.off("mouse:down", handleMouseDown);
-  //       canvas.off("mouse:move", handleMouseMovet);
-  //       canvas.off("mouse:up", handleMouseUp);
-  //     }
-  //   };
-  // }, [
-  //   canvas,
-  //   brushColor,
-  //   brushSize,
-  //   textContent,
-  //   fontFamily,
-  //   letterSpacing,
-  //   fontWeight,
-  //   textDecoration,
-  //   fontStyle,
-  //   randomAngle,
-  //   activeBlock.fill,
-  //   activeBlock.crop,
-  //   activeBlock.shapes,
-  //   selectedTool === "select",
-  // ]); // pass deps array it will cause the unmount when state changes,
 
   const handleAddText = () => {
     setstartDrawing(true);
@@ -1019,8 +765,8 @@ const Drawtool = () => {
     canvas.add(newLayer); // first add a new layer to canvas
     canvas.setActiveObject(newLayer); // then active the controls selection
     setLayers([...layers, newLayer]);
-    // setSelectedLayer(newLayer); // Select the newly added layer
   };
+
   // layer management functions
   const getAllLayers = () => {
     if (canvas) {
@@ -1753,11 +1499,6 @@ const Drawtool = () => {
           )}
         </div>
         <div className="flex-1 p-4">
-          {/* <div className="flex z-40 fixed top-0 items-center w-full max-w-xs p-2 space-x-4 rtl:space-x-reverse bg-white opacity-45 text-black divide-x rtl:divide-x-reverse divide-gray-200 rounded-lg shadow dark:text-gray-400 dark:divide-gray-700 space-x dark:bg-gray-800">
-            <div className="ps-4 text-sm font-normal">Canvas Size: {Math.round(width)} x {Math.round(height)}
-            </div>
-          </div> */}
-
           <div className="flex justify-center h-[screen]">
             <CropperTool
               selectedTool={selectedTool}
