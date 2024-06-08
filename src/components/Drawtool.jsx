@@ -129,51 +129,60 @@ const Drawtool = () => {
   };
 
   const handleMouseMovea = (event) => {
-    if (!mouseDown) return;
-    canvas.selection = false;
-    const currentTime = Date.now();
-    // Throttle updates with a minimum time interval (e.g., 10ms)
-    if (currentTime - lastUpdateTime.current < 30) return;
-    lastUpdateTime.current = currentTime; // Update last update time
-    const pointer = canvas.getPointer(event.e);
-    const newDistance = distance(position, pointer);
-    let fontSize = minFontSize + newDistance / 2;
-    if (fontSize > maxFontSize) {
-      fontSize = maxFontSize;
-    }
-    const letter = text[textIndex];
-    const stepSize = textWidth(letter, fontSize);
-    // Update position based on a fraction of the distance
-    const updateFactor = 0.2; // Adjust for desired smoothness (0-1)
-    const deltaX = (pointer.x - position.x) * updateFactor;
-    const deltaY = (pointer.y - position.y) * updateFactor;
+    try {
+      if (!mouseDown) return;
+      canvas.selection = false;
+      const currentTime = Date.now();
+      // Throttle updates with a minimum time interval (e.g., 10ms)
+      if (currentTime - lastUpdateTime.current < 24) return;
+      lastUpdateTime.current = currentTime; // Update last update time
+      requestAnimationFrame(() => {
+        const pointer = canvas.getPointer(event.e);
+        const newDistance = distance(position, pointer);
+        let fontSize = minFontSize + newDistance / 2;
+        if (fontSize > maxFontSize) {
+          fontSize = maxFontSize;
+        }
+        const letter = text[textIndex];
+        const stepSize = textWidth(letter, fontSize);
+        // Update position based on a fraction of the distance
+        const updateFactor = 0.2; // Adjust for desired smoothness (0-1)
+        const deltaX = (pointer.x - position.x) * updateFactor;
+        const deltaY = (pointer.y - position.y) * updateFactor;
 
-    setPosition({
-      x: position.x + deltaX,
-      y: position.y + deltaY,
-    });
-    if (newDistance > stepSize) {
-      const angle = Math.atan2(pointer.y - position.y, pointer.x - position.x);
-      const randomRotation =
-        Math.random() * angleDistortion * 2 - angleDistortion;
+        setPosition({
+          x: position.x + deltaX,
+          y: position.y + deltaY,
+        });
+        if (newDistance > stepSize) {
+          const angle = Math.atan2(
+            pointer.y - position.y,
+            pointer.x - position.x
+          );
+          const randomRotation =
+            Math.random() * angleDistortion * 2 - angleDistortion;
 
-      const textObject = new fabric.Text(letter, {
-        left: position.x,
-        top: position.y,
-        fontSize: fontSize,
-        fill: brushColor,
-        angle: (angle * 180) / Math.PI + randomRotation,
-        originX: "center",
-        originY: "center",
-        selectable: false,
+          const textObject = new fabric.Text(letter, {
+            left: position.x,
+            top: position.y,
+            fontSize: fontSize,
+            fill: brushColor,
+            angle: (angle * 180) / Math.PI + randomRotation,
+            originX: "center",
+            originY: "center",
+            selectable: false,
+          });
+
+          canvas.add(textObject);
+          setTextIndex((textIndex + 1) % text.length);
+          setPosition({
+            x: position.x + Math.cos(angle) * stepSize,
+            y: position.y + Math.sin(angle) * stepSize,
+          });
+        }
       });
-
-      canvas.add(textObject);
-      setTextIndex((textIndex + 1) % text.length);
-      setPosition({
-        x: position.x + Math.cos(angle) * stepSize,
-        y: position.y + Math.sin(angle) * stepSize,
-      });
+    } catch (error) {
+      toast.message("Preparing...");
     }
   };
   const distance = (pt, pt2) => {
@@ -659,6 +668,14 @@ const Drawtool = () => {
   };
 
   const handleUndo = () => {
+    // Remove all text objects from the canvas
+    const objects = canvas.getObjects();
+    objects.forEach((obj) => {
+      console.log("obj", obj.type);
+      if (obj.type === "text" || obj.type === "i-text") {
+        canvas.remove(obj);
+      }
+    });
     canvas.undo();
     fabric.Image.fromURL(backgroundTransparent, function (img) {
       canvas.setBackgroundImage(img, canvas.renderAll.bind(canvas), {
