@@ -14,9 +14,7 @@ const Drawtool = () => {
   const canvasRef = useRef(null);
   const [canvas, setCanvas] = useState(null);
   const [startDrawing, setstartDrawing] = useState(false);
-  const [text, setText] = useState(
-    "There was a table set out under a tree in front of the house, and the March Hare and the Hatter were having tea at it: a Dormouse was sitting between them, fast asleep, and the other two were using it as a cushion, resting their elbows on it, and talking over its head. 'Very uncomfortable for the Dormouse,' thought Alice; 'only, as it's asleep, I suppose it doesn't mind.'"
-  );
+  const [text, setText] = useState("Type some Text here!");
   const [minFontSize] = useState(8);
   const [maxFontSize] = useState(300);
   const [angleDistortion] = useState(0.01);
@@ -39,7 +37,7 @@ const Drawtool = () => {
   const textDrawGroupRef = useRef(null);
   const [height, setHeight] = useState(null);
   const [selectedTool, setSelectedTool] = useState(null);
-  const [brushColor, setBrushColor] = useState(null);
+  const [brushColor, setBrushColor] = useState("#000000");
   const [canvasSize, setCanvasSize] = useState({
     width: window.innerWidth - 256,
     height: window.innerHeight,
@@ -59,8 +57,8 @@ const Drawtool = () => {
   // New state variables for brush/pen tool
   const [textContent, setTextContent] = useState("");
   const [fontFamily, setFontFamily] = useState("Arial");
-  const [letterSpacing, setLetterSpacing] = useState(0);
-  const [wordSpacing, setWordSpacing] = useState(0);
+  // const [letterSpacing, setLetterSpacing] = useState(3);
+  // const [wordSpacing, setWordSpacing] = useState(3);
   const [fontWeight, setFontWeight] = useState("normal");
   const [fontStyle, setFontStyle] = useState("normal");
   const [textDecoration, setTextDecoration] = useState("");
@@ -77,6 +75,14 @@ const Drawtool = () => {
   const isDrawingRef = useRef(false);
   const [borderCanvas, setborderCanvas] = useState(false); // Initial text color
   const [backgroundColor, setbackgroundColor] = useState(false);
+
+  const [wordSpacing, setwordSpacing] = useState(
+    localStorage.getItem("wordspacing") || 3
+  );
+  const [letterSpacing, setletterSpacing] = useState(
+    localStorage.getItem("letterspacing") || 3
+  );
+
   const [activeBlock, setactiveBlock] = useState({
     zoom: false,
     crop: false,
@@ -120,7 +126,7 @@ const Drawtool = () => {
     console.log("mouse down");
     setMouseDown(true);
     const pointer = canvas.getPointer(event.e);
-    setPosition({ x: pointer.x, y: pointer.y });
+    setPosition({ x: pointer.x, y: pointer.y }); // pointer start position
   };
 
   const handleMouseUpa = () => {
@@ -133,9 +139,8 @@ const Drawtool = () => {
       if (!mouseDown) return;
       canvas.selection = false;
       const currentTime = Date.now();
-      // Throttle updates with a minimum time interval (e.g., 10ms)
       if (currentTime - lastUpdateTime.current < 24) return;
-      lastUpdateTime.current = currentTime; // Update last update time
+      lastUpdateTime.current = currentTime;
       requestAnimationFrame(() => {
         const pointer = canvas.getPointer(event.e);
         const newDistance = distance(position, pointer);
@@ -144,16 +149,8 @@ const Drawtool = () => {
           fontSize = maxFontSize;
         }
         const letter = text[textIndex];
-        const stepSize = textWidth(letter, fontSize);
-        // Update position based on a fraction of the distance
-        const updateFactor = 0.2; // Adjust for desired smoothness (0-1)
-        const deltaX = (pointer.x - position.x) * updateFactor;
-        const deltaY = (pointer.y - position.y) * updateFactor;
-
-        setPosition({
-          x: position.x + deltaX,
-          y: position.y + deltaY,
-        });
+        let letterSpacing = localStorage.getItem("letterspacing");
+        const stepSize = textWidth(letter, fontSize) + Number(letterSpacing);
         if (newDistance > stepSize) {
           const angle = Math.atan2(
             pointer.y - position.y,
@@ -174,17 +171,25 @@ const Drawtool = () => {
           });
 
           canvas.add(textObject);
-          setTextIndex((textIndex + 1) % text.length);
-          setPosition({
-            x: position.x + Math.cos(angle) * stepSize,
-            y: position.y + Math.sin(angle) * stepSize,
-          });
+          setTextIndex((textIndex + 1) % text.length); // Update index
+
+          let newX = position.x + Math.cos(angle) * stepSize;
+          let newY = position.y + Math.sin(angle) * stepSize;
+          let wordSpacing = localStorage.getItem("wordspacing");
+          if (letter === " ") {
+            newX += Math.cos(angle) * Number(wordSpacing);
+            newY += Math.sin(angle) * Number(wordSpacing);
+          }
+
+          setPosition({ x: newX, y: newY });
         }
       });
     } catch (error) {
+      console.error("Error in handleMouseMovea:", error);
       toast.message("Preparing...");
     }
   };
+
   const distance = (pt, pt2) => {
     const xs = (pt2.x - pt.x) ** 2;
     const ys = (pt2.y - pt.y) ** 2;
@@ -197,14 +202,11 @@ const Drawtool = () => {
     return context.measureText(string).width;
   };
 
+  const onchangeTEXT = (e) => {
+    setText(e.target.value);
+  };
+
   const toggleDropdown = () => setIsOpen(!isOpen);
-  const textToDraw = textContent;
-  // const minFontSize = 8;
-  // const maxFontSize = 300;
-  // let textIndex = 0;
-  // let position = { x: 0, y: window.innerHeight / 2 };
-  let lastPointerPosition = { x: 0, y: 0 };
-  const [currentCropImg, setcurrentCropImg] = useState();
   const getCanvasSizeCB = (width, height) => {
     let customSize = { width, height };
     resizeCanvas(customSize);
@@ -439,6 +441,15 @@ const Drawtool = () => {
     }
   }
   // drawing shapes
+  const wordSpacingonchange = (e) => {
+    localStorage.setItem("wordspacing", e.target.value);
+    setwordSpacing(e.target.value);
+  };
+  const letterSpacingonchange = (e) => {
+    localStorage.setItem("letterspacing", e.target.value);
+    setletterSpacing(e.target.value);
+  };
+
   // 1. rectangle
   const drawRect = () => {
     let isDrawing = false;
@@ -554,7 +565,6 @@ const Drawtool = () => {
         break;
       case "crop":
         setstartDrawing(false);
-
         setactiveBlock({ crop: !activeBlock.crop });
         break;
       case "fill":
@@ -726,17 +736,7 @@ const Drawtool = () => {
 
   const handleAddText = () => {
     setstartDrawing(true);
-    if (!brushColor) {
-      toast.error("Please add one color to draw.");
-      return;
-    }
-    if (text === "") {
-      toast.error(" Please add some text.");
-      return;
-    }
-    if (brushColor) {
-      setactiveBlock({ brush: !activeBlock.brush });
-    }
+    setactiveBlock({ brush: !activeBlock.brush });
   };
 
   const handleBackgroundFill = () => {
@@ -1027,7 +1027,7 @@ const Drawtool = () => {
     // { name: "pencil", icon: cursorIcon },
     { name: "fill", icon: fill },
     { name: "image", icon: image },
-    { name: "layers", icon: layer },
+    // { name: "layers", icon: layer },
     { name: "undo", icon: undo },
   ];
   return (
@@ -1194,7 +1194,7 @@ const Drawtool = () => {
                         value={brushColor}
                         onChange={handleBrushColorChange}
                       />
-                      <label className="block mb-2">Brush Size:</label>
+                      {/* <label className="block mb-2">Brush Size:</label>
                       <input
                         className="text-black"
                         type="number"
@@ -1202,11 +1202,13 @@ const Drawtool = () => {
                         onChange={handleBrushSizeChange}
                         min="1"
                         max="100"
-                      />
+                      /> */}
                       <label className="block mb-2">Text Content:</label>
                       <input
                         type="text"
-                        onChange={(e) => setText(e.target.value)}
+                        placeholder="Type some text here!"
+                        value={text}
+                        onChange={(e) => onchangeTEXT(e)}
                         className="border p-2 w-full text-black"
                       />
                       <label className="block mb-2">Font Family:</label>
@@ -1221,23 +1223,32 @@ const Drawtool = () => {
                         <option value="Times New Roman">Times New Roman</option>
                         {/* Add more fonts as needed */}
                       </select>
-                      <label className="block mb-2">Letter Spacing:</label>
+                      <label className="block mb-2">
+                        Letter Spacing:(max val):30
+                      </label>
                       <input
                         type="number"
                         value={letterSpacing}
-                        onChange={(e) => setLetterSpacing(e.target.value)}
+                        onChange={(e) => letterSpacingonchange(e)}
                         className="border p-2 w-full text-black"
+                        max={30}
+                        min={1}
                       />
-                      <label className="block mb-2">Word Spacing:</label>
+                      <label className="block mb-2">
+                        Word Spacing:(max val):30
+                      </label>
                       <input
                         type="number"
+                        // defaultValue={3}
                         value={wordSpacing}
-                        onChange={(e) => setWordSpacing(e.target.value)}
+                        onChange={(e) => wordSpacingonchange(e)}
                         className="border p-2 w-full text-black"
+                        max={30}
+                        min={1}
                       />
                       <label className="block mb-2">Font Weight:</label>
                       <select
-                        value={fontWeight}
+                        // defaultValue={3}
                         onChange={(e) => setFontWeight(e.target.value)}
                         className="border p-2 w-full text-black"
                       >
@@ -1370,11 +1381,6 @@ const Drawtool = () => {
                 {tool.name === selectedTool && (
                   <div className="fixed left-[110px] top-[270px] z-50">
                     <div className="flex-1 overflow-y-auto p-2 broder border-yellow-300 rounded-md">
-                      {/* <div className="mb-4">
-                  <button className="w-full p-2 mb-2 bg-gray-700 hover:bg-gray-600 rounded" onClick={addLayer}>
-                    Add Layer
-                  </button>
-                </div> */}
                       {layers.map((layer) => (
                         <div
                           key={layer.id}
