@@ -22,15 +22,33 @@ const CropperTool = ({ selectedTool, getCanvasSizeCB, showSizeCropModal, setShow
     setRect({ width: 0, height: 0, left: x, top: y });
     setIsDrawing(true);
   };
-
   const handleMouseMove = (e) => {
     if (!isDrawing) return;
+
+    const drawingAreaRect = containerRef.current.getBoundingClientRect();
     const { x, y } = getPointerPosition(e);
     const width = x - startPos.x;
     const height = y - startPos.y;
+
+    // Scroll drawing area when the mouse reaches the edges
+    const scrollThreshold = 10; // Pixels from edge to trigger scroll
+
+    if (x > drawingAreaRect.right - scrollThreshold) {
+      containerRef.current.scrollLeft += scrollThreshold;
+    } else if (x < drawingAreaRect.left + scrollThreshold) {
+      containerRef.current.scrollLeft -= scrollThreshold;
+    }
+
+    if (y > drawingAreaRect.bottom - scrollThreshold) {
+      containerRef.current.scrollTop += scrollThreshold;
+    } else if (y < drawingAreaRect.top + scrollThreshold) {
+      containerRef.current.scrollTop -= scrollThreshold;
+    }
+
+    // Update rectangle dimensions and position
     setRect({
-      width: Math.abs(width),
-      height: Math.abs(height),
+      width: Math.round(width),
+      height: Math.round(height),
       left: width < 0 ? x : startPos.x,
       top: height < 0 ? y : startPos.y,
     });
@@ -67,14 +85,14 @@ const CropperTool = ({ selectedTool, getCanvasSizeCB, showSizeCropModal, setShow
       onTouchMove={handleMouseMove}
       onTouchEnd={handleMouseUp}
       style={{
-        width: showSizeCropModal ? '88vw' : "93vw",
+        width: showSizeCropModal ? '80vw' : "100vw",
         height: '100vh',
         position: 'fixed', // Ensure it overlays everything
         overflow: 'hidden',
         cursor: isDrawing ? 'crosshair' : 'default',
         zIndex: "100", // set max value of zindex
         marginRight: "auto",
-        marginLeft: showSizeCropModal ? "0px" : "0px"
+        marginLeft: showSizeCropModal ? "0px" : "40px"
       }}
     >
       {(isDrawing || isDrawn) && (
@@ -83,10 +101,10 @@ const CropperTool = ({ selectedTool, getCanvasSizeCB, showSizeCropModal, setShow
             style={{
               position: 'absolute',
               border: '1px solid blue',
-              width: `${rect.width}px`,
-              height: `${rect.height}px`,
-              left: `${rect.left}px`,
-              top: `${rect.top}px`,
+              width: `${Math.round(rect.width)}px`,
+              height: `${Math.round(rect.height)}px`,
+              left: `${Math.round(rect.left)}px`,
+              top: `${Math.round(rect.top)}px`,
               boxSizing: 'border-box',
             }}
           >
@@ -216,7 +234,7 @@ const CropperTool = ({ selectedTool, getCanvasSizeCB, showSizeCropModal, setShow
         </>
       )}
       <div style={{ position: 'absolute', bottom: 10, left: 10, padding: '10px', fontSize: '14px', color: 'lightgray' }}>
-        {`Width: ${rect.width}px, Height: ${rect.height}px`}
+        {`Width: ${Math.round(rect.width)}px, Height: ${Math.round(rect.height)}px`}
       </div>
     </div>
   );
