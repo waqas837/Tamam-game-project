@@ -1586,6 +1586,7 @@ const Drawtool = () => {
               showSizeCropModal={showSizeCropModal}
               setShowSizeCropModal={setShowSizeCropModal}
             />
+            <div className="w-[1500px] h-screen overflow-hidden flex justify-center items-center">
             {/* Direct conditions are not allowed in jsx, while there is needed a parent div or element*/}
             <div className="relative">
               {borderCanvas ? (
@@ -1636,7 +1637,7 @@ const Drawtool = () => {
                 ""
               )}
             </div>
-            <div className="w-[1500px] h-screen overflow-hidden flex justify-center items-center">
+            
               <canvas
                 id="canvas"
                 ref={canvasRef}
