@@ -59,9 +59,15 @@ const Drawtool = () => {
   const [fontFamily, setFontFamily] = useState("Arial");
   // const [letterSpacing, setLetterSpacing] = useState(3);
   // const [wordSpacing, setWordSpacing] = useState(3);
-  const [fontWeight, setFontWeight] = useState("normal");
-  const [fontStyle, setFontStyle] = useState("normal");
-  const [textDecoration, setTextDecoration] = useState("");
+  const [fontWeight, setFontWeight] = useState(
+    localStorage.getItem("fw") || "normal"
+  );
+  const [fontStyle, setFontStyle] = useState(
+    localStorage.getItem("fs") || "normal"
+  );
+  const [textDecoration, setTextDecoration] = useState(
+    localStorage.getItem("td") || false
+  );
   const [brushSize, setBrushSize] = useState(10);
   const [randomAngle, setRandomAngle] = useState(false);
   const isDeleting = useRef(false);
@@ -123,14 +129,12 @@ const Drawtool = () => {
   ]);
 
   const handleMouseDowna = (event) => {
-    console.log("mouse down");
     setMouseDown(true);
     const pointer = canvas.getPointer(event.e);
     setPosition({ x: pointer.x, y: pointer.y }); // pointer start position
   };
 
   const handleMouseUpa = () => {
-    console.log("mouse up");
     setMouseDown(false);
   };
 
@@ -156,8 +160,16 @@ const Drawtool = () => {
             pointer.y - position.y,
             pointer.x - position.x
           );
-          const randomRotation =
-            Math.random() * angleDistortion * 2 - angleDistortion;
+          let randomRotation;
+          if (randomAngle) {
+            // This value for random rotation max angle.
+            const maxRotation = 60; // Maximum rotation in degrees
+            // Generate a random angle between -maxRotation and maxRotation
+            randomRotation = Math.random() * 2 * maxRotation - maxRotation;
+          } else {
+            randomRotation =
+              Math.random() * angleDistortion * 2 - angleDistortion;
+          }
 
           const textObject = new fabric.Text(letter, {
             left: position.x,
@@ -168,6 +180,12 @@ const Drawtool = () => {
             originX: "center",
             originY: "center",
             selectable: false,
+            fontWeight: localStorage.getItem("fw") || "normal",
+            fontStyle: localStorage.getItem("fs") || "normal",
+            underline:
+              localStorage.getItem("td") === "underline" ? true : false,
+            linethrough:
+              localStorage.getItem("td") === "line-through" ? true : false,
           });
 
           canvas.add(textObject);
@@ -445,9 +463,15 @@ const Drawtool = () => {
     localStorage.setItem("wordspacing", e.target.value);
     setwordSpacing(e.target.value);
   };
+
   const letterSpacingonchange = (e) => {
     localStorage.setItem("letterspacing", e.target.value);
     setletterSpacing(e.target.value);
+  };
+
+  const fontWeightChange = (e) => {
+    setFontWeight(e.target.value);
+    localStorage.setItem("fw", e.target.value);
   };
 
   // 1. rectangle
@@ -885,6 +909,28 @@ const Drawtool = () => {
       alert("No saved drawing found!");
     }
   };
+  // onchange fontstyle
+  const onchangeFontStyle = (e) => {
+    setFontStyle(e.target.value);
+    localStorage.setItem("fs", e.target.value);
+  };
+
+  // onchange fontstyle
+  const onchangeTextDecoration = (e) => {
+    setTextDecoration(e.target.value);
+    localStorage.setItem("td", e.target.value);
+  };
+
+  // onchange fontstyle
+  const randomAnglefn = (e) => {
+    if (randomAngle) {
+      setRandomAngle(false);
+      localStorage.setItem("ra", false);
+    } else if (!randomAngle) {
+      setRandomAngle(true);
+      localStorage.setItem("ra", true);
+    }
+  };
   // icons list
   let cursorIcon = (
     <svg
@@ -1248,8 +1294,8 @@ const Drawtool = () => {
                       />
                       <label className="block mb-2">Font Weight:</label>
                       <select
-                        // defaultValue={3}
-                        onChange={(e) => setFontWeight(e.target.value)}
+                        defaultValue={fontWeight}
+                        onChange={(e) => fontWeightChange(e)}
                         className="border p-2 w-full text-black"
                       >
                         <option value="normal">Normal</option>
@@ -1258,7 +1304,7 @@ const Drawtool = () => {
                       <label className="block mb-2">Font Style:</label>
                       <select
                         value={fontStyle}
-                        onChange={(e) => setFontStyle(e.target.value)}
+                        onChange={(e) => onchangeFontStyle(e)}
                         className="border p-2 w-full text-black"
                       >
                         <option value="normal">Normal</option>
@@ -1267,19 +1313,19 @@ const Drawtool = () => {
                       <label className="block mb-2">Text Decoration:</label>
                       <select
                         value={textDecoration}
-                        onChange={(e) => setTextDecoration(e.target.value)}
+                        onChange={(e) => onchangeTextDecoration(e)}
                         className="border p-2 w-full text-black"
                       >
                         <option value="">None</option>
                         <option value="underline">Underline</option>
                         <option value="line-through">Strikethrough</option>
                       </select>
-                      <label className="block mb-2">Random Angle:</label>
+                      <label className="block mb-2">Random Angle</label>
                       <input
                         className="text-black"
                         type="checkbox"
                         checked={randomAngle}
-                        onChange={(e) => setRandomAngle(e.target.checked)}
+                        onChange={(e) => randomAnglefn(e)}
                       />
                       <button
                         onClick={handleAddText}
