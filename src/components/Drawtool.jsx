@@ -39,8 +39,8 @@ const Drawtool = () => {
   const [selectedTool, setSelectedTool] = useState(null);
   const [brushColor, setBrushColor] = useState("#000000");
   const [canvasSize, setCanvasSize] = useState({
-    width: window.innerWidth - 256,
-    height: window.innerHeight,
+    width: 500,
+    height: 500,
   });
   const [selectedObject, setSelectedObject] = useState(null);
   const [zoomLevel, setZoomLevel] = useState(1);
@@ -341,13 +341,21 @@ const Drawtool = () => {
         render: renderIconDelete,
         cornerSize: 30,
       });
-      const initialGroup = new fabric.Group([], {
-        left: 0,
-        top: 0,
-        selectable: false,
+      canvas.on("mouse:down", (e) => {
+        const selectedObject = e.target;
+        if (selectedObject && selectedObject.type === "image") {
+          setisImage(selectedObject);
+          setSelectedTool("image");
+        }
       });
-      textDrawGroupRef.current = initialGroup;
-      canvas.add(initialGroup);
+
+      // const initialGroup = new fabric.Group([], {
+      //   left: 0,
+      //   top: 0,
+      //   selectable: false,
+      // });
+      // textDrawGroupRef.current = initialGroup;
+      // canvas.add(initialGroup);
       // setLayers([initialGroup]);
 
       // Delete object function
@@ -356,8 +364,13 @@ const Drawtool = () => {
           isDeleting.current = true;
           const target = transform.target;
           const canvas = target.canvas;
+          // Check if the target is an image
+          if (target.type === "image") {
+            setisImage(null);
+          }
           canvas.remove(target);
           canvas.requestRenderAll();
+
           setTimeout(() => {
             isDeleting.current = false;
           }, 200); // small delay to ensure state is managed
@@ -375,14 +388,14 @@ const Drawtool = () => {
       }
 
       // Render Edit icon function
-      function renderIconEdit(ctx, left, top, styleOverride, fabricObject) {
-        const size = this.cornerSize;
-        ctx.save();
-        ctx.translate(left, top);
-        ctx.rotate(fabric.util.degreesToRadians(fabricObject.angle));
-        ctx.drawImage(editImg, -size / 2, -size / 2, size, size);
-        ctx.restore();
-      }
+      // function renderIconEdit(ctx, left, top, styleOverride, fabricObject) {
+      //   const size = this.cornerSize;
+      //   ctx.save();
+      //   ctx.translate(left, top);
+      //   ctx.rotate(fabric.util.degreesToRadians(fabricObject.angle));
+      //   ctx.drawImage(editImg, -size / 2, -size / 2, size, size);
+      //   ctx.restore();
+      // }
 
       //////////edit ends////////////
 
@@ -701,35 +714,21 @@ const Drawtool = () => {
     canvas.renderAll();
   };
 
-  const backgroundImageURL = backgroundTransparent; // Store the background image URL
+  const backgroundImageURL = backgroundTransparent; // Store the background image b
   const handleUndo = () => {
-    // Remove all text objects from the canvas
-    const objects = canvas.getObjects();
-    objects.forEach((obj) => {
-      if (obj.type === "text" || obj.type === "i-text") {
-        canvas.remove(obj);
-      }
-    });
     // Perform the undo operation
-    canvas.undo().then(() => {
-      // Re-apply the background image after undo
+    canvas.undo();
+    if (canvas) {
+      // Ensure that the background image is set initially
       fabric.Image.fromURL(backgroundImageURL, (img) => {
         canvas.setBackgroundImage(img, canvas.renderAll.bind(canvas), {
           scaleX: canvas.width / img.width,
           scaleY: canvas.height / img.height,
         });
       });
-      canvas.renderAll();
-    });
+    }
+    setstartDrawing(false);
   };
-
-  // Ensure that the background image is set initially
-  fabric.Image.fromURL(backgroundImageURL, (img) => {
-    canvas.setBackgroundImage(img, canvas.renderAll.bind(canvas), {
-      scaleX: canvas.width / img.width,
-      scaleY: canvas.height / img.height,
-    });
-  });
 
   // const handleRedo = () => {
   // canvas.redo();
@@ -1186,7 +1185,7 @@ const Drawtool = () => {
       Export as PNG
     </button> */}
 
-          <div className="h-screen bg-gray-900 w-[97px] mt-3 ml-2 rounded-lg shadow-lg m-auto text-white">
+          <div className="fixed z-40 h-screen bg-gray-700 w-[97px] mt-3 ml-1 rounded-lg shadow-lg m-auto text-white">
             {tools.map((tool, index) => (
               <div key={index} className="py-1 relative">
                 <button
@@ -1580,14 +1579,14 @@ const Drawtool = () => {
           )}
         </div>
         <div className="flex-1 p-4">
-          <div className="flex justify-center h-[screen]">
+          <div className="flex justify-center h-1/2 w-full">
             <CropperTool
               selectedTool={selectedTool}
               getCanvasSizeCB={getCanvasSizeCB}
               showSizeCropModal={showSizeCropModal}
               setShowSizeCropModal={setShowSizeCropModal}
             />
-            {/* direct conditions are not allowed, while there are needed to  */}
+            {/* Direct conditions are not allowed in jsx, while there is needed a parent div or element*/}
             <div className="relative">
               {borderCanvas ? (
                 <div className="flex flex-col p-3 space-y-2">
@@ -1637,13 +1636,15 @@ const Drawtool = () => {
                 ""
               )}
             </div>
-            <canvas
-              id="canvas"
-              ref={canvasRef}
-              width={canvasSize.width}
-              height={canvasSize.height}
-              style={{ border: borderCanvas ? "2px solid yellow" : "none" }}
-            ></canvas>
+            <div className="w-[1500px] h-screen overflow-hidden flex justify-center items-center">
+              <canvas
+                id="canvas"
+                ref={canvasRef}
+                width={canvasSize.width} // window width or any desired width
+                height={canvasSize.height} // window height or any desired height
+                style={{ border: borderCanvas ? "2px solid yellow" : "none" }}
+              ></canvas>
+            </div>
           </div>
         </div>
       </div>
