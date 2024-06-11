@@ -241,7 +241,7 @@ const CropperTool = ({
         style={{
           position: "absolute",
           bottom: 10,
-          left: 10,
+          left: 140,
           padding: "10px",
           fontSize: "14px",
           color: "lightgray",
