@@ -701,23 +701,35 @@ const Drawtool = () => {
     canvas.renderAll();
   };
 
+  const backgroundImageURL = backgroundTransparent; // Store the background image URL
   const handleUndo = () => {
     // Remove all text objects from the canvas
     const objects = canvas.getObjects();
     objects.forEach((obj) => {
-      console.log("obj", obj.type);
       if (obj.type === "text" || obj.type === "i-text") {
         canvas.remove(obj);
       }
     });
-    canvas.undo();
-    fabric.Image.fromURL(backgroundTransparent, function (img) {
-      canvas.setBackgroundImage(img, canvas.renderAll.bind(canvas), {
-        scaleX: canvas.width / img.width,
-        scaleY: canvas.height / img.height,
+    // Perform the undo operation
+    canvas.undo().then(() => {
+      // Re-apply the background image after undo
+      fabric.Image.fromURL(backgroundImageURL, (img) => {
+        canvas.setBackgroundImage(img, canvas.renderAll.bind(canvas), {
+          scaleX: canvas.width / img.width,
+          scaleY: canvas.height / img.height,
+        });
       });
+      canvas.renderAll();
     });
   };
+
+  // Ensure that the background image is set initially
+  fabric.Image.fromURL(backgroundImageURL, (img) => {
+    canvas.setBackgroundImage(img, canvas.renderAll.bind(canvas), {
+      scaleX: canvas.width / img.width,
+      scaleY: canvas.height / img.height,
+    });
+  });
 
   // const handleRedo = () => {
   // canvas.redo();
