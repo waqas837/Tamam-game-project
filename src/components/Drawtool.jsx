@@ -36,11 +36,11 @@ const Drawtool = () => {
   const [width, setWidth] = useState(null);
   const textDrawGroupRef = useRef(null);
   const [height, setHeight] = useState(null);
-  const [selectedTool, setSelectedTool] = useState(null);
+  const [selectedTool, setSelectedTool] = useState("brush");
   const [brushColor, setBrushColor] = useState("#000000");
   const [canvasSize, setCanvasSize] = useState({
-    width: 500,
-    height: 500,
+    width: window.innerWidth - 120,
+    height: window.innerHeight,
   });
   const [selectedObject, setSelectedObject] = useState(null);
   const [zoomLevel, setZoomLevel] = useState(1);
@@ -49,6 +49,13 @@ const Drawtool = () => {
     width: canvasSize.width,
     height: canvasSize.height,
   });
+  useEffect(() => {
+    setSelectedTool("brush");
+    handleAddText();
+    setactiveBlock({ brush: false });
+    localStorage.setItem("text", "Type some Text here!");
+  }, []);
+
   // State variables for background fill
   const [fillColor, setFillColor] = useState("#ffffff");
   const [fillType, setFillType] = useState("solid"); // 'solid' or 'gradient'
@@ -56,7 +63,9 @@ const Drawtool = () => {
   const [gradientEndColor, setGradientEndColor] = useState("#000000");
   // New state variables for brush/pen tool
   const [textContent, setTextContent] = useState("");
-  const [fontFamily, setFontFamily] = useState("Arial");
+  const [fontFamily, setFontFamily] = useState(
+    localStorage.getItem("ff") || "Arial"
+  );
   // const [letterSpacing, setLetterSpacing] = useState(3);
   // const [wordSpacing, setWordSpacing] = useState(3);
   const [fontWeight, setFontWeight] = useState(
@@ -70,6 +79,7 @@ const Drawtool = () => {
   );
   const [brushSize, setBrushSize] = useState(10);
   const [randomAngle, setRandomAngle] = useState(false);
+  const [lockImageLayer, setlockImageLayer] = useState(false);
   const isDeleting = useRef(false);
   // state variables for image filter
   const [isImage, setisImage] = useState(false);
@@ -118,7 +128,7 @@ const Drawtool = () => {
     canvas,
     mouseDown,
     position,
-    textIndex,
+    // textIndex,
     minFontSize,
     maxFontSize,
     angleDistortion,
@@ -152,6 +162,7 @@ const Drawtool = () => {
         if (fontSize > maxFontSize) {
           fontSize = maxFontSize;
         }
+        let text = localStorage.getItem("text") || "Type some Text here!";
         const letter = text[textIndex];
         let letterSpacing = localStorage.getItem("letterspacing");
         const stepSize = textWidth(letter, fontSize) + Number(letterSpacing);
@@ -180,6 +191,8 @@ const Drawtool = () => {
             originX: "center",
             originY: "center",
             selectable: false,
+
+            fontFamily: localStorage.getItem("ff") || "Arial",
             fontWeight: localStorage.getItem("fw") || "normal",
             fontStyle: localStorage.getItem("fs") || "normal",
             underline:
@@ -189,7 +202,6 @@ const Drawtool = () => {
           });
 
           canvas.add(textObject);
-          setTextIndex((textIndex + 1) % text.length); // Update index
 
           let newX = position.x + Math.cos(angle) * stepSize;
           let newY = position.y + Math.sin(angle) * stepSize;
@@ -200,6 +212,7 @@ const Drawtool = () => {
           }
 
           setPosition({ x: newX, y: newY });
+          setTextIndex((textIndex + 1) % text.length); // Update index
         }
       });
     } catch (error) {
@@ -222,6 +235,8 @@ const Drawtool = () => {
 
   const onchangeTEXT = (e) => {
     setText(e.target.value);
+    setTextIndex(0);
+    localStorage.setItem("text", e.target.value);
   };
 
   const toggleDropdown = () => setIsOpen(!isOpen);
@@ -246,12 +261,10 @@ const Drawtool = () => {
 
   const handleDownload = (format) => {
     // Save current background
-    const currentBackground = canvas.backgroundImage;
     canvas.setBackgroundImage(null, canvas.renderAll.bind(canvas));
     exportCanvas(format);
     setIsOpen(false); // Close dropdown after selection
-    // Restore background after download
-    canvas.setBackgroundImage(currentBackground, canvas.renderAll.bind(canvas));
+    window.location.reload();
   };
   // Function to export canvas data to an image blob
   const exportCanvas = (format) => {
@@ -304,6 +317,7 @@ const Drawtool = () => {
     const initCanvas = () => {
       const canvas = new fabric.Canvas(canvasRef.current, {
         isDrawingMode: false,
+        preserveObjectStacking: true,
       });
       canvas.setWidth(2000); // Set canvas width larger than the container for scrolling
       canvas.setHeight(2000); // Set canvas height larger than the container for scrolling
@@ -772,6 +786,19 @@ const Drawtool = () => {
   const handleAddText = () => {
     setstartDrawing(true);
     setactiveBlock({ brush: !activeBlock.brush });
+    if (isImage) {
+      isImage.set({
+        selectable: false,
+        evented: false,
+        lockMovementX: true,
+        lockMovementY: true,
+        lockRotation: true,
+        lockScalingX: true,
+        lockScalingY: true,
+      });
+      setlockImageLayer(true);
+      canvas.renderAll();
+    }
   };
 
   const handleBackgroundFill = () => {
@@ -803,7 +830,10 @@ const Drawtool = () => {
       canvas.renderAll();
     }
   };
-
+  const onchangeFontFamily = (e) => {
+    setFontFamily(e.target.value);
+    localStorage.setItem("ff", e.target.value);
+  };
   // get layers
   const addLayer = () => {
     const newLayer = new fabric.Rect({
@@ -942,6 +972,41 @@ const Drawtool = () => {
       localStorage.setItem("ra", true);
     }
   };
+
+  const setImageLayerFn = (e) => {
+    if (lockImageLayer) {
+      setlockImageLayer(false);
+      localStorage.setItem("lockimg", false);
+      // unlock the image
+      isImage.set({
+        selectable: true,
+        evented: true,
+        lockMovementX: false,
+        lockMovementY: false,
+        lockRotation: false,
+        lockScalingX: false,
+        lockScalingY: false,
+      });
+      canvas.renderAll();
+    } else if (!lockImageLayer) {
+      setlockImageLayer(true);
+      localStorage.setItem("lockimg", true);
+      if (isImage) {
+        isImage.set({
+          selectable: false,
+          evented: false,
+          lockMovementX: true,
+          lockMovementY: true,
+          lockRotation: true,
+          lockScalingX: true,
+          lockScalingY: true,
+        });
+        setlockImageLayer(true);
+        canvas.renderAll();
+      }
+    }
+  };
+
   // icons list
   let cursorIcon = (
     <svg
@@ -1077,10 +1142,10 @@ const Drawtool = () => {
 
   let tools = [
     { name: "select", icon: cursorIcon },
+    { name: "brush", icon: brush },
     { name: "zoom", icon: zoom },
     { name: "crop", icon: crop },
     // , { name: 'shapes', icon: shapes }
-    { name: "brush", icon: brush },
     // { name: "pencil", icon: cursorIcon },
     { name: "fill", icon: fill },
     { name: "image", icon: image },
@@ -1157,20 +1222,20 @@ const Drawtool = () => {
                       >
                         PNG
                       </button>
-                      <button
+                      {/* <button
                         onClick={() => handleDownload("pdf")}
                         className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900"
                         role="menuitem"
                       >
                         PDF
-                      </button>
-                      <button
+                      </button> */}
+                      {/* <button
                         onClick={() => handleDownload("svg")}
                         className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900"
                         role="menuitem"
                       >
                         SVG
-                      </button>
+                      </button> */}
                     </div>
                   </div>
                 </div>
@@ -1185,7 +1250,7 @@ const Drawtool = () => {
       Export as PNG
     </button> */}
 
-          <div className="fixed z-30 h-screen bg-gray-700 w-[97px] mt-3 ml-1 rounded-lg shadow-lg m-auto text-white">
+          <div className="z-30 h-screen bg-gray-700 w-[97px] mt-3 ml-1 rounded-lg shadow-lg m-auto text-white">
             {tools.map((tool, index) => (
               <div key={index} className="py-1 relative">
                 <button
@@ -1271,7 +1336,7 @@ const Drawtool = () => {
                       <label className="block mb-2">Font Family:</label>
                       <select
                         value={fontFamily}
-                        onChange={(e) => setFontFamily(e.target.value)}
+                        onChange={(e) => onchangeFontFamily(e)}
                         className="border p-2 w-full text-black"
                       >
                         {/* Add Google Fonts here */}
@@ -1413,13 +1478,13 @@ const Drawtool = () => {
                   <div className="fixed left-[97px] top-64 p-2 z-50">
                     {selectedTool === "image" && isImage && (
                       <>
-                        <form className="max-w-sm mx-auto">
+                        <form className="max-w-sm mx-auto bg-gray-600 p-4 rounded-md border border-yellow-400">
                           <select
                             ref={selectRef}
                             onChange={(e) => {
                               applyImageEffects(e.target.value);
                             }}
-                            className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                            className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 mb-3"
                           >
                             <option selected>Choose a Filter</option>
                             <option value="reset">Reset</option>
@@ -1429,6 +1494,16 @@ const Drawtool = () => {
                             <option value="contrast">Contrast</option>
                             <option value="blur">Blur</option>
                           </select>
+
+                          <div className="flex justify-center items-center space-x-4">
+                            <input
+                              type="checkbox"
+                              checked={lockImageLayer}
+                              onChange={(e) => setImageLayerFn(e)}
+                              className="w-6 h-6"
+                            />
+                            <p className="mb-2">Lock Image Layer</p>
+                          </div>
                         </form>
                       </>
                     )}

@@ -88,11 +88,11 @@ const CropperTool = ({
       onTouchMove={handleMouseMove}
       onTouchEnd={handleMouseUp}
       // marginLeft: showSizeCropModal ? "0px" : "800px"
-      className={`sm:ml-${showSizeCropModal ? '0' : '0'}px md:ml-${showSizeCropModal ? '60' : '0'}px`}
       style={{
-        width: showSizeCropModal ? "80vw" : "100vw",
+        width: showSizeCropModal ? "100vw" : "100vw",
         height: "100vh",
         position: "fixed", // Ensure it overlays everything
+        left: 100,
         overflow: "hidden",
         cursor: isDrawing ? "crosshair" : "default",
         zIndex: "10", // set max value of zindex
