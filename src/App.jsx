@@ -1,12 +1,9 @@
-import React from "react";
-import Drawtool from "./components/Drawtool";
+import React from 'react'
 
 const App = () => {
   return (
-    <div>
-      <Drawtool />
-    </div> 
-  );
-};
+    <div>App</div>
+  )
+}
 
-export default App;
+export default App
