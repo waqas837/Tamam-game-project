@@ -1,9 +1,23 @@
-import React from 'react'
+import React from "react";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import Login from "./components/Login";
+import Signup from "./components/Signup";
+import Home from "./components/Home";
+import { NavbarSimple } from "./components/Navbar";
 
-const App = () => {
+function App() {
   return (
-    <div>App</div>
-  )
+    <div>
+      <NavbarSimple />
+      <BrowserRouter>
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/signup" element={<Signup />} />
+        </Routes>
+      </BrowserRouter>
+    </div>
+  );
 }
 
-export default App
+export default App;
