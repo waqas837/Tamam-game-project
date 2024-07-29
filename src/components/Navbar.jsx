@@ -6,6 +6,7 @@ import {
   IconButton,
 } from "@material-tailwind/react";
 import { Bars3Icon, XMarkIcon } from "@heroicons/react/24/outline";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 
 function NavList() {
   const [activeItem, setactiveItem] = useState({
@@ -14,6 +15,9 @@ function NavList() {
     account: false,
     pages: false,
   });
+  const location = useLocation();
+  // Next time we will remove states for real logic 
+  const pathname = location.pathname;
   const activeSelection = (item) => {
     setactiveItem({
       account: false,
@@ -23,6 +27,7 @@ function NavList() {
       [item]: true,
     });
   };
+  const navigate = useNavigate();
   return (
     <ul className="my-2 flex flex-col gap-2 lg:mb-0 lg:mt-0 lg:flex-row lg:items-center lg:gap-6">
       <Typography
@@ -58,9 +63,9 @@ function NavList() {
             : "hover:text-pink-500"
         } `}
       >
-        <a href="#" className="flex items-center transition-colors">
+        <Link to="/login" className="flex items-center transition-colors">
           Account
-        </a>
+        </Link>
       </Typography>
       <Typography
         as="li"
@@ -150,4 +155,4 @@ export function NavbarSimple() {
   );
 }
 
-export default Navbar;
+export default NavbarSimple;
