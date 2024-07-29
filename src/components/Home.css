@@ -1,7 +1,6 @@
 .bottomShape {
   background: linear-gradient(to right, #ff3863ea, #fbc3c3e0);
-  border-bottom-left-radius: 100%;
-  border-bottom-right-radius: 100%;
+  border-bottom-left-radius: 50%;
+  border-bottom-right-radius: 50%;
+  height: 450px;
 }
-
- 

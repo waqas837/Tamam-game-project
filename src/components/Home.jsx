@@ -15,14 +15,27 @@ const Home = () => {
           <p className="text-lg mb-2">
             Join Tamam and embark on an exciting journey of knowledge and fun.
           </p>
+          {/* New text added here */}
+          <p className="text-md mb-2">
+            Test your skills, challenge your friends, and see who comes out on top!
+          </p>
         </div>
 
-        <Link
-          to={"/start-game"}
-          className="bg-white text-pink-500 font-bold py-2 px-6 rounded-lg shadow-md hover:bg-pink-100 transition duration-300"
-        >
-          Start Game
-        </Link>
+        <div className="flex justify-between mx-auto w-96">
+          <Link
+            to={"/start-game"}
+            className="bg-white text-pink-500 font-bold py-2 px-6 rounded-lg shadow-md hover:bg-pink-100 transition duration-300"
+          >
+           Check All Games
+          </Link>
+
+          <Link
+            to={"/start-game"}
+            className="bg-white text-pink-500 font-bold py-2 px-6 rounded-lg shadow-md hover:bg-pink-100 transition duration-300"
+          >
+            Start Create Game
+          </Link>
+        </div>
       </div>
     </div>
   );
