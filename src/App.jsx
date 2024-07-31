@@ -5,6 +5,7 @@ import Signup from "./components/Signup";
 import Home from "./components/Home";
 import NavbarSimple from "./components/Navbar";
 import StartGame from "./components/StartGame";
+import Footer from "./components/Footer";
 
 function App() {
   return (
@@ -17,6 +18,7 @@ function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
         </Routes>
+        <Footer />
       </Router>
     </div>
   );

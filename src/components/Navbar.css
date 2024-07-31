@@ -1,0 +1,28 @@
+/* Navbar.css */
+.ripple-effect {
+    position: relative;
+    overflow: hidden;
+    display: inline-block; /* Ensure it takes up space properly */
+    transition: background-color 0.3s ease; /* Smooth background transition */
+  }
+  
+  .ripple-effect::after {
+    content: "";
+    position: absolute;
+    border-radius: 50%;
+    background: rgba(236, 72, 153, 0.6); /* Pink color with slight opacity */
+    width: 100%; /* Ensure it covers the entire area */
+    height: 100%; /* Ensure it covers the entire area */
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%) scale(0);
+    transition: transform 0.3s ease, opacity 0.3s ease; /* Faster transition */
+    opacity: 0;
+  }
+  
+  .ripple-effect:focus::after,
+  .ripple-effect:active::after {
+    transform: translate(-50%, -50%) scale(2.5); /* Increase scale for a more noticeable effect */
+    opacity: 1;
+  }
+  

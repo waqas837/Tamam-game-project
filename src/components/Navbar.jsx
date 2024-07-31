@@ -1,158 +1,106 @@
 import React, { useState } from "react";
-import {
-  Navbar,
-  Collapse,
-  Typography,
-  IconButton,
-} from "@material-tailwind/react";
-import { Bars3Icon, XMarkIcon } from "@heroicons/react/24/outline";
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import "./Navbar.css"; // Import the custom CSS for the ripple effect
 
-function NavList() {
-  const [activeItem, setactiveItem] = useState({
-    docs: true,
-    blocks: false,
-    account: false,
-    pages: false,
-  });
-  const location = useLocation();
-  // Next time we will remove states for real logic 
-  const pathname = location.pathname;
-  const activeSelection = (item) => {
-    setactiveItem({
-      account: false,
-      blocks: false,
-      docs: false,
-      pages: false,
-      [item]: true,
-    });
+const Navbar = () => {
+  const [isOpen, setIsOpen] = useState(false);
+
+  const toggleMenu = () => {
+    setIsOpen(!isOpen);
   };
-  const navigate = useNavigate();
-  return (
-    <ul className="my-2 flex flex-col gap-2 lg:mb-0 lg:mt-0 lg:flex-row lg:items-center lg:gap-6">
-      <Typography
-        as="li"
-        variant="h5"
-        color="blue-gray"
-        className={`font-bold ${
-          activeItem.pages
-            ? "bg-pink-500 rounded-full text-white p-3 hover:text-white"
-            : "hover:text-pink-500"
-        } `}
-      >
-        <a
-          onClick={() => {
-            activeSelection("pages");
-          }}
-          href="#"
-          className="flex items-center transition-colors"
-        >
-          Pages
-        </a>
-      </Typography>
-      <Typography
-        as="li"
-        variant="h5"
-        color="blue-gray"
-        onClick={() => {
-          activeSelection("account");
-        }}
-        className={`font-bold ${
-          activeItem.account
-            ? "bg-pink-500 rounded-full text-white p-3 hover:text-white"
-            : "hover:text-pink-500"
-        } `}
-      >
-        <Link to="/login" className="flex items-center transition-colors">
-          Account
-        </Link>
-      </Typography>
-      <Typography
-        as="li"
-        variant="h5"
-        color="blue-gray"
-        className={`font-bold ${
-          activeItem.blocks
-            ? "bg-pink-500 rounded-full text-white p-3 hover:text-white"
-            : "hover:text-pink-500"
-        } `}
-      >
-        <a
-          onClick={() => {
-            activeSelection("blocks");
-          }}
-          href="#"
-          className="flex items-center transition-colors"
-        >
-          Blocks
-        </a>
-      </Typography>
-      {/* Please don't waste your time thanks. */}
-      <Typography
-        as="li"
-        variant="h5"
-        color="blue-gray"
-        className={`font-bold ${
-          activeItem.docs
-            ? "bg-pink-500 rounded-full text-white p-3 hover:text-white"
-            : "hover:text-pink-500"
-        } `}
-      >
-        <a
-          href="#"
-          onClick={() => {
-            activeSelection("docs");
-          }}
-          className="flex items-center transition-colors"
-        >
-          Docs
-        </a>
-      </Typography>
-    </ul>
-  );
-}
-
-export function NavbarSimple() {
-  const [openNav, setOpenNav] = React.useState(false);
-
-  const handleWindowResize = () =>
-    window.innerWidth >= 960 && setOpenNav(false);
-
-  React.useEffect(() => {
-    window.addEventListener("resize", handleWindowResize);
-
-    return () => {
-      window.removeEventListener("resize", handleWindowResize);
-    };
-  }, []);
 
   return (
-    <Navbar className="px-6 py-3 bg-gradient-to-r from-pink-100">
-      <div className="flex items-center justify-between text-blue-gray-900">
-        <a href="/">
-          <img src="logo.png" alt="logo" width="60px" height="60px" />
-        </a>
-        <div className="hidden lg:block">
-          <NavList />
+    <nav
+      className="shadow-md text-pink-500"
+      style={{
+        backgroundImage: 'url("pink.png")',
+        backgroundSize: "100vw",
+        backgroundPosition: "center",
+        backgroundRepeat: "no-repeat",
+      }}
+    >
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex justify-between h-16 items-center">
+          {/* Logo Section */}
+          <div className="flex-shrink-0 ml-6">
+            <a href="/" className="text-xl font-bold text-navy-900">
+              عصر مخك
+            </a>
+          </div>
+
+          {/* Links Section */}
+          <div className="hidden md:flex space-x-6 rtl:space-x-reverse">
+            <a
+              href="/find-packages"
+              className="relative text-navy-700 py-2 px-4 rounded-lg transition-all duration-300 ease-in-out hover:text-navy-900 hover:bg-pink-100 border border-transparent hover:border-pink-700 ripple-effect"
+            >
+              تصفح الباقات
+            </a>
+            <a
+              href="/login"
+              className="relative text-navy-700 py-2 px-4 rounded-lg transition-all duration-300 ease-in-out hover:text-navy-900 hover:bg-pink-100 border border-transparent hover:border-pink-700 ripple-effect"
+            >
+              تسجيل الدخول
+            </a>
+          </div>
+
+          {/* Mobile Menu Button */}
+          <div className="-ml-2 flex items-center md:hidden">
+            <button
+              onClick={toggleMenu}
+              className="inline-flex items-center justify-center p-2 rounded-md text-navy-400 hover:text-navy-900 hover:bg-pink-100 focus:outline-none focus:bg-pink-100 focus:text-navy-900"
+            >
+              <svg
+                className="h-6 w-6"
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                aria-hidden="true"
+              >
+                {isOpen ? (
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M6 18L18 6M6 6l12 12"
+                  />
+                ) : (
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M4 6h16M4 12h16m-7 6h7"
+                  />
+                )}
+              </svg>
+            </button>
+          </div>
         </div>
-        <IconButton
-          variant="text"
-          className="ml-auto h-6 w-6 text-inherit hover:bg-transparent focus:bg-transparent active:bg-transparent lg:hidden"
-          ripple={false}
-          onClick={() => setOpenNav(!openNav)}
-        >
-          {openNav ? (
-            <XMarkIcon className="h-6 w-6" strokeWidth={2} />
-          ) : (
-            <Bars3Icon className="h-6 w-6" strokeWidth={2} />
-          )}
-        </IconButton>
       </div>
-      <Collapse open={openNav}>
-        <NavList />
-      </Collapse>
-    </Navbar>
-  );
-}
 
-export default NavbarSimple;
+      {/* Mobile Menu Links */}
+      <div
+        className={`md:hidden transition-all duration-300 ease-in-out ${
+          isOpen ? "max-h-60 opacity-100" : "max-h-0 opacity-0"
+        } overflow-hidden`}
+      >
+        <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
+          <a
+            href="/login"
+            className="relative block text-navy-700 py-2 px-4 rounded-lg transition-all duration-300 ease-in-out hover:text-navy-900 hover:bg-pink-100 border border-transparent hover:border-pink-700 ripple-effect"
+          >
+            تسجيل الدخول
+          </a>
+          <a
+            href="/find-packages"
+            className="relative block text-navy-700 py-2 px-4 rounded-lg transition-all duration-300 ease-in-out hover:text-navy-900 hover:bg-pink-100 border border-transparent hover:border-pink-700 ripple-effect"
+          >
+            تصفح الباقات
+          </a>
+        </div>
+      </div>
+    </nav>
+  );
+};
+
+export default Navbar;

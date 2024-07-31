@@ -1,46 +1,54 @@
-import {
-  Card,
-  CardHeader,
-  CardBody,
-  Typography,
-  Tooltip,
-} from "@material-tailwind/react";
+import React from "react";
+import { BookOpen, List, Activity, Trophy } from "lucide-react";
 
-export default function CardDefault({ name, desc }) {
+const FeatureCard = ({ title, description, icon: Icon }) => (
+  <div className="bg-white rounded-lg shadow-lg p-6 transition duration-300 ease-in-out transform hover:scale-105">
+    <div className="flex items-center justify-center w-12 h-12 mb-4 rounded-full bg-pink-100">
+      <Icon className="w-6 h-6 text-pink-600" />
+    </div>
+    <h3 className="mb-2 text-xl font-semibold text-gray-900">{title}</h3>
+    <p className="text-gray-600">{description}</p>
+  </div>
+);
+
+const GameFeaturesSection = () => {
+  const features = [
+    {
+      title: "فئات متعددة",
+      description: "اختر من مجموعة واسعة من المجالات لاختبار معرفتك.",
+      icon: BookOpen,
+    },
+    {
+      title: "مجموعات أسئلة ديناميكية",
+      description: "اختبر تحديات جديدة بقاعدة بيانات الأسئلة المحدثة باستمرار.",
+      icon: List,
+    },
+    {
+      title: "تتبع التقدم",
+      description: "راقب تقدمك بمرور الوقت من خلال تحليلات أداء مفصلة.",
+      icon: Activity,
+    },
+    {
+      title: "لوحة المتصدرين",
+      description: "تنافس مع الآخرين وشاهد كيف تصدرت بين عشاق الألغاز الآخرين.",
+      icon: Trophy,
+    },
+  ];
+
   return (
-    <Tooltip
-      className="border border-blue-gray-50 bg-white px-4 py-3 shadow-xl shadow-pink-400/10"
-      content={
-        <div className="w-64">
-          <Typography
-            variant="small"
-            color="pink"
-            className="font-normal opacity-80 rounded-xl"
-            style={{ fontFamily: "Mooli" }}
-          >
-            {desc}
-          </Typography>
+    <section className="py-12 bg-gray-100">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <h2 className="text-3xl font-extrabold text-pink-500 text-center mb-12">
+          ميزات اللعبة
+        </h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+          {features.map((feature, index) => (
+            <FeatureCard key={index} {...feature} />
+          ))}
         </div>
-      }
-    >
-      <Card className="mt-6 cursor-pointer bg-pink-500">
-        <CardHeader color="pink">
-          <img
-            src="https://images.unsplash.com/photo-1540553016722-983e48a2cd10?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&q=80"
-            alt="card-image"
-          />
-        </CardHeader>
-        <CardBody>
-          <Typography
-            style={{ fontFamily: "Mooli" }}
-            variant="h5"
-            color="white"
-            className="mb-2"
-          >
-            {name}
-          </Typography>
-        </CardBody>
-      </Card>
-    </Tooltip>
+      </div>
+    </section>
   );
-}
+};
+
+export default GameFeaturesSection;
