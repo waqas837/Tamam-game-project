@@ -44,7 +44,7 @@ const HeroSection = () => {
           <div className="lg:w-1/2 lg:pl-8 w-full">
             <img
               className="w-full h-64 sm:h-72 md:h-96 lg:h-full object-cover rounded-lg shadow-lg"
-              src="test.jpg"
+              src="test.webp"
               alt="Travel destination"
             />
           </div>

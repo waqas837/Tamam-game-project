@@ -4,19 +4,19 @@ const teamMembers = [
   {
     name: "جين دو",
     role: "الرئيس التنفيذي",
-    image: "test.jpg",
+    image: "test.webp",
     bio: "جين هي الرؤية وراء شركتنا، تقود بشغف وخبرة.",
   },
   {
     name: "جون سميث",
     role: "المدير الفني",
-    image: "test.jpg",
+    image: "test.webp",
     bio: "جون يضمن أن تكنولوجيا لدينا تظل متطورة وموثوقة.",
   },
   {
     name: "إميلي جونسون",
     role: "مدير التسويق",
-    image: "test.jpg",
+    image: "test.webp",
     bio: "إميلي تقود جهودنا التسويقية، وتربطنا بجمهورنا بفعالية.",
   },
 ];
