@@ -4,159 +4,159 @@ import toast, { Toaster } from "react-hot-toast";
 const categories = [
   {
     id: 1,
-    name: "Sports",
+    name: "رياضة",
     image: "https://via.placeholder.com/150?text=Sports",
-    description: "All about various sports",
+    description: "كل ما يتعلق بالرياضات المختلفة",
   },
   {
     id: 2,
-    name: "Technology",
+    name: "تكنولوجيا",
     image: "https://via.placeholder.com/150?text=Technology",
-    description: "Latest in tech and gadgets",
+    description: "أحدث الأخبار في التقنية والأجهزة",
   },
   {
     id: 3,
-    name: "Music",
+    name: "موسيقى",
     image: "https://via.placeholder.com/150?text=Music",
-    description: "Explore different genres and artists",
+    description: "استكشف أنواع الموسيقى والفنانين المختلفين",
   },
   {
     id: 4,
-    name: "Movies",
+    name: "أفلام",
     image: "https://via.placeholder.com/150?text=Movies",
-    description: "Everything related to films and cinema",
+    description: "كل شيء متعلق بالأفلام والسينما",
   },
   {
     id: 5,
-    name: "Food",
+    name: "طعام",
     image: "https://via.placeholder.com/150?text=Food",
-    description: "Delicious recipes and culinary tips",
+    description: "وصفات لذيذة ونصائح طبخ",
   },
   {
     id: 6,
-    name: "Travel",
+    name: "سفر",
     image: "https://via.placeholder.com/150?text=Travel",
-    description: "Destinations and travel experiences",
+    description: "وجهات وتجارب السفر",
   },
   {
     id: 7,
-    name: "Health",
+    name: "صحة",
     image: "https://via.placeholder.com/150?text=Health",
-    description: "Tips for a healthy lifestyle",
+    description: "نصائح لأسلوب حياة صحي",
   },
   {
     id: 8,
-    name: "Education",
+    name: "تعليم",
     image: "https://via.placeholder.com/150?text=Education",
-    description: "Learning resources and tips",
+    description: "موارد تعليمية ونصائح",
   },
   {
     id: 9,
-    name: "Business",
+    name: "أعمال",
     image: "https://via.placeholder.com/150?text=Business",
-    description: "Insights and strategies for businesses",
+    description: "أفكار واستراتيجيات للأعمال",
   },
   {
     id: 10,
-    name: "Science",
+    name: "علم",
     image: "https://via.placeholder.com/150?text=Science",
-    description: "Discoveries and research in science",
+    description: "اكتشافات وأبحاث في العلم",
   },
   {
     id: 11,
-    name: "Art",
+    name: "فن",
     image: "https://via.placeholder.com/150?text=Art",
-    description: "Creative arts and expressions",
+    description: "الفنون والتعبيرات الإبداعية",
   },
   {
     id: 12,
-    name: "Fashion",
+    name: "موضة",
     image: "https://via.placeholder.com/150?text=Fashion",
-    description: "Trends and styles in fashion",
+    description: "اتجاهات وأسلوب الموضة",
   },
   {
     id: 13,
-    name: "History",
+    name: "تاريخ",
     image: "https://via.placeholder.com/150?text=History",
-    description: "Historical events and figures",
+    description: "أحداث تاريخية وشخصيات",
   },
   {
     id: 14,
-    name: "Gaming",
+    name: "ألعاب",
     image: "https://via.placeholder.com/150?text=Gaming",
-    description: "Video games and gaming culture",
+    description: "ألعاب الفيديو وثقافة الألعاب",
   },
   {
     id: 15,
-    name: "Politics",
+    name: "سياسة",
     image: "https://via.placeholder.com/150?text=Politics",
-    description: "Political news and analysis",
+    description: "أخبار وتحليلات سياسية",
   },
   {
     id: 16,
-    name: "Finance",
+    name: "مالية",
     image: "https://via.placeholder.com/150?text=Finance",
-    description: "Financial tips and market insights",
+    description: "نصائح مالية وأفكار السوق",
   },
   {
     id: 17,
-    name: "Environment",
+    name: "بيئة",
     image: "https://via.placeholder.com/150?text=Environment",
-    description: "Environmental issues and solutions",
+    description: "القضايا البيئية والحلول",
   },
   {
     id: 18,
-    name: "DIY",
+    name: "افعلها بنفسك",
     image: "https://via.placeholder.com/150?text=DIY",
-    description: "Do-it-yourself projects and ideas",
+    description: "مشاريع وأفكار افعلها بنفسك",
   },
   {
     id: 19,
-    name: "Books",
+    name: "كتب",
     image: "https://via.placeholder.com/150?text=Books",
-    description: "Book recommendations and reviews",
+    description: "توصيات ومراجعات الكتب",
   },
   {
     id: 20,
-    name: "Religion",
+    name: "دين",
     image: "https://via.placeholder.com/150?text=Religion",
-    description: "Religious beliefs and practices",
+    description: "المعتقدات والممارسات الدينية",
   },
   {
     id: 21,
-    name: "Social Media",
+    name: "وسائل التواصل الاجتماعي",
     image: "https://via.placeholder.com/150?text=Social+Media",
-    description: "Trends and tips on social media",
+    description: "اتجاهات ونصائح على وسائل التواصل الاجتماعي",
   },
   {
     id: 22,
-    name: "Pets",
+    name: "حيوانات أليفة",
     image: "https://via.placeholder.com/150?text=Pets",
-    description: "Information about pets and care",
+    description: "معلومات عن الحيوانات الأليفة والعناية بها",
   },
   {
     id: 23,
-    name: "Cars",
+    name: "سيارات",
     image: "https://via.placeholder.com/150?text=Cars",
-    description: "Automotive news and reviews",
+    description: "أخبار ومراجعات السيارات",
   },
   {
     id: 24,
-    name: "Photography",
+    name: "تصوير",
     image: "https://via.placeholder.com/150?text=Photography",
-    description: "Photography tips and techniques",
+    description: "نصائح وتقنيات التصوير",
   },
   {
     id: 25,
-    name: "Gardening",
+    name: "بستنة",
     image: "https://via.placeholder.com/150?text=Gardening",
-    description: "Gardening tips and plant care",
+    description: "نصائح بستنة والعناية بالنباتات",
   },
   {
     id: 26,
-    name: "Language Learning",
+    name: "تعلم اللغات",
     image: "https://via.placeholder.com/150?text=Language+Learning",
-    description: "Resources for learning new languages",
+    description: "موارد لتعلم لغات جديدة",
   },
 ];
 
@@ -171,7 +171,7 @@ const CategorySelection = () => {
           : [...prev, id]
       );
     } else {
-      toast.error("You can only select up to 6 categories.");
+      toast.error("يمكنك اختيار ما يصل إلى 6 فئات فقط.");
     }
   };
 
@@ -180,7 +180,7 @@ const CategorySelection = () => {
       <Toaster />
       <div className="container mx-auto text-center px-4">
         <h1 className="text-3xl font-bold mb-8 text-pink-600">
-          Select Categories
+          اختر الفئات
         </h1>
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
           {categories.map((category) => (

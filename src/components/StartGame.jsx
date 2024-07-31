@@ -1,6 +1,6 @@
 import React from "react";
 import Categories from "./Category";
-import CreateTeam from "./CreateTeam"
+import CreateTeam from "./CreateTeam";
 
 const GameInstructions = () => {
   return (
@@ -8,7 +8,7 @@ const GameInstructions = () => {
       <section className="py-12 bg-white text-gray-800">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <h1 className="text-3xl font-bold mb-8 text-pink-600 text-center">
-            Game Instructions
+            تعليمات اللعبة
           </h1>
           <div className="space-y-6">
             <div className="flex items-center space-x-4 rtl:space-x-reverse">
@@ -16,8 +16,8 @@ const GameInstructions = () => {
                 1
               </div>
               <p className="text-lg">
-                <span className="font-bold">Step 1:</span> Select up to 4
-                categories.
+                <span className="font-bold">الخطوة 1:</span> اختر ما يصل إلى 4
+                فئات.
               </p>
             </div>
             <div className="flex items-center space-x-4 rtl:space-x-reverse">
@@ -25,7 +25,7 @@ const GameInstructions = () => {
                 2
               </div>
               <p className="text-lg">
-                <span className="font-bold">Step 2:</span> Enter Game Name.
+                <span className="font-bold">الخطوة 2:</span> أدخل اسم اللعبة.
               </p>
             </div>
             <div className="flex items-center space-x-4 rtl:space-x-reverse">
@@ -33,8 +33,8 @@ const GameInstructions = () => {
                 3
               </div>
               <p className="text-lg">
-                <span className="font-bold">Step 3:</span> Enter both teams'
-                names, and click the "Play" button.
+                <span className="font-bold">الخطوة 3:</span> أدخل أسماء
+                الفريقين، ثم اضغط على زر "لعب".
               </p>
             </div>
           </div>
@@ -43,7 +43,7 @@ const GameInstructions = () => {
       {/* Categories */}
       <Categories />
       {/* Create teams */}
-      <CreateTeam/>
+      <CreateTeam />
     </>
   );
 };
