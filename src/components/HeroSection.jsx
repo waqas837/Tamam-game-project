@@ -1,6 +1,7 @@
 import React from "react";
 import { ArrowLeft } from "lucide-react";
 import "./Home.css";
+import { Link } from "react-router-dom";
 const HeroSection = () => {
   return (
     <div className="bottomShape bg-pink-100">
@@ -28,13 +29,13 @@ const HeroSection = () => {
               </p>
               <div className="mt-5 sm:mt-8 sm:flex sm:justify-center lg:justify-end">
                 <div className="rounded-md shadow">
-                  <a
-                    href="#"
+                  <Link
+                    to="/start-game"
                     className="w-full flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-md text-white bg-pink-600 hover:bg-pink-700 md:py-4 md:text-lg md:px-10 focus:ring ring-pink-400"
                   >
                     <ArrowLeft className="mr-2" />
                     ابدأ اللعب
-                  </a>
+                  </Link>
                 </div>
               </div>
             </div>
