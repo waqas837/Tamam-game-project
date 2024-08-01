@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { motion } from "framer-motion";
 import { Shield, Users, Trophy } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 const CreateGameForm = () => {
   const [gameName, setGameName] = useState("");
@@ -8,7 +9,7 @@ const CreateGameForm = () => {
   const [team2, setTeam2] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-
+  const navigate = useNavigate();
   const handleSubmit = (e) => {
     e.preventDefault();
     if (!gameName || !team1 || !team2) {
@@ -17,6 +18,7 @@ const CreateGameForm = () => {
     }
     setError("");
     setLoading(true);
+    navigate("/started-game");
     setTimeout(() => {
       console.log("اسم اللعبة:", gameName);
       console.log("فريق 1:", team1);
