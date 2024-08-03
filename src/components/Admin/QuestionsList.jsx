@@ -1,31 +1,28 @@
-import React, { useState } from "react";
-import { Pencil, Trash2 } from "lucide-react";
+import React, { useEffect, useState } from "react";
+import { Trash } from "lucide-react";
+import { apiAdd } from "../../Api";
+import axios from "axios";
 
 const QuestionList = () => {
-  const [questions, setQuestions] = useState([
-    {
-      id: 1,
-      question: "What is the capital of Pakistan?",
-      points: 200,
-      answer: "Islamabad",
-    },
-    {
-      id: 2,
-      question: "Who painted the Mona Lisa?",
-      points: 400,
-      answer: "Leonardo da Vinci",
-    },
-    {
-      id: 3,
-      question: "What is the largest planet in our solar system?",
-      points: 600,
-      answer: "Jupiter",
-    },
-  ]);
+  useEffect(() => {
+    getQuestions();
+  }, []);
+
+  const [questions, setQuestions] = useState([]);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingQuestion, setEditingQuestion] = useState(null);
-
+  const getQuestions = async () => {
+    try {
+      let { data } = await axios.get(`${apiAdd}/admin/getAllQuestions`);
+      if (data.success) {
+        setQuestions(data.data);
+        console.log("data.data", data.data);
+      }
+    } catch (error) {
+      console.log("err in handleSubmit", error);
+    }
+  };
   const openModal = (question) => {
     setEditingQuestion(question);
     setIsModalOpen(true);
@@ -53,46 +50,49 @@ const QuestionList = () => {
       <h2 className="text-3xl font-bold mb-8 text-center text-purple-800">
         Question List
       </h2>
-      <div className="bg-white shadow-md rounded-lg overflow-hidden">
+      <div className="bg-white shadow-md rounded-lg overflow-x-auto rtl">
         <table className="min-w-full divide-y divide-gray-200">
           <thead className="bg-gray-50">
             <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
                 Question
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
                 Points
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
                 Answer
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Category
+              </th>
+              <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
                 Actions
               </th>
             </tr>
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
-            {questions.map((q) => (
-              <tr key={q.id}>
-                <td className="px-6 py-4 whitespace-nowrap">{q.question}</td>
-                <td className="px-6 py-4 whitespace-nowrap">{q.points}</td>
-                <td className="px-6 py-4 whitespace-nowrap">{q.answer}</td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                  <button
-                    onClick={() => openModal(q)}
-                    className="text-indigo-600 hover:text-indigo-900 mr-4"
-                  >
-                    <Pencil size={18} />
-                  </button>
-                  <button
-                    onClick={() => handleDelete(q.id)}
-                    className="text-red-600 hover:text-red-900"
-                  >
-                    <Trash2 size={18} />
-                  </button>
-                </td>
-              </tr>
-            ))}
+            {questions.map((q) =>
+              q.questions.map((val) => (
+                <tr key={`${q.id}-${val.id}`}>
+                  <td className="px-6 py-4 whitespace-nowrap text-right">
+                    {val.question}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-right">
+                    {val.points}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-right">
+                    {val.answer}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-right">
+                    {q.name}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-right">
+                    <Trash color="#ef4e4e" className="cursor-pointer" />
+                  </td>
+                </tr>
+              ))
+            )}
           </tbody>
         </table>
       </div>

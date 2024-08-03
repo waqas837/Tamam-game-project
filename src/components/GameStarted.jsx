@@ -1,305 +1,527 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Modal from "react-modal";
-import { motion } from "framer-motion";
+import { apiAdd } from "../Api";
+import axios from "axios";
+import { Play, Pause, X } from "lucide-react";
 
-// Component to display team scores
 const TeamScore = ({ team, score }) => (
-  <div className="text-white text-2xl font-bold">
+  <div className="text-white text-xl font-bold">
     Team {team}: {score} Points
   </div>
 );
 
 const GameInterface = () => {
-  const [currentStep, setCurrentStep] = useState("questions");
-  const [selectedQuestion, setSelectedQuestion] = useState(null);
-  const [selectedPoints, setSelectedPoints] = useState(0);
-  const [viewAnswer, setViewAnswer] = useState(false);
+  const [modalIsOpen, setModalIsOpen] = useState(false);
+  const [modalContent, setModalContent] = useState(null);
   const [team1Score, setTeam1Score] = useState(0);
   const [team2Score, setTeam2Score] = useState(0);
-  const [currentTeam, setCurrentTeam] = useState("team1");
-  const [modalIsOpen, setModalIsOpen] = useState(false);
   const [gameOver, setGameOver] = useState(false);
+  const [showAnswer, setshowAnswer] = useState(false);
 
-  // List of questions for each team
-  const team1Questions = [
-    {
-      points: 200,
-      question: "What is the capital of Pakistan?",
-      answer: "Islamabad",
-      img: "question1.png",
-    },
-    {
-      points: 400,
-      question: "Who wrote Hamlet?",
-      answer: "William Shakespeare",
-      img: "question2.png",
-    },
-    {
-      points: 600,
-      question: "What is the largest planet in our solar system?",
-      answer: "Jupiter",
-      img: "question3.png",
-    },
-    {
-      points: 800,
-      question: "What is the hardest natural substance on Earth?",
-      answer: "Diamond",
-      img: "question7.png",
-    },
-    {
-      points: 1000,
-      question: "In which year did the Titanic sink?",
-      answer: "1912",
-      img: "question8.png",
-    },
-  ];
-  
-  const team2Questions = [
-    {
-      points: 200,
-      question: "What is the largest country in the world?",
-      answer: "Russia",
-      img: "question4.png",
-    },
-    {
-      points: 400,
-      question: "Who painted the Mona Lisa?",
-      answer: "Leonardo da Vinci",
-      img: "question5.png",
-    },
-    {
-      points: 600,
-      question: "What is the tallest mountain in the world?",
-      answer: "Mount Everest",
-      img: "question6.png",
-    },
-    {
-      points: 800,
-      question: "What is the chemical symbol for Gold?",
-      answer: "Au",
-      img: "question9.png",
-    },
-    {
-      points: 1000,
-      question: "Which planet is known as the Red Planet?",
-      answer: "Mars",
-      img: "question10.png",
-    },
-  ];
-  
-  // Handle clicking a point button
-  const handlePointsClick = (question, points) => {
-    setSelectedQuestion(question);
-    setSelectedPoints(points);
-    setViewAnswer(false);
+  const [categories, setCategories] = useState([
+    // {
+    //   name: "Geography",
+    //   image:
+    //     "https://images.pexels.com/photos/335393/pexels-photo-335393.jpeg?auto=compress&cs=tinysrgb&w=600",
+    //   questions: [
+    //     {
+    //       points: 200,
+    //       question: "What is the capital of Pakistan?",
+    //       answered: false,
+    //       answer: "Islamabad",
+    //     },
+    //     {
+    //       points: 400,
+    //       question: "What is the largest country in the world?",
+    //       answered: false,
+    //       answer: "Russia",
+    //     },
+    //     {
+    //       points: 600,
+    //       question: "What is the tallest mountain in the world?",
+    //       answered: false,
+    //       answer: "Mount Everest",
+    //     },
+    //     {
+    //       points: 200,
+    //       question: "What is the longest river in Africa?",
+    //       answered: false,
+    //       answer: "Nile",
+    //     },
+    //     {
+    //       points: 400,
+    //       question: "Which country has the most islands?",
+    //       answered: false,
+    //       answer: "Sweden",
+    //     },
+    //     {
+    //       points: 600,
+    //       question: "What is the driest place on Earth?",
+    //       answered: false,
+    //       answer: "Atacama Desert",
+    //     },
+    //   ],
+    // },
+    // {
+    //   name: "History",
+    //   image:
+    //     "https://images.pexels.com/photos/820735/pexels-photo-820735.jpeg?auto=compress&cs=tinysrgb&w=600",
+    //   questions: [
+    //     {
+    //       points: 200,
+    //       question: "Who was the first President of the USA?",
+    //       answered: false,
+    //       answer: "George Washington",
+    //     },
+    //     {
+    //       points: 400,
+    //       question: "What year did World War II end?",
+    //       answered: false,
+    //       answer: "1945",
+    //     },
+    //     {
+    //       points: 600,
+    //       question:
+    //         "What was the name of the ship that carried the Pilgrims to America?",
+    //       answered: false,
+    //       answer: "Mayflower",
+    //     },
+    //     {
+    //       points: 200,
+    //       question: "Who wrote the Declaration of Independence?",
+    //       answered: false,
+    //       answer: "Thomas Jefferson",
+    //     },
+    //     {
+    //       points: 400,
+    //       question: "In what year did the Berlin Wall fall?",
+    //       answered: false,
+    //       answer: "1989",
+    //     },
+    //     {
+    //       points: 600,
+    //       question: "Who was the last Pharaoh of Egypt?",
+    //       answered: false,
+    //       answer: "Cleopatra",
+    //     },
+    //   ],
+    // },
+    // {
+    //   name: "Science",
+    //   image:
+    //     "https://images.pexels.com/photos/2280571/pexels-photo-2280571.jpeg?auto=compress&cs=tinysrgb&w=600",
+    //   questions: [
+    //     {
+    //       points: 200,
+    //       question: "What is the chemical symbol for gold?",
+    //       answered: false,
+    //       answer: "Au",
+    //     },
+    //     {
+    //       points: 400,
+    //       question: "What is the largest planet in our solar system?",
+    //       answered: false,
+    //       answer: "Jupiter",
+    //     },
+    //     {
+    //       points: 600,
+    //       question: "What is the speed of light in meters per second?",
+    //       answered: false,
+    //       answer: "299,792,458",
+    //     },
+    //     {
+    //       points: 200,
+    //       question: "What is the hardest natural substance on Earth?",
+    //       answered: false,
+    //       answer: "Diamond",
+    //     },
+    //     {
+    //       points: 400,
+    //       question: "What is the process by which plants make their own food?",
+    //       answered: false,
+    //       answer: "Photosynthesis",
+    //     },
+    //     {
+    //       points: 600,
+    //       question: "What is the name of the closest galaxy to the Milky Way?",
+    //       answered: false,
+    //       answer: "Andromeda",
+    //     },
+    //   ],
+    // },
+    // {
+    //   name: "Literature",
+    //   image:
+    //     "https://images.pexels.com/photos/1261180/pexels-photo-1261180.jpeg?auto=compress&cs=tinysrgb&w=600",
+    //   questions: [
+    //     {
+    //       points: 200,
+    //       question: "Who wrote 'Romeo and Juliet'?",
+    //       answered: false,
+    //       answer: "William Shakespeare",
+    //     },
+    //     {
+    //       points: 400,
+    //       question: "What is the name of the wizard school in Harry Potter?",
+    //       answered: false,
+    //       answer: "Hogwarts",
+    //     },
+    //     {
+    //       points: 600,
+    //       question: "Who is the author of '1984'?",
+    //       answered: false,
+    //       answer: "George Orwell",
+    //     },
+    //     {
+    //       points: 200,
+    //       question:
+    //         "What is the name of the hobbit in 'The Lord of the Rings'?",
+    //       answered: false,
+    //       answer: "Frodo Baggins",
+    //     },
+    //     {
+    //       points: 400,
+    //       question: "Who wrote 'To Kill a Mockingbird'?",
+    //       answered: false,
+    //       answer: "Harper Lee",
+    //     },
+    //     {
+    //       points: 600,
+    //       question:
+    //         "What is the name of the monster in Mary Shelley's famous novel?",
+    //       answered: false,
+    //       answer: "Frankenstein's Monster",
+    //     },
+    //   ],
+    // },
+    // {
+    //   name: "Pop Culture",
+    //   image:
+    //     "https://images.pexels.com/photos/9611352/pexels-photo-9611352.jpeg?auto=compress&cs=tinysrgb&w=600",
+    //   questions: [
+    //     {
+    //       points: 200,
+    //       question: "Who played Iron Man in the Marvel Cinematic Universe?",
+    //       answered: false,
+    //       answer: "Robert Downey Jr.",
+    //     },
+    //     {
+    //       points: 400,
+    //       question:
+    //         "What is the name of the fictional country in Black Panther?",
+    //       answered: false,
+    //       answer: "Wakanda",
+    //     },
+    //     {
+    //       points: 600,
+    //       question: "Who is the lead singer of the band Queen?",
+    //       answered: false,
+    //       answer: "Freddie Mercury",
+    //     },
+    //     {
+    //       points: 200,
+    //       question: "What is the name of the theme park in Jurassic Park?",
+    //       answered: false,
+    //       answer: "Jurassic Park",
+    //     },
+    //     {
+    //       points: 400,
+    //       question: "Who directed the movie 'Titanic'?",
+    //       answered: false,
+    //       answer: "James Cameron",
+    //     },
+    //     {
+    //       points: 600,
+    //       question:
+    //         "What is the name of Eleven's favorite food in 'Stranger Things'?",
+    //       answered: false,
+    //       answer: "Eggo Waffles",
+    //     },
+    //   ],
+    // },
+    // {
+    //   name: "Sports",
+    //   image:
+    //     "https://images.pexels.com/photos/1618269/pexels-photo-1618269.jpeg?auto=compress&cs=tinysrgb&w=600",
+    //   questions: [
+    //     {
+    //       points: 200,
+    //       question: "In which sport would you perform a slam dunk?",
+    //       answered: false,
+    //       answer: "Basketball",
+    //     },
+    //     {
+    //       points: 400,
+    //       question: "How many players are on a soccer team on the field?",
+    //       answered: false,
+    //       answer: "11",
+    //     },
+    //     {
+    //       points: 600,
+    //       question: "Who has won the most Grand Slam tennis tournaments?",
+    //       answered: false,
+    //       answer: "Margaret Court",
+    //     },
+    //     {
+    //       points: 200,
+    //       question: "What country invented the sport of rugby?",
+    //       answered: false,
+    //       answer: "England",
+    //     },
+    //     {
+    //       points: 400,
+    //       question: "In which Olympics did Usain Bolt first compete?",
+    //       answered: false,
+    //       answer: "2008 Beijing Olympics",
+    //     },
+    //     {
+    //       points: 600,
+    //       question: "What is the diameter of a basketball hoop in inches?",
+    //       answered: false,
+    //       answer: "18",
+    //     },
+    //   ],
+    // },
+  ]);
+  const [seconds, setSeconds] = useState(0);
+  const [isRunning, setIsRunning] = useState(true);
+
+  useEffect(() => {
+    let interval;
+    if (modalIsOpen && isRunning) {
+      interval = setInterval(() => {
+        setSeconds((prev) => prev + 1);
+      }, 1000);
+    } else if (!modalIsOpen) {
+      setSeconds(0); // Reset timer when modal is closed
+    }
+    return () => clearInterval(interval);
+  }, [modalIsOpen, isRunning]);
+
+  const formatTime = (sec) => {
+    const minutes = Math.floor(sec / 60);
+    const remainingSeconds = sec % 60;
+    return `${minutes.toString().padStart(2, "0")}:${remainingSeconds
+      .toString()
+      .padStart(2, "0")}`;
+  };
+
+  const toggleTimer = () => {
+    setIsRunning(!isRunning);
+  };
+  useEffect(() => {
+    getQuestions();
+  }, []);
+
+  const getQuestions = async () => {
+    try {
+      let { data } = await axios.get(`${apiAdd}/admin/getAllQuestions`);
+      if (data.success) {
+        setCategories(data.data);
+        console.log("data.data", data.data);
+      }
+    } catch (error) {
+      console.log("err in handleSubmit", error);
+    }
+  };
+  const openModal = (category, questionIndex) => {
+    setModalContent({ category, questionIndex });
     setModalIsOpen(true);
   };
 
-  // Handle viewing the answer
-  const handleViewAnswer = () => setViewAnswer(true);
-
-  // Handle marking the answer as correct and updating the score
-  const handleCorrectAnswer = (team) => {
-    if (team === "team1") {
-      setTeam1Score((prevScore) => prevScore + selectedPoints);
-    } else if (team === "team2") {
-      setTeam2Score((prevScore) => prevScore + selectedPoints);
-    }
+  const closeModal = () => {
     setModalIsOpen(false);
-    setSelectedQuestion(null);
-    setSelectedPoints(0); // Reset selected points
-    setCurrentTeam(team === "team1" ? "team2" : "team1");
+    setModalContent(null);
   };
 
-  // Handle game over
+  const handleCorrectAnswer = (team) => {
+    if (modalContent) {
+      const { category, questionIndex } = modalContent;
+      const points = categories[category].questions[questionIndex].points;
+
+      if (team === "1") {
+        setTeam1Score((prevScore) => prevScore + points);
+      } else {
+        setTeam2Score((prevScore) => prevScore + points);
+      }
+
+      setCategories((prevCategories) => {
+        const newCategories = [...prevCategories];
+        newCategories[category].questions[questionIndex].answered = true;
+        return newCategories;
+      });
+
+      closeModal();
+    }
+    // check if game is over...and all are selected
+    if (areAllQuestionsAnswered()) {
+      handleGameOver();
+    }
+  };
+  const areAllQuestionsAnswered = () => {
+    let res = categories.every((category) =>
+      category.questions.every((question) => question.answered)
+    );
+    console.log("what is res", res);
+    return res;
+  };
+
   const handleGameOver = () => {
     setGameOver(true);
-    setCurrentStep("gameOver");
   };
 
-  // Determine the winner
   const getWinner = () => {
-    if (team1Score > team2Score) return "Team 1";
-    if (team2Score > team1Score) return "Team 2";
-    return "No one, it's a tie!";
+    if (team1Score > team2Score) return "Team 1 Wins!";
+    if (team2Score > team1Score) return "Team 2 Wins!";
+    return "It's a Tie!";
   };
 
-  // Get questions for the current team
-  const getQuestionsForCurrentTeam = () => {
-    return currentTeam === "team1" ? team1Questions : team2Questions;
-  };
-
-  // Find the selected question object
-  const findSelectedQuestion = () => {
-    return getQuestionsForCurrentTeam().find(
-      (q) => q.question === selectedQuestion
-    );
-  };
-
-  // Ensure Modal component is connected to the app element for accessibility
   Modal.setAppElement("#root");
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-500 to-green-500 p-8 flex flex-col">
-      {!gameOver && (
-        <>
-          <div className="flex justify-between items-center w-full max-w-4xl mx-auto mb-6">
-            <TeamScore team="1" score={team1Score} />
-            <TeamScore team="2" score={team2Score} />
-          </div>
+    <div className="min-h-screen bg-gradient-to-br from-blue-500 to-green-500 p-4 flex flex-col">
+      <div className="flex justify-between items-center w-full max-w-6xl mx-auto mb-4">
+        <TeamScore team="1" score={team1Score} />
+        <TeamScore team="2" score={team2Score} />
+      </div>
 
-          <div className="flex-grow flex flex-col md:flex-row">
-            {/* Team 1 Questions */}
-            <div className="flex-1 p-4">
-              <h2 className="text-2xl text-white mb-4 text-center">
-                Team 1 Questions
-              </h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {team1Questions.map((q, index) => (
-                  <div
-                    key={index}
-                    className="bg-white bg-opacity-30 backdrop-blur-lg rounded-lg shadow-md overflow-hidden p-4 cursor-pointer transition-transform transform hover:scale-105"
-                  >
-                    <img
-                      src={q.img}
-                      alt=""
-                      className="w-full h-24 object-cover mb-2"
-                    />
-                    <div className="flex flex-col space-y-2">
-                      {[200, 400, 600].map((points) => (
-                        <button
-                          key={points}
-                          className="bg-gradient-to-r from-purple-400 to-purple-600 text-white py-1 px-2 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300 text-xs"
-                          onClick={() => handlePointsClick(q.question, points)}
-                        >
-                          {points} Points
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Team 2 Questions */}
-            <div className="flex-1 p-4">
-              <h2 className="text-2xl text-white mb-4 text-center">
-                Team 2 Questions
-              </h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {team2Questions.map((q, index) => (
-                  <div
-                    key={index}
-                    className="bg-white bg-opacity-30 backdrop-blur-lg rounded-lg shadow-md overflow-hidden p-4 cursor-pointer transition-transform transform hover:scale-105"
-                  >
-                    <img
-                      src={q.img}
-                      alt=""
-                      className="w-full h-24 object-cover mb-2"
-                    />
-                    <div className="flex flex-col space-y-2">
-                      {[200, 400, 600].map((points) => (
-                        <button
-                          key={points}
-                          className="bg-gradient-to-r from-purple-400 to-purple-600 text-white py-1 px-2 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300 text-xs"
-                          onClick={() => handlePointsClick(q.question, points)}
-                        >
-                          {points} Points
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-
-          {/* Game Over Button */}
-          <div className="flex justify-center mt-6">
-            <button
-              className="bg-red-500 text-white py-2 px-4 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300"
-              onClick={handleGameOver}
-            >
-              Game Over
-            </button>
-          </div>
-
-          {/* Modal for Question and Answer Display */}
-          <Modal
-            isOpen={modalIsOpen}
-            onRequestClose={() => setModalIsOpen(false)}
-            contentLabel="Question Modal"
-            className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-60"
-            overlayClassName="fixed inset-0 bg-black bg-opacity-60"
+      <div className="flex-grow grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4 max-w-7xl mx-auto">
+        {categories.map((category, categoryIndex) => (
+          <div
+            key={categoryIndex}
+            className="bg-white bg-opacity-30 backdrop-blur-lg shadow-md rounded-lg overflow-hidden h-72"
           >
-            <div className="bg-white p-8 rounded-lg shadow-lg max-w-lg mx-auto">
-              <h2 className="text-2xl font-bold mb-4">
-                {findSelectedQuestion()?.question}
+            <div>
+              <img
+                src={category.image}
+                alt={category.name}
+                className="w-full h-32 rounded-t-lg"
+              />
+              <h2 className="text-lg font-bold text-center text-white mt-2">
+                {category.name}
               </h2>
-              {findSelectedQuestion()?.img && (
-                <img
-                  src={findSelectedQuestion().img}
-                  alt=""
-                  className="w-full h-32 object-cover mb-4"
-                />
-              )}
+            </div>
+            <div className="grid grid-cols-3 gap-2 p-2">
+              {category.questions.map((question, questionIndex) => (
+                <button
+                  key={questionIndex}
+                  className={`p-2 rounded-lg shadow-sm text-center font-bold ${
+                    question.answered
+                      ? "bg-gray-500 cursor-not-allowed"
+                      : "bg-blue-600 hover:bg-blue-700 text-white"
+                  }`}
+                  onClick={() =>
+                    !question.answered &&
+                    openModal(categoryIndex, questionIndex)
+                  }
+                  disabled={question.answered}
+                >
+                  {question.points}
+                </button>
+              ))}
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <div className="flex justify-center mt-4">
+        <button
+          className="bg-red-500 text-white py-2 px-4 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300"
+          onClick={handleGameOver}
+        >
+          Game Over
+        </button>
+      </div>
+      <Modal
+        isOpen={modalIsOpen}
+        onRequestClose={closeModal}
+        contentLabel="Question Modal"
+        className="fixed inset-0 flex items-center justify-center"
+        overlayClassName="fixed inset-0 bg-black bg-opacity-60"
+      >
+        <div className="bg-white p-6 rounded-lg shadow-lg max-w-lg mx-auto relative">
+          {modalContent && (
+            <>
+              <div className="flex justify-between items-center mb-4">
+                <div className="flex items-center space-x-4">
+                  <span className="text-xl font-bold text-gray-800">
+                    {formatTime(seconds)}
+                  </span>
+                  <button
+                    className="text-gray-600 hover:text-gray-900"
+                    onClick={toggleTimer}
+                  >
+                    {isRunning ? (
+                      <Pause className="w-6 h-6" />
+                    ) : (
+                      <Play className="w-6 h-6" />
+                    )}
+                  </button>
+                </div>
+                <button
+                  className="text-gray-500 hover:text-gray-700 transition-colors duration-200"
+                  onClick={closeModal}
+                >
+                  <X className="w-6 h-6" />
+                </button>
+              </div>
+              <h2 className="text-lg font-semibold text-center mb-4">
+                {
+                  categories[modalContent.category].questions[
+                    modalContent.questionIndex
+                  ].question
+                }
+              </h2>
               <button
-                className="bg-gradient-to-r from-purple-400 to-purple-600 text-white py-2 px-4 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300 mb-4"
-                onClick={handleViewAnswer}
+                className="bg-purple-600 text-white py-2 px-4 rounded-lg shadow-md hover:bg-purple-700 transition-colors duration-300 w-full mb-4"
+                onClick={() => setShowAnswer(!showAnswer)}
               >
                 View Answer
               </button>
-              {viewAnswer && (
-                <div className="mt-4">
-                  <h3 className="text-xl font-bold mb-4">
-                    Answer: {findSelectedQuestion()?.answer}
-                  </h3>
-                  <div className="flex justify-between space-x-4">
-                    <button
-                      className="bg-gradient-to-r from-blue-400 to-blue-600 text-white py-2 px-4 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300"
-                      onClick={() => handleCorrectAnswer("team1")}
-                    >
-                      Team 1 Correct
-                    </button>
-                    <button
-                      className="bg-gradient-to-r from-blue-400 to-blue-600 text-white py-2 px-4 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300"
-                      onClick={() => handleCorrectAnswer("team2")}
-                    >
-                      Team 2 Correct
-                    </button>
-                  </div>
+              {showAnswer && (
+                <div className="bg-gray-100 p-3 rounded-lg mb-4">
+                  <p className="text-gray-700">
+                    Answer:
+                    {
+                      categories[modalContent.category].questions[
+                        modalContent.questionIndex
+                      ].answer
+                    }
+                  </p>
                 </div>
               )}
-            </div>
-          </Modal>
-        </>
-      )}
+              <div className="flex justify-between space-x-4 mb-4">
+                <button
+                  className="bg-green-600 text-white py-2 px-4 rounded-lg shadow-md hover:bg-green-700 transition-colors duration-300 w-full"
+                  onClick={() => handleCorrectAnswer("1")}
+                >
+                  Team 1 Correct
+                </button>
+                <button
+                  className="bg-green-600 text-white py-2 px-4 rounded-lg shadow-md hover:bg-green-700 transition-colors duration-300 w-full"
+                  onClick={() => handleCorrectAnswer("2")}
+                >
+                  Team 2 Correct
+                </button>
+              </div>
+            </>
+          )}
+        </div>
+      </Modal>
 
-      {/* Game Over Screen */}
       {gameOver && (
-        <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-gray-800 to-gray-900 text-white">
-          <motion.div
-            initial={{ opacity: 0, scale: 0.5 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 1 }}
-            className="text-center"
-          >
-            <h1 className="text-4xl font-bold mb-4">Game Over!</h1>
-            <h2 className="text-2xl mb-6">Winner: {getWinner()}</h2>
-            <motion.div
-              animate={{ rotate: [0, 360] }}
-              transition={{ duration: 2, repeat: Infinity }}
-              className="w-32 h-32 rounded-full bg-gradient-to-r from-yellow-400 to-red-500 flex items-center justify-center"
-            >
-              <span className="text-3xl font-bold">🎉</span>
-            </motion.div>
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-70">
+          <div className="bg-white p-6 rounded-lg shadow-lg max-w-md mx-auto text-center relative">
+            <h2 className="text-3xl font-bold mb-3 text-black">
+              {getWinner()}
+            </h2>
             <button
-              className="mt-8 bg-blue-500 text-white py-2 px-4 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300"
+              className="bg-red-500 text-white py-2 px-4 rounded-lg shadow-md hover:bg-red-600 transition-shadow duration-300"
               onClick={() => setGameOver(false)}
             >
-              Back to Game
+              Close
             </button>
-          </motion.div>
+          </div>
         </div>
       )}
     </div>

@@ -1,19 +1,42 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Upload } from "lucide-react";
-
+import axios from "axios";
+import { apiAdd } from "../../Api";
 const AddQuestion = () => {
   const [question, setQuestion] = useState("");
+  const [category, setCategory] = useState("");
   const [points, setPoints] = useState(200);
   const [answer, setAnswer] = useState("");
   const [file, setFile] = useState(null);
+  const [preview, setPreview] = useState(null);
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    console.log({ question, points, answer, file });
+  useEffect(() => {
+    if (file) {
+      const objectUrl = URL.createObjectURL(file);
+      setPreview(objectUrl);
+      // Free memory when component unmounts
+      return () => URL.revokeObjectURL(objectUrl);
+    }
+  }, [file]);
+
+  const handleSubmit = async (e) => {
+    try {
+      e.preventDefault();
+      console.log({ question, category, points, answer, file });
+      let formData = { question, category, points, answer, file };
+      await axios.post(`${apiAdd}/admin/postQuestion`, formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
+    } catch (error) {
+      console.log("err in handleSubmit", error);
+    }
   };
 
   const handleFileChange = (e) => {
-    setFile(e.target.files[0]);
+    const selectedFile = e.target.files[0];
+    setFile(selectedFile);
   };
 
   return (
@@ -30,6 +53,18 @@ const AddQuestion = () => {
             type="text"
             value={question}
             onChange={(e) => setQuestion(e.target.value)}
+            className="w-full p-3 border-2 border-pink-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition duration-200"
+            required
+          />
+        </div>
+        <div>
+          <label className="block mb-2 text-lg font-medium text-purple-700">
+            Category
+          </label>
+          <input
+            type="text"
+            value={category}
+            onChange={(e) => setCategory(e.target.value)}
             className="w-full p-3 border-2 border-pink-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition duration-200"
             required
           />
@@ -75,17 +110,46 @@ const AddQuestion = () => {
                   and drop
                 </p>
                 <p className="text-xs text-purple-500">
-                  SVG, PNG, JPG or GIF (MAX. 800x400px)
+                  SVG, PNG, JPG, GIF or MP4 (MAX. 800x400px for images)
                 </p>
               </div>
               <input
                 type="file"
+                name="file"
                 className="hidden"
                 onChange={handleFileChange}
+                accept="image/*,video/*"
               />
             </label>
           </div>
         </div>
+        {file && (
+          <div>
+            <p className="text-lg font-medium text-purple-700 mb-2">
+              Uploaded File:
+            </p>
+            <p className="text-md text-purple-600">{file.name}</p>
+            {file.type.startsWith("image/") ? (
+              <img
+                src={preview}
+                alt="Uploaded file preview"
+                className="mt-2 max-w-full h-auto rounded-lg shadow-md"
+              />
+            ) : file.type.startsWith("video/") ? (
+              <video
+                src={preview}
+                className="mt-2 max-w-full h-auto rounded-lg shadow-md"
+                controls
+              >
+                Your browser does not support the video tag.
+              </video>
+            ) : (
+              <p className="mt-2 text-purple-600">
+                File type not supported for preview.
+              </p>
+            )}
+          </div>
+        )}
         <button
           type="submit"
           className="w-full py-3 bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 rounded-lg font-semibold text-white shadow-md hover:shadow-lg transition duration-300"
