@@ -344,6 +344,7 @@ const GameInterface = () => {
   const closeModal = () => {
     setModalIsOpen(false);
     setModalContent(null);
+    setshowAnswer(!showAnswer);
   };
 
   const handleCorrectAnswer = (team) => {
@@ -387,7 +388,15 @@ const GameInterface = () => {
     if (team2Score > team1Score) return "Team 2 Wins!";
     return "It's a Tie!";
   };
-
+  // Get images url.
+  const getImageSrc = (imageUrl) => {
+    // Check if the image URL contains 'http' or 'https' indicating an external link
+    if (imageUrl.startsWith("http://") || imageUrl.startsWith("https://")) {
+      return imageUrl; // Return the external URL directly
+    } else {
+      return `${apiAdd}/images/${imageUrl}`; // Return local URL
+    }
+  };
   Modal.setAppElement("#root");
 
   return (
@@ -405,7 +414,7 @@ const GameInterface = () => {
           >
             <div>
               <img
-                src={category.image}
+                src={getImageSrc(category.image)} // Use the function to determine the src
                 alt={category.name}
                 className="w-full h-32 rounded-t-lg"
               />
@@ -448,39 +457,39 @@ const GameInterface = () => {
         isOpen={modalIsOpen}
         onRequestClose={closeModal}
         contentLabel="Question Modal"
-        className="fixed inset-0 flex items-center justify-center"
-        overlayClassName="fixed inset-0 bg-black bg-opacity-60"
+        className="fixed inset-0 flex items-center justify-center p-4"
+        overlayClassName="fixed inset-0 bg-black bg-opacity-70"
       >
-        <div className="bg-white p-6 rounded-lg shadow-lg max-w-lg mx-auto relative">
+        <div className="bg-white p-6 rounded-lg shadow-lg max-w-xl mx-auto relative">
           {modalContent && (
             <>
-              <div className="flex justify-between items-center mb-4">
-                <div className="flex items-center space-x-4">
-                  <span className="text-xl font-bold text-gray-800">
+              <div className="flex justify-between items-center mb-5 border-b border-gray-200 pb-3">
+                <div className="flex items-center space-x-3">
+                  <span className="text-xl font-bold text-gray-900">
                     {formatTime(seconds)}
                   </span>
                   <button
-                    className="text-gray-600 hover:text-gray-900"
+                    className="text-gray-600 hover:text-gray-800 transition-colors"
                     onClick={toggleTimer}
                   >
                     {isRunning ? (
-                      <Pause className="w-6 h-6" />
+                      <Pause className="w-5 h-5" />
                     ) : (
-                      <Play className="w-6 h-6" />
+                      <Play className="w-5 h-5" />
                     )}
                   </button>
                   <button
-                    className="text-gray-600 hover:text-gray-900"
+                    className="text-gray-600 hover:text-gray-800 transition-colors"
                     onClick={resetTimer}
                   >
-                    <RotateCcw className="w-6 h-6" />
+                    <RotateCcw className="w-5 h-5" />
                   </button>
                 </div>
                 <button
-                  className="text-gray-500 hover:text-gray-700 transition-colors duration-200"
+                  className="text-gray-600 hover:text-gray-800 transition-colors"
                   onClick={closeModal}
                 >
-                  <X className="w-6 h-6" />
+                  <X className="w-5 h-5" />
                 </button>
               </div>
               <h2 className="text-lg font-semibold text-center mb-4">
@@ -490,15 +499,60 @@ const GameInterface = () => {
                   ].question
                 }
               </h2>
+
+              {/* Conditional rendering for image or video */}
+              {categories[modalContent.category].questions[
+                modalContent.questionIndex
+              ].image && (
+                <>
+                  {categories[modalContent.category].questions[
+                    modalContent.questionIndex
+                  ].image.match(
+                    /\.(jpeg|jpg|gif|png|webp|bmp|svg|jif|tiff|tif|heif|heic|jfif)$/i
+                  ) ? (
+                    <img
+                      src={getImageSrc(
+                        categories[modalContent.category].questions[
+                          modalContent.questionIndex
+                        ].image
+                      )}
+                      alt="Question Media"
+                      className="w-full h-auto rounded-lg mb-4 border border-gray-300 shadow-sm"
+                    />
+                  ) : categories[modalContent.category].questions[
+                      modalContent.questionIndex
+                    ].image.match(/\.(mp4|webm|ogg|avi|mov)$/i) ? (
+                    <video
+                      controls
+                      className="w-full rounded-lg mb-4 border border-gray-300 shadow-sm"
+                    >
+                      <source
+                        src={getImageSrc(
+                          categories[modalContent.category].questions[
+                            modalContent.questionIndex
+                          ].image
+                        )}
+                        type="video/mp4"
+                      />
+                      Your browser does not support the video tag.
+                    </video>
+                  ) : (
+                    <p className="text-red-600 text-center">
+                      Unsupported media type
+                    </p>
+                  )}
+                </>
+              )}
+
               <button
                 className="bg-purple-600 text-white py-2 px-4 rounded-lg shadow-md hover:bg-purple-700 transition-colors duration-300 w-full mb-4"
-                onClick={() => setShowAnswer(!showAnswer)}
+                onClick={() => setshowAnswer(!showAnswer)}
               >
                 View Answer
               </button>
               {showAnswer && (
-                <div className="bg-gray-100 p-3 rounded-lg mb-4">
-                  <p className="text-gray-700">
+                <div className="bg-gray-100 p-3 rounded-lg mb-4 border border-gray-200 shadow-sm">
+                  <p className="text-gray-800">
                     Answer:{" "}
                     {
                       categories[modalContent.category].questions[
@@ -508,15 +562,15 @@ const GameInterface = () => {
                   </p>
                 </div>
               )}
-              <div className="flex justify-between space-x-4 mb-4">
+              <div className="flex gap-4 mb-4">
                 <button
-                  className="bg-green-600 text-white py-2 px-4 rounded-lg shadow-md hover:bg-green-700 transition-colors duration-300 w-full"
+                  className="bg-green-600 text-white py-2 px-4 rounded-lg shadow-md hover:bg-green-700 transition-colors duration-300 flex-1"
                   onClick={() => handleCorrectAnswer("1")}
                 >
                   Team 1 Correct
                 </button>
                 <button
-                  className="bg-green-600 text-white py-2 px-4 rounded-lg shadow-md hover:bg-green-700 transition-colors duration-300 w-full"
+                  className="bg-green-600 text-white py-2 px-4 rounded-lg shadow-md hover:bg-green-700 transition-colors duration-300 flex-1"
                   onClick={() => handleCorrectAnswer("2")}
                 >
                   Team 2 Correct
