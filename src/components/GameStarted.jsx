@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import Modal from "react-modal";
 import { apiAdd } from "../Api";
 import axios from "axios";
-import { Play, Pause, X } from "lucide-react";
+import { Play, Pause, X, RotateCcw } from "lucide-react";
 
 const TeamScore = ({ team, score }) => (
   <div className="text-white text-xl font-bold">
@@ -285,7 +285,14 @@ const GameInterface = () => {
   ]);
   const [seconds, setSeconds] = useState(0);
   const [isRunning, setIsRunning] = useState(true);
-
+  useEffect(() => {
+    if (modalIsOpen) {
+      setIsRunning(true); // Start the timer when the modal opens
+    } else {
+      setIsRunning(false); // Stop the timer when the modal closes
+      setSeconds(0); // Reset the timer when modal is closed
+    }
+  }, [modalIsOpen]);
   useEffect(() => {
     let interval;
     if (modalIsOpen && isRunning) {
@@ -308,6 +315,11 @@ const GameInterface = () => {
 
   const toggleTimer = () => {
     setIsRunning(!isRunning);
+  };
+
+  const resetTimer = () => {
+    setIsRunning(false);
+    setSeconds(0);
   };
   useEffect(() => {
     getQuestions();
@@ -457,6 +469,12 @@ const GameInterface = () => {
                       <Play className="w-6 h-6" />
                     )}
                   </button>
+                  <button
+                    className="text-gray-600 hover:text-gray-900"
+                    onClick={resetTimer}
+                  >
+                    <RotateCcw className="w-6 h-6" />
+                  </button>
                 </div>
                 <button
                   className="text-gray-500 hover:text-gray-700 transition-colors duration-200"
@@ -481,7 +499,7 @@ const GameInterface = () => {
               {showAnswer && (
                 <div className="bg-gray-100 p-3 rounded-lg mb-4">
                   <p className="text-gray-700">
-                    Answer:
+                    Answer:{" "}
                     {
                       categories[modalContent.category].questions[
                         modalContent.questionIndex
