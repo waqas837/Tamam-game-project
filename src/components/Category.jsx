@@ -1,166 +1,10 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { toast, Toaster } from "react-hot-toast";
-import { X, Check } from "lucide-react";
+import { Check } from "lucide-react";
 import { useSpring, animated } from "react-spring";
+import axios from "axios";
+import { apiAdd } from "../Api";
 
-const categories = [
-  {
-    id: 1,
-    name: "رياضة",
-    image: "https://via.placeholder.com/150?text=Sports",
-    description: "كل ما يتعلق بالرياضات المختلفة",
-  },
-  {
-    id: 2,
-    name: "تكنولوجيا",
-    image: "https://via.placeholder.com/150?text=Technology",
-    description: "أحدث الأخبار في التقنية والأجهزة",
-  },
-  {
-    id: 3,
-    name: "موسيقى",
-    image: "https://via.placeholder.com/150?text=Music",
-    description: "استكشف أنواع الموسيقى والفنانين المختلفين",
-  },
-  {
-    id: 4,
-    name: "أفلام",
-    image: "https://via.placeholder.com/150?text=Movies",
-    description: "كل شيء متعلق بالأفلام والسينما",
-  },
-  {
-    id: 5,
-    name: "طعام",
-    image: "https://via.placeholder.com/150?text=Food",
-    description: "وصفات لذيذة ونصائح طبخ",
-  },
-  {
-    id: 6,
-    name: "سفر",
-    image: "https://via.placeholder.com/150?text=Travel",
-    description: "وجهات وتجارب السفر",
-  },
-  {
-    id: 7,
-    name: "صحة",
-    image: "https://via.placeholder.com/150?text=Health",
-    description: "نصائح لأسلوب حياة صحي",
-  },
-  {
-    id: 8,
-    name: "تعليم",
-    image: "https://via.placeholder.com/150?text=Education",
-    description: "موارد تعليمية ونصائح",
-  },
-  {
-    id: 9,
-    name: "أعمال",
-    image: "https://via.placeholder.com/150?text=Business",
-    description: "أفكار واستراتيجيات للأعمال",
-  },
-  {
-    id: 10,
-    name: "علم",
-    image: "https://via.placeholder.com/150?text=Science",
-    description: "اكتشافات وأبحاث في العلم",
-  },
-  {
-    id: 11,
-    name: "فن",
-    image: "https://via.placeholder.com/150?text=Art",
-    description: "الفنون والتعبيرات الإبداعية",
-  },
-  {
-    id: 12,
-    name: "موضة",
-    image: "https://via.placeholder.com/150?text=Fashion",
-    description: "اتجاهات وأسلوب الموضة",
-  },
-  {
-    id: 13,
-    name: "تاريخ",
-    image: "https://via.placeholder.com/150?text=History",
-    description: "أحداث تاريخية وشخصيات",
-  },
-  {
-    id: 14,
-    name: "ألعاب",
-    image: "https://via.placeholder.com/150?text=Gaming",
-    description: "ألعاب الفيديو وثقافة الألعاب",
-  },
-  {
-    id: 15,
-    name: "سياسة",
-    image: "https://via.placeholder.com/150?text=Politics",
-    description: "أخبار وتحليلات سياسية",
-  },
-  {
-    id: 16,
-    name: "مالية",
-    image: "https://via.placeholder.com/150?text=Finance",
-    description: "نصائح مالية وأفكار السوق",
-  },
-  {
-    id: 17,
-    name: "بيئة",
-    image: "https://via.placeholder.com/150?text=Environment",
-    description: "القضايا البيئية والحلول",
-  },
-  {
-    id: 18,
-    name: "افعلها بنفسك",
-    image: "https://via.placeholder.com/150?text=DIY",
-    description: "مشاريع وأفكار افعلها بنفسك",
-  },
-  {
-    id: 19,
-    name: "كتب",
-    image: "https://via.placeholder.com/150?text=Books",
-    description: "توصيات ومراجعات الكتب",
-  },
-  {
-    id: 20,
-    name: "دين",
-    image: "https://via.placeholder.com/150?text=Religion",
-    description: "المعتقدات والممارسات الدينية",
-  },
-  {
-    id: 21,
-    name: "وسائل التواصل الاجتماعي",
-    image: "https://via.placeholder.com/150?text=Social+Media",
-    description: "اتجاهات ونصائح على وسائل التواصل الاجتماعي",
-  },
-  {
-    id: 22,
-    name: "حيوانات أليفة",
-    image: "https://via.placeholder.com/150?text=Pets",
-    description: "معلومات عن الحيوانات الأليفة والعناية بها",
-  },
-  {
-    id: 23,
-    name: "سيارات",
-    image: "https://via.placeholder.com/150?text=Cars",
-    description: "أخبار ومراجعات السيارات",
-  },
-  {
-    id: 24,
-    name: "تصوير",
-    image: "https://via.placeholder.com/150?text=Photography",
-    description: "نصائح وتقنيات التصوير",
-  },
-  {
-    id: 25,
-    name: "بستنة",
-    image: "https://via.placeholder.com/150?text=Gardening",
-    description: "نصائح بستنة والعناية بالنباتات",
-  },
-  {
-    id: 26,
-    name: "تعلم اللغات",
-    image: "https://via.placeholder.com/150?text=Language+Learning",
-    description: "موارد لتعلم لغات جديدة",
-  },
-];
 const CategoryCard = ({ category, isSelected, onClick }) => {
   const [isHovered, setIsHovered] = useState(false);
 
@@ -201,7 +45,7 @@ const CategoryCard = ({ category, isSelected, onClick }) => {
     >
       <animated.img
         style={imageSpringProps}
-        src={category.image}
+        src={getImageSrc(category.image)}
         alt={category.name}
         className="w-full h-48 object-cover"
       />
@@ -235,20 +79,52 @@ const CategoryCard = ({ category, isSelected, onClick }) => {
     </animated.div>
   );
 };
-
-const CategorySelection = () => {
+// Get images url.
+const getImageSrc = (imageUrl) => {
+  // Check if the image URL contains 'http' or 'https' indicating an external link
+  if (imageUrl.startsWith("http://") || imageUrl.startsWith("https://")) {
+    return imageUrl; // Return the external URL directly
+  } else {
+    return `${apiAdd}/images/${imageUrl}`; // Return local URL
+  }
+};
+const CategorySelection = ({ setcategoriesIds }) => {
   const [selectedCategories, setSelectedCategories] = useState([]);
+  const [categories, setCategories] = useState([]);
 
+  useEffect(() => {
+    getQuestions();
+  }, []);
+
+  const getQuestions = async () => {
+    try {
+      let { data } = await axios.get(`${apiAdd}/admin/getAllQuestions`);
+      if (data.success) {
+        setCategories(data.data);
+        console.log("data.data", data.data);
+      }
+    } catch (error) {
+      console.log("err in handleSubmit", error);
+    }
+  };
   const toggleCategory = (id) => {
-    if (selectedCategories.includes(id) || selectedCategories.length < 6) {
-      setSelectedCategories((prev) =>
-        prev.includes(id)
-          ? prev.filter((categoryId) => categoryId !== id)
-          : [...prev, id]
+    let updatedSelectedCategories;
+
+    if (selectedCategories.includes(id)) {
+      // Remove the category from the selection
+      updatedSelectedCategories = selectedCategories.filter(
+        (categoryId) => categoryId !== id
       );
+    } else if (selectedCategories.length < 6) {
+      // Add the category to the selection, but only if less than 6 are selected
+      updatedSelectedCategories = [...selectedCategories, id];
     } else {
       toast.error("يمكنك اختيار ما يصل إلى 6 فئات فقط.");
+      return; // Exit if the user tried to select more than 6 categories
     }
+
+    setSelectedCategories(updatedSelectedCategories);
+    setcategoriesIds(updatedSelectedCategories); // Update the parent state with the new selection
   };
 
   const titleProps = useSpring({
@@ -272,10 +148,10 @@ const CategorySelection = () => {
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
           {categories.map((category) => (
             <CategoryCard
-              key={category.id}
+              key={category._id}
               category={category}
-              isSelected={selectedCategories.includes(category.id)}
-              onClick={() => toggleCategory(category.id)}
+              isSelected={selectedCategories.includes(category._id)}
+              onClick={() => toggleCategory(category._id)}
             />
           ))}
         </div>

@@ -16,7 +16,9 @@ const QuestionList = () => {
     try {
       let { data } = await axios.get(`${apiAdd}/admin/getAllQuestions`);
       if (data.success) {
-        setQuestions(data.data);
+        const sortedQuestions = data.data.sort((a, b) => b.id - a.id);
+        setQuestions(sortedQuestions);
+
         console.log("data.data", data.data);
       }
     } catch (error) {
@@ -47,7 +49,7 @@ const QuestionList = () => {
 
   return (
     <div className="max-w-4xl mx-auto p-8">
-      <h2 className="text-3xl font-bold mb-8 text-center text-purple-800">
+      <h2 className="text-3xl font-bold mb-8 text-center text-pink-600">
         Question List
       </h2>
       <div className="bg-white shadow-md rounded-lg overflow-x-auto rtl">

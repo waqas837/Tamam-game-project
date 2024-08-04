@@ -1,8 +1,9 @@
-import React from "react";
+import React, { useState } from "react";
 import Categories from "./Category";
 import CreateTeam from "./CreateTeam";
 
 const GameInstructions = () => {
+  const [categoriesIds, setcategoriesIds] = useState([])
   return (
     <>
       <section className="py-12 bg-white text-gray-800">
@@ -41,9 +42,9 @@ const GameInstructions = () => {
         </div>
       </section>
       {/* Categories */}
-      <Categories />
+      <Categories setcategoriesIds={setcategoriesIds} />
       {/* Create teams */}
-      <CreateTeam />
+      <CreateTeam categoriesIds={categoriesIds}/>
     </>
   );
 };

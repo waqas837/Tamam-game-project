@@ -3,12 +3,7 @@ import Modal from "react-modal";
 import { apiAdd } from "../Api";
 import axios from "axios";
 import { Play, Pause, X, RotateCcw } from "lucide-react";
-
-const TeamScore = ({ team, score }) => (
-  <div className="text-white text-xl font-bold">
-    Team {team}: {score} Points
-  </div>
-);
+import { useLocation } from "react-router-dom";
 
 const GameInterface = () => {
   const [modalIsOpen, setModalIsOpen] = useState(false);
@@ -17,275 +12,12 @@ const GameInterface = () => {
   const [team2Score, setTeam2Score] = useState(0);
   const [gameOver, setGameOver] = useState(false);
   const [showAnswer, setshowAnswer] = useState(false);
-
-  const [categories, setCategories] = useState([
-    // {
-    //   name: "Geography",
-    //   image:
-    //     "https://images.pexels.com/photos/335393/pexels-photo-335393.jpeg?auto=compress&cs=tinysrgb&w=600",
-    //   questions: [
-    //     {
-    //       points: 200,
-    //       question: "What is the capital of Pakistan?",
-    //       answered: false,
-    //       answer: "Islamabad",
-    //     },
-    //     {
-    //       points: 400,
-    //       question: "What is the largest country in the world?",
-    //       answered: false,
-    //       answer: "Russia",
-    //     },
-    //     {
-    //       points: 600,
-    //       question: "What is the tallest mountain in the world?",
-    //       answered: false,
-    //       answer: "Mount Everest",
-    //     },
-    //     {
-    //       points: 200,
-    //       question: "What is the longest river in Africa?",
-    //       answered: false,
-    //       answer: "Nile",
-    //     },
-    //     {
-    //       points: 400,
-    //       question: "Which country has the most islands?",
-    //       answered: false,
-    //       answer: "Sweden",
-    //     },
-    //     {
-    //       points: 600,
-    //       question: "What is the driest place on Earth?",
-    //       answered: false,
-    //       answer: "Atacama Desert",
-    //     },
-    //   ],
-    // },
-    // {
-    //   name: "History",
-    //   image:
-    //     "https://images.pexels.com/photos/820735/pexels-photo-820735.jpeg?auto=compress&cs=tinysrgb&w=600",
-    //   questions: [
-    //     {
-    //       points: 200,
-    //       question: "Who was the first President of the USA?",
-    //       answered: false,
-    //       answer: "George Washington",
-    //     },
-    //     {
-    //       points: 400,
-    //       question: "What year did World War II end?",
-    //       answered: false,
-    //       answer: "1945",
-    //     },
-    //     {
-    //       points: 600,
-    //       question:
-    //         "What was the name of the ship that carried the Pilgrims to America?",
-    //       answered: false,
-    //       answer: "Mayflower",
-    //     },
-    //     {
-    //       points: 200,
-    //       question: "Who wrote the Declaration of Independence?",
-    //       answered: false,
-    //       answer: "Thomas Jefferson",
-    //     },
-    //     {
-    //       points: 400,
-    //       question: "In what year did the Berlin Wall fall?",
-    //       answered: false,
-    //       answer: "1989",
-    //     },
-    //     {
-    //       points: 600,
-    //       question: "Who was the last Pharaoh of Egypt?",
-    //       answered: false,
-    //       answer: "Cleopatra",
-    //     },
-    //   ],
-    // },
-    // {
-    //   name: "Science",
-    //   image:
-    //     "https://images.pexels.com/photos/2280571/pexels-photo-2280571.jpeg?auto=compress&cs=tinysrgb&w=600",
-    //   questions: [
-    //     {
-    //       points: 200,
-    //       question: "What is the chemical symbol for gold?",
-    //       answered: false,
-    //       answer: "Au",
-    //     },
-    //     {
-    //       points: 400,
-    //       question: "What is the largest planet in our solar system?",
-    //       answered: false,
-    //       answer: "Jupiter",
-    //     },
-    //     {
-    //       points: 600,
-    //       question: "What is the speed of light in meters per second?",
-    //       answered: false,
-    //       answer: "299,792,458",
-    //     },
-    //     {
-    //       points: 200,
-    //       question: "What is the hardest natural substance on Earth?",
-    //       answered: false,
-    //       answer: "Diamond",
-    //     },
-    //     {
-    //       points: 400,
-    //       question: "What is the process by which plants make their own food?",
-    //       answered: false,
-    //       answer: "Photosynthesis",
-    //     },
-    //     {
-    //       points: 600,
-    //       question: "What is the name of the closest galaxy to the Milky Way?",
-    //       answered: false,
-    //       answer: "Andromeda",
-    //     },
-    //   ],
-    // },
-    // {
-    //   name: "Literature",
-    //   image:
-    //     "https://images.pexels.com/photos/1261180/pexels-photo-1261180.jpeg?auto=compress&cs=tinysrgb&w=600",
-    //   questions: [
-    //     {
-    //       points: 200,
-    //       question: "Who wrote 'Romeo and Juliet'?",
-    //       answered: false,
-    //       answer: "William Shakespeare",
-    //     },
-    //     {
-    //       points: 400,
-    //       question: "What is the name of the wizard school in Harry Potter?",
-    //       answered: false,
-    //       answer: "Hogwarts",
-    //     },
-    //     {
-    //       points: 600,
-    //       question: "Who is the author of '1984'?",
-    //       answered: false,
-    //       answer: "George Orwell",
-    //     },
-    //     {
-    //       points: 200,
-    //       question:
-    //         "What is the name of the hobbit in 'The Lord of the Rings'?",
-    //       answered: false,
-    //       answer: "Frodo Baggins",
-    //     },
-    //     {
-    //       points: 400,
-    //       question: "Who wrote 'To Kill a Mockingbird'?",
-    //       answered: false,
-    //       answer: "Harper Lee",
-    //     },
-    //     {
-    //       points: 600,
-    //       question:
-    //         "What is the name of the monster in Mary Shelley's famous novel?",
-    //       answered: false,
-    //       answer: "Frankenstein's Monster",
-    //     },
-    //   ],
-    // },
-    // {
-    //   name: "Pop Culture",
-    //   image:
-    //     "https://images.pexels.com/photos/9611352/pexels-photo-9611352.jpeg?auto=compress&cs=tinysrgb&w=600",
-    //   questions: [
-    //     {
-    //       points: 200,
-    //       question: "Who played Iron Man in the Marvel Cinematic Universe?",
-    //       answered: false,
-    //       answer: "Robert Downey Jr.",
-    //     },
-    //     {
-    //       points: 400,
-    //       question:
-    //         "What is the name of the fictional country in Black Panther?",
-    //       answered: false,
-    //       answer: "Wakanda",
-    //     },
-    //     {
-    //       points: 600,
-    //       question: "Who is the lead singer of the band Queen?",
-    //       answered: false,
-    //       answer: "Freddie Mercury",
-    //     },
-    //     {
-    //       points: 200,
-    //       question: "What is the name of the theme park in Jurassic Park?",
-    //       answered: false,
-    //       answer: "Jurassic Park",
-    //     },
-    //     {
-    //       points: 400,
-    //       question: "Who directed the movie 'Titanic'?",
-    //       answered: false,
-    //       answer: "James Cameron",
-    //     },
-    //     {
-    //       points: 600,
-    //       question:
-    //         "What is the name of Eleven's favorite food in 'Stranger Things'?",
-    //       answered: false,
-    //       answer: "Eggo Waffles",
-    //     },
-    //   ],
-    // },
-    // {
-    //   name: "Sports",
-    //   image:
-    //     "https://images.pexels.com/photos/1618269/pexels-photo-1618269.jpeg?auto=compress&cs=tinysrgb&w=600",
-    //   questions: [
-    //     {
-    //       points: 200,
-    //       question: "In which sport would you perform a slam dunk?",
-    //       answered: false,
-    //       answer: "Basketball",
-    //     },
-    //     {
-    //       points: 400,
-    //       question: "How many players are on a soccer team on the field?",
-    //       answered: false,
-    //       answer: "11",
-    //     },
-    //     {
-    //       points: 600,
-    //       question: "Who has won the most Grand Slam tennis tournaments?",
-    //       answered: false,
-    //       answer: "Margaret Court",
-    //     },
-    //     {
-    //       points: 200,
-    //       question: "What country invented the sport of rugby?",
-    //       answered: false,
-    //       answer: "England",
-    //     },
-    //     {
-    //       points: 400,
-    //       question: "In which Olympics did Usain Bolt first compete?",
-    //       answered: false,
-    //       answer: "2008 Beijing Olympics",
-    //     },
-    //     {
-    //       points: 600,
-    //       question: "What is the diameter of a basketball hoop in inches?",
-    //       answered: false,
-    //       answer: "18",
-    //     },
-    //   ],
-    // },
-  ]);
+  const [categories, setCategories] = useState([]);
   const [seconds, setSeconds] = useState(0);
   const [isRunning, setIsRunning] = useState(true);
+  const location = useLocation();
   useEffect(() => {
+    console.log("location", location.state);
     if (modalIsOpen) {
       setIsRunning(true); // Start the timer when the modal opens
     } else {
@@ -326,8 +58,17 @@ const GameInterface = () => {
   }, []);
 
   const getQuestions = async () => {
+    let loggedInUser = localStorage.getItem("user");
+    loggedInUser = JSON.parse(loggedInUser);
     try {
-      let { data } = await axios.get(`${apiAdd}/admin/getAllQuestions`);
+      let dataToSend = {
+        metaData: location.state,
+        userData: loggedInUser,
+      };
+      let { data } = await axios.post(
+        `${apiAdd}/user/getAllQuestionsForUser`,
+        dataToSend
+      );
       if (data.success) {
         setCategories(data.data);
         console.log("data.data", data.data);
@@ -352,7 +93,7 @@ const GameInterface = () => {
       const { category, questionIndex } = modalContent;
       const points = categories[category].questions[questionIndex].points;
 
-      if (team === "1") {
+      if (team === location.state.teams.team1) {
         setTeam1Score((prevScore) => prevScore + points);
       } else {
         setTeam2Score((prevScore) => prevScore + points);
@@ -361,6 +102,8 @@ const GameInterface = () => {
       setCategories((prevCategories) => {
         const newCategories = [...prevCategories];
         newCategories[category].questions[questionIndex].answered = true;
+        // let answerWithTeam = { newCategories, correctAnswerBy: team };
+        // await axios.post(`${apiAdd}/user/answerByTeams`, answerWithTeam);
         return newCategories;
       });
 
@@ -402,8 +145,12 @@ const GameInterface = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-500 to-green-500 p-4 flex flex-col">
       <div className="flex justify-between items-center w-full max-w-6xl mx-auto mb-4">
-        <TeamScore team="1" score={team1Score} />
-        <TeamScore team="2" score={team2Score} />
+        <div className="text-white text-xl font-bold">
+          Team {location.state.teams.team1}: {team1Score} Points
+        </div>
+        <div className="text-white text-xl font-bold">
+          Team {location.state.teams.team2}: {team2Score} Points
+        </div>
       </div>
 
       <div className="flex-grow grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4 max-w-7xl mx-auto">
@@ -565,15 +312,19 @@ const GameInterface = () => {
               <div className="flex gap-4 mb-4">
                 <button
                   className="bg-green-600 text-white py-2 px-4 rounded-lg shadow-md hover:bg-green-700 transition-colors duration-300 flex-1"
-                  onClick={() => handleCorrectAnswer("1")}
+                  onClick={() =>
+                    handleCorrectAnswer(location.state.teams.team1)
+                  }
                 >
-                  Team 1 Correct
+                  {location.state.teams.team1} Correct
                 </button>
                 <button
                   className="bg-green-600 text-white py-2 px-4 rounded-lg shadow-md hover:bg-green-700 transition-colors duration-300 flex-1"
-                  onClick={() => handleCorrectAnswer("2")}
+                  onClick={() =>
+                    handleCorrectAnswer(location.state.teams.team2)
+                  }
                 >
-                  Team 2 Correct
+                  {location.state.teams.team2} Correct
                 </button>
               </div>
             </>

@@ -2,36 +2,74 @@ import React, { useState } from "react";
 import { motion } from "framer-motion";
 import { Shield, Users, Trophy } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
+import { apiAdd } from "../Api";
+import toast, { Toaster } from "react-hot-toast";
 
-const CreateGameForm = () => {
+const CreateGameForm = ({ categoriesIds }) => {
   const [gameName, setGameName] = useState("");
   const [team1, setTeam1] = useState("");
   const [team2, setTeam2] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
-  const handleSubmit = (e) => {
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
+
+    // Check if user is logged in
+    let loggedInUser = localStorage.getItem("user");
+    if (!loggedInUser) {
+      toast.error("يرجى تسجيل الدخول أولاً.");
+      return;
+    }
+
+    loggedInUser = JSON.parse(loggedInUser);
+
     if (!gameName || !team1 || !team2) {
       setError("جميع الحقول مطلوبة.");
       return;
     }
+
+    if (categoriesIds.length < 6) {
+      setError("Please Select at least 6 Categories Above.");
+      return;
+    }
+
     setError("");
     setLoading(true);
-    navigate("/started-game");
-    setTimeout(() => {
-      console.log("اسم اللعبة:", gameName);
-      console.log("فريق 1:", team1);
-      console.log("فريق 2:", team2);
-      setGameName("");
-      setTeam1("");
-      setTeam2("");
+
+    try {
+      let gameCreate = {
+        userId: loggedInUser._id,
+        categoriesIds,
+        gameName, // Include gameName in the request
+        team1, // Include team1 in the request
+        team2, // Include team2 in the request
+      };
+      let { data } = await axios.post(`${apiAdd}/user/createGame`, gameCreate);
+      if (data.success === false) {
+        toast.error("Your limit is reached. Please buy package instead.");
+      } else if (data.success) {
+        toast.success(data.message);
+        setGameName("");
+        setTeam1("");
+        setTeam2("");
+        navigate("/started-game", {
+          state: { categoriesIds, teams: { gameName, team1, team2 } },
+        });
+      }
+    } catch (error) {
+      console.error("error", error);
+      toast.error("An error occurred. Please try again.");
+    } finally {
       setLoading(false);
-    }, 1000);
+    }
   };
 
   return (
     <section className="min-h-screen py-12 bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 flex items-center justify-center">
+      <Toaster />
       <div className="w-full max-w-md px-4">
         <motion.div
           initial={{ opacity: 0, y: -20 }}

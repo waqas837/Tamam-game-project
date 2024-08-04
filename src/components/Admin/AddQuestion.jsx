@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
-import { Upload } from "lucide-react";
 import axios from "axios";
 import { apiAdd } from "../../Api";
+import toast, { Toaster } from "react-hot-toast";
 
 const AddCategoryAndQuestions = () => {
   const [category, setCategory] = useState("");
@@ -71,10 +71,10 @@ const AddCategoryAndQuestions = () => {
         },
       });
 
-      alert("Category and questions submitted successfully!");
+      toast.success("Category and questions submitted successfully!"); // Success toast notification
     } catch (error) {
       console.error("Error in handleSubmit", error);
-      alert("An error occurred while submitting the form.");
+      toast.error("An error occurred while submitting the form."); // Success toast notification
     }
   };
 
@@ -83,6 +83,7 @@ const AddCategoryAndQuestions = () => {
       <h2 className="text-3xl font-bold mb-8 text-center text-purple-800">
         Add Category and Questions
       </h2>
+      <Toaster />
       <form onSubmit={handleSubmit} className="space-y-6">
         <div>
           <label className="block mb-2 text-lg font-medium text-purple-700">

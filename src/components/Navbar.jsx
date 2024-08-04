@@ -1,11 +1,48 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { Link, useLocation } from "react-router-dom";
 import "./Navbar.css"; // Import the custom CSS for the ripple effect
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const [user, setUser] = useState(null);
+  const location = useLocation();
+
+  useEffect(() => {
+    // Handle user data from localStorage
+    const loggedInUser = localStorage.getItem("user");
+    if (loggedInUser) {
+      try {
+        setUser(JSON.parse(loggedInUser));
+      } catch (error) {
+        console.error("Failed to parse user data:", error);
+        setUser(null);
+      }
+    }
+
+    // Handle scrolling to section if hash is present in URL
+    const handleHashScroll = () => {
+      const hash = window.location.hash;
+      if (hash && location.pathname === "/") {
+        // Ensure it's the home page
+        const element = document.querySelector(hash);
+        if (element) {
+          element.scrollIntoView({ behavior: "smooth" });
+        }
+      }
+    };
+
+    // Execute scroll handling if hash is present
+    handleHashScroll();
+  }, [location]);
 
   const toggleMenu = () => {
     setIsOpen(!isOpen);
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem("user");
+    localStorage.removeItem("token");
+    setUser(null);
   };
 
   return (
@@ -23,24 +60,51 @@ const Navbar = () => {
           {/* Logo Section */}
           <div className="flex-shrink-0 ml-6">
             <a href="/" className="text-xl font-bold text-navy-900">
-             <img src="logo.png" width={100} height={100} alt="logo.png" />
+              <img src="logo.png" width={100} height={100} alt="logo.png" />
             </a>
           </div>
 
           {/* Links Section */}
           <div className="hidden md:flex space-x-6 rtl:space-x-reverse">
-            <a
-              href="/find-packages"
-              className="relative text-navy-700 py-2 px-4 rounded-lg transition-all duration-300 ease-in-out hover:text-navy-900 hover:bg-pink-100 border border-transparent hover:border-pink-700 ripple-effect"
+            <Link
+              to={"/#pkgs"}
+              className="relative block text-navy-700 py-2 px-4 rounded-lg transition-all duration-300 ease-in-out hover:text-navy-900 hover:bg-pink-100 border border-transparent hover:border-pink-700 ripple-effect"
             >
-              تصفح الباقات
-            </a>
-            <a
-              href="/login"
-              className="relative text-navy-700 py-2 px-4 rounded-lg transition-all duration-300 ease-in-out hover:text-navy-900 hover:bg-pink-100 border border-transparent hover:border-pink-700 ripple-effect"
-            >
-              تسجيل الدخول
-            </a>
+              Browse Packages
+            </Link>
+
+            {/* Conditionally render "My Games" link if logged in */}
+            {user && (
+              <Link
+                to="/my-games"
+                className="relative block text-navy-700 py-2 px-4 rounded-lg transition-all duration-300 ease-in-out hover:text-navy-900 hover:bg-pink-100 border border-transparent hover:border-pink-700 ripple-effect"
+              >
+                My Games
+              </Link>
+            )}
+
+            {/* Conditionally render Login link */}
+            {!user && (
+              <a
+                href="/login"
+                className="relative block text-navy-700 py-2 px-4 rounded-lg transition-all duration-300 ease-in-out hover:text-navy-900 hover:bg-pink-100 border border-transparent hover:border-pink-700 ripple-effect"
+              >
+                Login
+              </a>
+            )}
+
+            {/* Display User Info if logged in */}
+            {user && (
+              <div className="flex items-center space-x-4 rtl:space-x-reverse">
+                <span className="text-navy-700">{user.username}</span>
+                <button
+                  onClick={handleLogout}
+                  className="text-pink-600 hover:text-pink-800"
+                >
+                  Logout
+                </button>
+              </div>
+            )}
           </div>
 
           {/* Mobile Menu Button */}
@@ -85,18 +149,45 @@ const Navbar = () => {
         } overflow-hidden`}
       >
         <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
-          <a
-            href="/login"
+          <Link
+            to={"/#pkgs"}
             className="relative block text-navy-700 py-2 px-4 rounded-lg transition-all duration-300 ease-in-out hover:text-navy-900 hover:bg-pink-100 border border-transparent hover:border-pink-700 ripple-effect"
           >
-            تسجيل الدخول
-          </a>
-          <a
-            href="/find-packages"
-            className="relative block text-navy-700 py-2 px-4 rounded-lg transition-all duration-300 ease-in-out hover:text-navy-900 hover:bg-pink-100 border border-transparent hover:border-pink-700 ripple-effect"
-          >
-            تصفح الباقات
-          </a>
+            Browse Packages
+          </Link>
+
+          {/* Conditionally render "My Games" link if logged in */}
+          {user && (
+            <Link
+              to="/my-games"
+              className="relative block text-navy-700 py-2 px-4 rounded-lg transition-all duration-300 ease-in-out hover:text-navy-900 hover:bg-pink-100 border border-transparent hover:border-pink-700 ripple-effect"
+            >
+              My Games
+            </Link>
+          )}
+
+          {/* Conditionally render Login link */}
+          {!user && (
+            <a
+              href="/login"
+              className="relative block text-navy-700 py-2 px-4 rounded-lg transition-all duration-300 ease-in-out hover:text-navy-900 hover:bg-pink-100 border border-transparent hover:border-pink-700 ripple-effect"
+            >
+              Login
+            </a>
+          )}
+
+          {/* Display User Info in Mobile Menu */}
+          {user && (
+            <div className="pt-2">
+              <span className="block text-navy-700">{user.username}</span>
+              <button
+                onClick={handleLogout}
+                className="block mt-2 text-pink-600 hover:text-pink-800"
+              >
+                Logout
+              </button>
+            </div>
+          )}
         </div>
       </div>
     </nav>
