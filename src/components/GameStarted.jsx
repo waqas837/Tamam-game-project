@@ -3,7 +3,7 @@ import Modal from "react-modal";
 import { apiAdd } from "../Api";
 import axios from "axios";
 import { Play, Pause, X, RotateCcw } from "lucide-react";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import Loader from "./Loader";
 const GameInterface = () => {
   const [modalIsOpen, setModalIsOpen] = useState(false);
@@ -24,6 +24,7 @@ const GameInterface = () => {
   const [seconds, setSeconds] = useState(0);
   const [isRunning, setIsRunning] = useState(true);
   const location = useLocation();
+  const navigate = useNavigate();
 
   useEffect(() => {
     // console.log("location", location.state);
@@ -64,7 +65,7 @@ const GameInterface = () => {
   };
   useEffect(() => {
     getQuestions();
-  }, [showAnswer]);
+  }, []);
 
   const getQuestions = async () => {
     setloading(true);
@@ -92,10 +93,8 @@ const GameInterface = () => {
         // console.log("GameName", GameName)
         let Team1 = data.data.myGames.FreePackage[0].Game1.Teams[0].teamName;
         let Team2 = data.data.myGames.FreePackage[0].Game1.Teams[1].teamName;
-        let Team1Score =
-          data.data.myGames.FreePackage[0].Game1.Teams[0].score;
-        let Team2Score =
-          data.data.myGames.FreePackage[0].Game1.Teams[1].score;
+        let Team1Score = data.data.myGames.FreePackage[0].Game1.Teams[0].score;
+        let Team2Score = data.data.myGames.FreePackage[0].Game1.Teams[1].score;
         setGameInfo({
           GameName: GameName,
           Team1,
@@ -169,7 +168,7 @@ const GameInterface = () => {
         correctTeam: team,
         categories,
       };
-      console.log("categories", categories)
+
       try {
         await axios.post(
           `${apiAdd}/user/singleCorrectAnswer`,
@@ -181,29 +180,30 @@ const GameInterface = () => {
       }
 
       // Check if the game is over and all questions are answered
-      if (areAllQuestionsAnswered()) {
-        handleGameOver();
-      }
     }
   };
-
-  const areAllQuestionsAnswered = () => {
-    let res = categories.every((category) =>
-      category.questions.every((question) => question.answered)
-    );
-    console.log("what is res", res);
-    return res;
-  };
-
-  const handleGameOver = () => {
-    setGameOver(true);
-  };
-
   const getWinner = () => {
     if (team1Score > team2Score) return "Team 1 Wins!";
     if (team2Score > team1Score) return "Team 2 Wins!";
     return "It's a Tie!";
   };
+  const areAllQuestionsAnswered = () => {
+    let res = categories.every((category) =>
+      category.questions.every((question) => question.answered === true)
+    );
+    if (res) {
+      let results = getWinner();
+      navigate("/results", { state: { results } });
+    }
+    return res;
+  };
+
+  areAllQuestionsAnswered();
+
+  const handleGameOver = () => {
+    setGameOver(true);
+  };
+
   // Get images url.
   const getImageSrc = (imageUrl) => {
     // Check if the image URL contains 'http' or 'https' indicating an external link
@@ -220,6 +220,7 @@ const GameInterface = () => {
       <h1 className="text-center font-bold text-white text-2xl">
         {GameInfo.GameName}
       </h1>
+      {loading && <Loader />}
       <div className="flex justify-between items-center w-full max-w-6xl mx-auto mb-4">
         <div className="text-white text-xl font-bold">
           {GameInfo.Team1}: {GameInfo.Team1Score} Points
@@ -228,7 +229,7 @@ const GameInterface = () => {
           {GameInfo.Team2}: {GameInfo.Team2Score} Points
         </div>
       </div>
-      {loading && <Loader />}
+
       <div className="flex-grow grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4 max-w-7xl mx-auto">
         {categories.map((category, categoryIndex) => (
           <div
