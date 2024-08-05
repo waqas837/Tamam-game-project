@@ -4,20 +4,29 @@ import { apiAdd } from "../Api";
 import axios from "axios";
 import { Play, Pause, X, RotateCcw } from "lucide-react";
 import { useLocation } from "react-router-dom";
-
+import Loader from "./Loader";
 const GameInterface = () => {
   const [modalIsOpen, setModalIsOpen] = useState(false);
   const [modalContent, setModalContent] = useState(null);
   const [team1Score, setTeam1Score] = useState(0);
   const [team2Score, setTeam2Score] = useState(0);
   const [gameOver, setGameOver] = useState(false);
+  const [loading, setloading] = useState(false);
+  const [GameInfo, setGameInfo] = useState({
+    GameName: "",
+    Team1: "",
+    Team1Score: "",
+    Team2: "",
+    Team2Score: "",
+  });
   const [showAnswer, setshowAnswer] = useState(false);
   const [categories, setCategories] = useState([]);
   const [seconds, setSeconds] = useState(0);
   const [isRunning, setIsRunning] = useState(true);
   const location = useLocation();
+
   useEffect(() => {
-    console.log("location", location.state);
+    // console.log("location", location.state);
     if (modalIsOpen) {
       setIsRunning(true); // Start the timer when the modal opens
     } else {
@@ -58,6 +67,7 @@ const GameInterface = () => {
   }, []);
 
   const getQuestions = async () => {
+    setloading(true);
     let loggedInUser = localStorage.getItem("user");
     loggedInUser = JSON.parse(loggedInUser);
     try {
@@ -70,10 +80,36 @@ const GameInterface = () => {
         dataToSend
       );
       if (data.success) {
-        setCategories(data.data);
-        console.log("data.data", data.data);
+        // console.log(
+        //   " data.data.myGames[0].FreePackage[0].GameName",
+        //   data.data.myGames[0].FreePackage[0].allQuestions
+        // );
+        console.log(
+          "data.data.myGames[0]",
+          data.data.myGames.FreePackage[0].Game1.Teams[0].teamName
+        );
+        let GameName = data.data.myGames.FreePackage[0].Game1.GameName;
+        // console.log("GameName", GameName)
+        let Team1 = data.data.myGames.FreePackage[0].Game1.Teams[0].teamName;
+        let Team2 = data.data.myGames.FreePackage[0].Game1.Teams[1].teamName;
+        let Team1Score =
+          data.data.myGames.FreePackage[0].Game1.Teams[0].score;
+        let Team2Score =
+          data.data.myGames.FreePackage[0].Game1.Teams[1].score;
+        setGameInfo({
+          GameName: GameName,
+          Team1,
+          Team1Score,
+          Team2,
+          Team2Score,
+        });
+        setCategories(data.data.myGames.FreePackage[0].Game1.allQuestions);
+        console.log("data.data.myGames[0]", data.data);
+        // console.log("data.data", data.data.myGames[0].FreePackage[0]);
+        setloading(false);
       }
     } catch (error) {
+      setloading(false);
       console.log("err in handleSubmit", error);
     }
   };
@@ -88,32 +124,69 @@ const GameInterface = () => {
     setshowAnswer(!showAnswer);
   };
 
-  const handleCorrectAnswer = (team) => {
+  const handleCorrectAnswer = async (team) => {
     if (modalContent) {
       const { category, questionIndex } = modalContent;
       const points = categories[category].questions[questionIndex].points;
 
-      if (team === location.state.teams.team1) {
-        setTeam1Score((prevScore) => prevScore + points);
+      let newTeam1Score = team1Score;
+      let newTeam2Score = team2Score;
+
+      if (team === GameInfo.Team1) {
+        newTeam1Score += points;
+        setTeam1Score(newTeam1Score);
       } else {
-        setTeam2Score((prevScore) => prevScore + points);
+        newTeam2Score += points;
+        setTeam2Score(newTeam2Score);
       }
+
+      setGameInfo({
+        ...GameInfo,
+        Team1Score: newTeam1Score,
+        Team2Score: newTeam2Score,
+      });
 
       setCategories((prevCategories) => {
         const newCategories = [...prevCategories];
         newCategories[category].questions[questionIndex].answered = true;
-        // let answerWithTeam = { newCategories, correctAnswerBy: team };
-        // await axios.post(`${apiAdd}/user/answerByTeams`, answerWithTeam);
         return newCategories;
       });
 
       closeModal();
-    }
-    // check if game is over...and all are selected
-    if (areAllQuestionsAnswered()) {
-      handleGameOver();
+
+      // Prepare data to send to the backend
+      let loggedInUser = localStorage.getItem("user");
+      loggedInUser = JSON.parse(loggedInUser);
+      const correctAnswerData = {
+        userid: loggedInUser._id,
+        gameName: GameInfo.GameName,
+        categoryId: categories[category]._id, // Add category ID
+        categoryName: categories[category].name,
+        questionId: categories[category].questions[questionIndex]._id, // Add question ID
+        question: categories[category].questions[questionIndex].question,
+        answer: categories[category].questions[questionIndex].answer,
+        pointsGot: points,
+        correctTeam: team,
+        categories,
+      };
+      console.log("categories", categories)
+      try {
+        await axios.post(
+          `${apiAdd}/user/singleCorrectAnswer`,
+          correctAnswerData
+        );
+        console.log("Data sent to backend successfully");
+      } catch (error) {
+        console.error("Error sending data to backend:", error);
+      }
+
+      // Check if the game is over and all questions are answered
+      if (areAllQuestionsAnswered()) {
+        handleGameOver();
+      }
     }
   };
+
   const areAllQuestionsAnswered = () => {
     let res = categories.every((category) =>
       category.questions.every((question) => question.answered)
@@ -144,15 +217,18 @@ const GameInterface = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-500 to-green-500 p-4 flex flex-col">
+      <h1 className="text-center font-bold text-white text-2xl">
+        {GameInfo.GameName}
+      </h1>
       <div className="flex justify-between items-center w-full max-w-6xl mx-auto mb-4">
         <div className="text-white text-xl font-bold">
-          Team {location.state.teams.team1}: {team1Score} Points
+          {GameInfo.Team1}: {GameInfo.Team1Score} Points
         </div>
         <div className="text-white text-xl font-bold">
-          Team {location.state.teams.team2}: {team2Score} Points
+          {GameInfo.Team2}: {GameInfo.Team2Score} Points
         </div>
       </div>
-
+      {loading && <Loader />}
       <div className="flex-grow grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4 max-w-7xl mx-auto">
         {categories.map((category, categoryIndex) => (
           <div
@@ -312,19 +388,15 @@ const GameInterface = () => {
               <div className="flex gap-4 mb-4">
                 <button
                   className="bg-green-600 text-white py-2 px-4 rounded-lg shadow-md hover:bg-green-700 transition-colors duration-300 flex-1"
-                  onClick={() =>
-                    handleCorrectAnswer(location.state.teams.team1)
-                  }
+                  onClick={() => handleCorrectAnswer(GameInfo.Team1)}
                 >
-                  {location.state.teams.team1} Correct
+                  {GameInfo.Team1} Correct
                 </button>
                 <button
                   className="bg-green-600 text-white py-2 px-4 rounded-lg shadow-md hover:bg-green-700 transition-colors duration-300 flex-1"
-                  onClick={() =>
-                    handleCorrectAnswer(location.state.teams.team2)
-                  }
+                  onClick={() => handleCorrectAnswer(GameInfo.Team2)}
                 >
-                  {location.state.teams.team2} Correct
+                  {GameInfo.Team2} Correct
                 </button>
               </div>
             </>
