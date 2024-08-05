@@ -64,7 +64,7 @@ const GameInterface = () => {
   };
   useEffect(() => {
     getQuestions();
-  }, []);
+  }, [showAnswer]);
 
   const getQuestions = async () => {
     setloading(true);

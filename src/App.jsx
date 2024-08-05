@@ -17,6 +17,7 @@ import AdminLayout from "./components/Admin/Layout";
 import AddQuestion from "./components/Admin/AddQuestion";
 import AdminLogin from "./components/Admin/Signin";
 import QuestionsList from "./components/Admin/QuestionsList";
+import MyGames from "./components/MyGames";
 
 const App = () => {
   const location = useLocation();
@@ -28,6 +29,7 @@ const App = () => {
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/start-game" element={<StartGame />} />
+        <Route path="/my-games" element={<MyGames />} />
         <Route path="/started-game" element={<GameStarted />} />
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />

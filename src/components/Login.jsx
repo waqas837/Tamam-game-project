@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { apiAdd } from "../Api"; // Assuming this is correctly defined in your Api.js
 
 const Login = () => {
@@ -89,9 +89,9 @@ const Login = () => {
         </form>
         <p className="mt-4 text-center text-gray-600">
           Don't have an account?{" "}
-          <a href="/signup" className="text-pink-600 hover:underline">
+          <Link to="/signup" className="text-pink-600 hover:underline">
             Sign Up
-          </a>
+          </Link>
         </p>
       </div>
     </div>

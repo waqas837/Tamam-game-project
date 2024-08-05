@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import "./Navbar.css"; // Import the custom CSS for the ripple effect
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [user, setUser] = useState(null);
   const location = useLocation();
-
+  const navigate = useNavigate();
   useEffect(() => {
     // Handle user data from localStorage
     const loggedInUser = localStorage.getItem("user");
@@ -43,6 +43,7 @@ const Navbar = () => {
     localStorage.removeItem("user");
     localStorage.removeItem("token");
     setUser(null);
+    navigate("/login");
   };
 
   return (
@@ -59,9 +60,9 @@ const Navbar = () => {
         <div className="flex justify-between h-16 items-center">
           {/* Logo Section */}
           <div className="flex-shrink-0 ml-6">
-            <a href="/" className="text-xl font-bold text-navy-900">
+            <Link to="/" className="text-xl font-bold text-navy-900">
               <img src="logo.png" width={100} height={100} alt="logo.png" />
-            </a>
+            </Link>
           </div>
 
           {/* Links Section */}
@@ -85,12 +86,12 @@ const Navbar = () => {
 
             {/* Conditionally render Login link */}
             {!user && (
-              <a
-                href="/login"
+              <Link
+                to="/login"
                 className="relative block text-navy-700 py-2 px-4 rounded-lg transition-all duration-300 ease-in-out hover:text-navy-900 hover:bg-pink-100 border border-transparent hover:border-pink-700 ripple-effect"
               >
                 Login
-              </a>
+              </Link>
             )}
 
             {/* Display User Info if logged in */}
@@ -168,12 +169,12 @@ const Navbar = () => {
 
           {/* Conditionally render Login link */}
           {!user && (
-            <a
-              href="/login"
+            <Link
+              to="/login"
               className="relative block text-navy-700 py-2 px-4 rounded-lg transition-all duration-300 ease-in-out hover:text-navy-900 hover:bg-pink-100 border border-transparent hover:border-pink-700 ripple-effect"
             >
               Login
-            </a>
+            </Link>
           )}
 
           {/* Display User Info in Mobile Menu */}

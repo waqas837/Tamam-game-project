@@ -1,4 +1,5 @@
 import React from "react";
+import { Link } from "react-router-dom";
 
 const Footer = () => {
   return (
@@ -7,9 +8,9 @@ const Footer = () => {
         <div className="flex flex-col md:flex-row justify-between items-center">
           {/* Logo Section */}
           <div className="flex-shrink-0">
-            <a href="/" className="text-2xl font-bold text-pink-500">
+            <Link to="/" className="text-2xl font-bold text-pink-500">
               عصر مخك
-            </a>
+            </Link>
           </div>
 
           {/* Links Section */}
