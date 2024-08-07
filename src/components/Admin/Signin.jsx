@@ -6,10 +6,12 @@ const SignIn = () => {
   const [email, setEmail] = useState("");
   const [error, setError] = useState("");
   const [password, setPassword] = useState("");
+  const [loading, setloading] = useState(false);
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setloading(true);
     setError("");
 
     if (!email || !password) {
@@ -31,6 +33,7 @@ const SignIn = () => {
         localStorage.setItem("admin", JSON.stringify(data.user));
         localStorage.setItem("userType", "admin");
         localStorage.setItem("token", data.token);
+        setloading(false);
         navigate("/admin/add-question");
       } else {
         setError(
@@ -74,7 +77,7 @@ const SignIn = () => {
             type="submit"
             className="w-full bg-pink-600 text-white py-2 px-4 rounded-lg hover:bg-pink-700"
           >
-            Sign In
+            {loading ? "..." : "Sign In"}
           </button>
         </form>
       </div>

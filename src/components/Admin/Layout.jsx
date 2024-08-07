@@ -10,7 +10,7 @@ const AdminLayout = () => {
     if (!isAdmin) navigate("/admin/login");
   }, []);
   return (
-    <div className={`flex ${isAdmin ? "h-screen bg-gray-100" : ""}`}>
+    <div className={` ${isAdmin ? "h-screen bg-gray-100" : ""}`}>
       {isAdmin ? <Sidebar /> : ""}
       <div className="flex-1 flex flex-col md:ml-64">
         {/* Mobile header - adjust this based on your Sidebar component */}

@@ -7,6 +7,7 @@ import { useNavigate } from "react-router-dom";
 const AddCategoryAndQuestions = () => {
   const [category, setCategory] = useState("");
   const [categoryImage, setCategoryImage] = useState(null);
+  const [loading, setloading] = useState(false);
   const navigate = useNavigate();
 
   const [questions, setQuestions] = useState(
@@ -47,6 +48,7 @@ const AddCategoryAndQuestions = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setloading(true);
     try {
       const formData = new FormData();
       formData.append("category", category);
@@ -78,6 +80,7 @@ const AddCategoryAndQuestions = () => {
       });
 
       toast.success("Category and questions submitted successfully!"); // Success toast notification
+      setloading(false);
     } catch (error) {
       console.error("Error in handleSubmit", error);
       toast.error("An error occurred while submitting the form."); // Success toast notification
@@ -193,7 +196,7 @@ const AddCategoryAndQuestions = () => {
           type="submit"
           className="w-full py-3 bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 rounded-lg font-semibold text-white shadow-md hover:shadow-lg transition duration-300"
         >
-          Submit Category and Questions
+          {loading ? "..." : "Submit Category and Questions"}
         </button>
       </form>
     </div>

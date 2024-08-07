@@ -5,7 +5,7 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import Modal from "react-modal";
 import toast, { Toaster } from "react-hot-toast";
-// Set the app element for accessibility
+
 Modal.setAppElement("#root");
 
 const QuestionList = () => {
@@ -39,7 +39,7 @@ const QuestionList = () => {
       });
       if (response.data.success) {
         toast.success("Question deleted.");
-        getQuestions(); // Refresh the question list
+        getQuestions();
         closeModal();
       }
     } catch (error) {
@@ -54,7 +54,7 @@ const QuestionList = () => {
       });
       if (response.data.success) {
         toast.success("Category deleted.");
-        getQuestions(); // Refresh the question list
+        getQuestions();
         closeModal();
       }
     } catch (error) {
@@ -85,7 +85,7 @@ const QuestionList = () => {
       padding: "20px",
       borderRadius: "8px",
       maxWidth: "300px",
-      width: "100%",
+      width: "90%",
     },
     overlay: {
       backgroundColor: "rgba(0, 0, 0, 0.5)",
@@ -96,28 +96,28 @@ const QuestionList = () => {
   };
 
   return (
-    <div className="max-w-4xl mx-auto p-8">
+    <div className="max-w-full mx-auto p-4 sm:p-8">
       <Toaster />
-      <h2 className="text-3xl font-bold mb-8 text-center text-pink-600">
+      <h2 className="text-2xl sm:text-3xl font-bold mb-4 sm:mb-8 text-center text-pink-600">
         Question List
       </h2>
-      <div className="bg-white shadow-md rounded-lg overflow-x-auto rtl">
-        <table className="min-w-full divide-y divide-gray-200">
+      <div className="bg-white shadow-md rounded-lg overflow-x-auto">
+        <table className="w-full divide-y divide-gray-200">
           <thead className="bg-gray-50">
             <tr>
-              <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-3 py-2 sm:px-6 sm:py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
                 Question
               </th>
-              <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-3 py-2 sm:px-6 sm:py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
                 Points
               </th>
-              <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-3 py-2 sm:px-6 sm:py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
                 Answer
               </th>
-              <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-3 py-2 sm:px-6 sm:py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
                 Category
               </th>
-              <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-3 py-2 sm:px-6 sm:py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
                 Actions
               </th>
             </tr>
@@ -126,19 +126,19 @@ const QuestionList = () => {
             {questions.map((q) =>
               q.questions.map((val) => (
                 <tr key={`${q._id}-${val._id}`}>
-                  <td className="px-6 py-4 whitespace-nowrap text-right">
+                  <td className="px-3 py-2 sm:px-6 sm:py-4 whitespace-normal text-right text-sm">
                     {val.question}
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-right">
+                  <td className="px-3 py-2 sm:px-6 sm:py-4 whitespace-nowrap text-right text-sm">
                     {val.points}
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-right">
+                  <td className="px-3 py-2 sm:px-6 sm:py-4 whitespace-normal text-right text-sm">
                     {val.answer}
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-right">
+                  <td className="px-3 py-2 sm:px-6 sm:py-4 whitespace-nowrap text-right text-sm">
                     {q.name}
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-right relative">
+                  <td className="px-3 py-2 sm:px-6 sm:py-4 whitespace-nowrap text-right relative text-sm">
                     <button onClick={() => openModal(val._id, q._id)}>
                       <Trash color="#ef4e4e" className="cursor-pointer" />
                     </button>
