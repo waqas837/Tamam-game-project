@@ -20,6 +20,7 @@ import QuestionsList from "./components/Admin/QuestionsList";
 import MyGames from "./components/MyGames";
 import Result from "./components/Result";
 import NotFound from "./components/NotFound"; // Import the NotFound component
+import PwaAlert from "./components/PwaAlert"; // Import the NotFound component
 
 const App = () => {
   const location = useLocation();
@@ -27,6 +28,7 @@ const App = () => {
   const isAdminRoute = location.pathname.startsWith("/admin");
   return (
     <div>
+      <PwaAlert/>
       {!isAdminRoute && <NavbarSimple />}
       <Routes>
         <Route path="/" element={<Home />} />
