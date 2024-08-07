@@ -14,21 +14,7 @@ const Footer = () => {
           </div>
 
           {/* Links Section */}
-          <div className="flex flex-col md:flex-row space-y-4 md:space-y-0 md:space-x-6 rtl:space-x-reverse">
-            <a
-              href="/about"
-              className="text-gray-400 hover:text-pink-400 transition-colors duration-300"
-            >
-              من نحن
-            </a>
-
-            <a
-              href="/terms"
-              className="text-gray-400 hover:text-pink-400 transition-colors duration-300"
-            >
-              شروط الخدمة
-            </a>
-          </div>
+          <div className="flex flex-col md:flex-row space-y-4 md:space-y-0 md:space-x-6 rtl:space-x-reverse"></div>
         </div>
 
         {/* Bottom Section */}
