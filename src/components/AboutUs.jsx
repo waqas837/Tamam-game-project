@@ -6,7 +6,7 @@ import { useInView } from "react-intersection-observer";
 const TeamMemberCard = ({ name, role, image, bio }) => {
   const { ref, inView } = useInView({
     triggerOnce: true, // Animation triggers only once
-    threshold: 0.1,   // Trigger animation when 10% of the component is visible
+    threshold: 0.1, // Trigger animation when 10% of the component is visible
   });
 
   const props = useSpring({
@@ -43,13 +43,13 @@ const AboutUs = () => {
     {
       name: "جون سميث",
       role: "المدير الفني",
-      image: "test.webp",
+      image: "test2.jpg",
       bio: "جون يضمن أن تكنولوجيا لدينا تظل متطورة وموثوقة.",
     },
     {
       name: "إميلي جونسون",
       role: "مدير التسويق",
-      image: "test.webp",
+      image: "test3.jpg",
       bio: "إميلي تقود جهودنا التسويقية، وتربطنا بجمهورنا بفعالية.",
     },
   ];
@@ -59,8 +59,8 @@ const AboutUs = () => {
       <div className="container mx-auto text-center">
         <h1 className="text-4xl font-bold mb-8 text-pink-600">معلومات عنا</h1>
         <p className="text-lg text-gray-700 mb-12">
-          نحن فريق شغوف مكرس لتقديم أفضل تجارب الألعاب لمستخدمينا. مهمتنا هي إنشاء
-          ألعاب مثيرة ولا تُنسى تتناغم مع اللاعبين حول العالم.
+          نحن فريق شغوف مكرس لتقديم أفضل تجارب الألعاب لمستخدمينا. مهمتنا هي
+          إنشاء ألعاب مثيرة ولا تُنسى تتناغم مع اللاعبين حول العالم.
         </p>
         <div className="flex flex-wrap justify-center">
           {teamMembers.map((member, index) => (
