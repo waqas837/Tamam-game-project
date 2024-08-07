@@ -105,6 +105,8 @@ const GameCategoriesPage = () => {
       if (data.success) {
         setCategories(data.YourGames);
         setLoading(false);
+      } else {
+        setLoading(false);
       }
     } catch (error) {
       setLoading(false);
@@ -167,6 +169,9 @@ const GameCategoriesPage = () => {
       <h1 className="text-5xl font-bold text-gray-800 text-center mb-12 shadow-text">
         My Games
       </h1>
+      {!loading && categories.length === 0 && (
+        <h1 className="text-center">No Games Found!</h1>
+      )}
       <div className="text-center">{loading && <Loader />}</div>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
         {categories.map((val, index) => (

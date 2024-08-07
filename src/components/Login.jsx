@@ -30,6 +30,7 @@ const Login = () => {
       if (response.ok && data.success) {
         localStorage.setItem("user", JSON.stringify(data.user));
         localStorage.setItem("token", data.token);
+        localStorage.setItem("boughtpkg", data.user.currentPackage);
         navigate("/start-game");
       } else {
         setError(

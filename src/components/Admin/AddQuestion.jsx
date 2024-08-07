@@ -2,10 +2,13 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { apiUrl } from "../../Api";
 import toast, { Toaster } from "react-hot-toast";
+import { useNavigate } from "react-router-dom";
 
 const AddCategoryAndQuestions = () => {
   const [category, setCategory] = useState("");
   const [categoryImage, setCategoryImage] = useState(null);
+  const navigate = useNavigate();
+
   const [questions, setQuestions] = useState(
     Array(6).fill({
       question: "",
@@ -14,7 +17,10 @@ const AddCategoryAndQuestions = () => {
       points: 200,
     })
   );
-
+  useEffect(() => {
+    let isAdmin = localStorage.getItem("admin");
+    if (!isAdmin) navigate("/admin/login");
+  }, []);
   useEffect(() => {
     questions.forEach((_, index) => {
       if (questions[index].file) {

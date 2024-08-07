@@ -43,6 +43,7 @@ const Signup = () => {
       // Save user information in local storage
       localStorage.setItem("user", JSON.stringify(response.data.user));
       localStorage.setItem("token", response.data.token);
+      localStorage.setItem("boughtpkg", response.data.user.currentPackage);
       // Redirect to dashboard
       navigate("/start-game");
     } catch (error) {

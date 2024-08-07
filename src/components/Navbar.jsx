@@ -42,6 +42,10 @@ const Navbar = () => {
   const handleLogout = () => {
     localStorage.removeItem("user");
     localStorage.removeItem("token");
+    localStorage.removeItem("boughtpkg");
+    localStorage.removeItem("pkgId");
+    localStorage.removeItem("pckgName");
+    localStorage.removeItem("price");
     setUser(null);
     navigate("/login");
   };

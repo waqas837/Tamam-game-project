@@ -1,15 +1,46 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { apiUrl } from "../../Api";
 
 const SignIn = () => {
-  const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
+  const [error, setError] = useState("");
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Handle sign-in logic here
-    navigate("/admin/add-question");
+    setError("");
+
+    if (!email || !password) {
+      setError("Please enter both email and password.");
+      return;
+    }
+
+    try {
+      const response = await fetch(`${apiUrl}/admin/signin`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email, password }),
+      });
+
+      const data = await response.json();
+      if (response.ok && data.success) {
+        localStorage.setItem("admin", JSON.stringify(data.user));
+        localStorage.setItem("userType", "admin");
+        localStorage.setItem("token", data.token);
+        navigate("/admin/add-question");
+      } else {
+        setError(
+          data.message || "Login failed. Please check your credentials."
+        );
+      }
+    } catch (error) {
+      console.error("Login failed:", error);
+      setError("Login failed. Please try again later.");
+    }
   };
 
   return (
@@ -21,9 +52,9 @@ const SignIn = () => {
             <label className="block text-gray-700 mb-2">Username</label>
             <input
               type="text"
-              placeholder="Username"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
+              placeholder="Email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
               className="w-full p-3 border rounded-lg border-gray-300"
               required
             />

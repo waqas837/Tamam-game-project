@@ -2,53 +2,102 @@ import React, { useEffect, useState } from "react";
 import { Trash } from "lucide-react";
 import { apiUrl } from "../../Api";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
+import Modal from "react-modal";
+import toast, { Toaster } from "react-hot-toast";
+// Set the app element for accessibility
+Modal.setAppElement("#root");
 
 const QuestionList = () => {
+  const navigate = useNavigate();
+  const [questions, setQuestions] = useState([]);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedItem, setSelectedItem] = useState(null);
+
   useEffect(() => {
+    let isAdmin = localStorage.getItem("admin");
+    if (!isAdmin) navigate("/admin/login");
     getQuestions();
   }, []);
 
-  const [questions, setQuestions] = useState([]);
-
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [editingQuestion, setEditingQuestion] = useState(null);
   const getQuestions = async () => {
     try {
       let { data } = await axios.get(`${apiUrl}/admin/getAllQuestions`);
       if (data.success) {
         const sortedQuestions = data.data.sort((a, b) => b.id - a.id);
         setQuestions(sortedQuestions);
-
-        console.log("data.data", data.data);
       }
     } catch (error) {
-      console.log("err in handleSubmit", error);
+      console.log("err in getQuestions", error);
     }
   };
-  const openModal = (question) => {
-    setEditingQuestion(question);
+
+  const deleteQuestion = async () => {
+    try {
+      const response = await axios.delete(`${apiUrl}/admin/deleteQuestion`, {
+        data: { questionId: selectedItem.questionId },
+      });
+      if (response.data.success) {
+        toast.success("Question deleted.");
+        getQuestions(); // Refresh the question list
+        closeModal();
+      }
+    } catch (error) {
+      console.log("Error deleting question:", error);
+    }
+  };
+
+  const deleteCategory = async () => {
+    try {
+      const response = await axios.delete(`${apiUrl}/admin/deleteCategory`, {
+        data: { categoryId: selectedItem.categoryId },
+      });
+      if (response.data.success) {
+        toast.success("Category deleted.");
+        getQuestions(); // Refresh the question list
+        closeModal();
+      }
+    } catch (error) {
+      console.log("Error deleting category:", error);
+    }
+  };
+
+  const openModal = (questionId, categoryId) => {
+    setSelectedItem({ questionId, categoryId });
     setIsModalOpen(true);
   };
 
   const closeModal = () => {
     setIsModalOpen(false);
-    setEditingQuestion(null);
+    setSelectedItem(null);
   };
 
-  const handleEdit = (e) => {
-    e.preventDefault();
-    setQuestions(
-      questions.map((q) => (q.id === editingQuestion.id ? editingQuestion : q))
-    );
-    closeModal();
-  };
-
-  const handleDelete = (id) => {
-    setQuestions(questions.filter((q) => q.id !== id));
+  const modalStyles = {
+    content: {
+      top: "50%",
+      left: "50%",
+      right: "auto",
+      bottom: "auto",
+      marginRight: "-50%",
+      transform: "translate(-50%, -50%)",
+      border: "none",
+      background: "white",
+      padding: "20px",
+      borderRadius: "8px",
+      maxWidth: "300px",
+      width: "100%",
+    },
+    overlay: {
+      backgroundColor: "rgba(0, 0, 0, 0.5)",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+    },
   };
 
   return (
     <div className="max-w-4xl mx-auto p-8">
+      <Toaster />
       <h2 className="text-3xl font-bold mb-8 text-center text-pink-600">
         Question List
       </h2>
@@ -76,7 +125,7 @@ const QuestionList = () => {
           <tbody className="bg-white divide-y divide-gray-200">
             {questions.map((q) =>
               q.questions.map((val) => (
-                <tr key={`${q.id}-${val.id}`}>
+                <tr key={`${q._id}-${val._id}`}>
                   <td className="px-6 py-4 whitespace-nowrap text-right">
                     {val.question}
                   </td>
@@ -89,8 +138,10 @@ const QuestionList = () => {
                   <td className="px-6 py-4 whitespace-nowrap text-right">
                     {q.name}
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-right">
-                    <Trash color="#ef4e4e" className="cursor-pointer" />
+                  <td className="px-6 py-4 whitespace-nowrap text-right relative">
+                    <button onClick={() => openModal(val._id, q._id)}>
+                      <Trash color="#ef4e4e" className="cursor-pointer" />
+                    </button>
                   </td>
                 </tr>
               ))
@@ -99,126 +150,32 @@ const QuestionList = () => {
         </table>
       </div>
 
-      {isModalOpen && (
-        <div
-          className="fixed z-10 inset-0 overflow-y-auto"
-          aria-labelledby="modal-title"
-          role="dialog"
-          aria-modal="true"
+      <Modal
+        isOpen={isModalOpen}
+        onRequestClose={closeModal}
+        style={modalStyles}
+        contentLabel="Delete Options"
+      >
+        <h2 className="text-xl font-bold mb-4">Delete Options</h2>
+        <button
+          onClick={deleteQuestion}
+          className="block w-full px-4 py-2 mb-2 text-sm text-left text-white bg-red-500 hover:bg-red-600 rounded"
         >
-          <div className="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
-            <div
-              className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity"
-              aria-hidden="true"
-            ></div>
-            <span
-              className="hidden sm:inline-block sm:align-middle sm:h-screen"
-              aria-hidden="true"
-            >
-              &#8203;
-            </span>
-            <div className="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
-              <div className="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
-                <div className="sm:flex sm:items-start">
-                  <div className="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left w-full">
-                    <h3
-                      className="text-lg leading-6 font-medium text-gray-900"
-                      id="modal-title"
-                    >
-                      Edit Question
-                    </h3>
-                    <div className="mt-2">
-                      <form onSubmit={handleEdit} className="space-y-4">
-                        <div>
-                          <label
-                            htmlFor="question"
-                            className="block text-sm font-medium text-gray-700"
-                          >
-                            Question
-                          </label>
-                          <input
-                            type="text"
-                            name="question"
-                            id="question"
-                            value={editingQuestion.question}
-                            onChange={(e) =>
-                              setEditingQuestion({
-                                ...editingQuestion,
-                                question: e.target.value,
-                              })
-                            }
-                            className="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
-                          />
-                        </div>
-                        <div>
-                          <label
-                            htmlFor="points"
-                            className="block text-sm font-medium text-gray-700"
-                          >
-                            Points
-                          </label>
-                          <select
-                            id="points"
-                            name="points"
-                            value={editingQuestion.points}
-                            onChange={(e) =>
-                              setEditingQuestion({
-                                ...editingQuestion,
-                                points: Number(e.target.value),
-                              })
-                            }
-                            className="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-                          >
-                            <option value={200}>200</option>
-                            <option value={400}>400</option>
-                            <option value={600}>600</option>
-                          </select>
-                        </div>
-                        <div>
-                          <label
-                            htmlFor="answer"
-                            className="block text-sm font-medium text-gray-700"
-                          >
-                            Answer
-                          </label>
-                          <input
-                            type="text"
-                            name="answer"
-                            id="answer"
-                            value={editingQuestion.answer}
-                            onChange={(e) =>
-                              setEditingQuestion({
-                                ...editingQuestion,
-                                answer: e.target.value,
-                              })
-                            }
-                            className="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
-                          />
-                        </div>
-                        <div className="mt-5 sm:mt-4 sm:flex sm:flex-row-reverse">
-                          <button
-                            type="submit"
-                            className="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-indigo-600 text-base font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:ml-3 sm:w-auto sm:text-sm"
-                          >
-                            Save
-                          </button>
-                          <button
-                            type="button"
-                            onClick={closeModal}
-                            className="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:w-auto sm:text-sm"
-                          >
-                            Cancel
-                          </button>
-                        </div>
-                      </form>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
+          Delete Question
+        </button>
+        <button
+          onClick={deleteCategory}
+          className="block w-full px-4 py-2 mb-4 text-sm text-left text-white bg-red-500 hover:bg-red-600 rounded"
+        >
+          Delete Category
+        </button>
+        <button
+          onClick={closeModal}
+          className="block w-full px-4 py-2 text-sm text-center text-gray-800 bg-gray-200 hover:bg-gray-300 rounded"
+        >
+          Cancel
+        </button>
+      </Modal>
     </div>
   );
 };

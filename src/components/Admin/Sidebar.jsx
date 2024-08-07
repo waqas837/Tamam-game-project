@@ -15,7 +15,12 @@ const Sidebar = () => {
     { name: "Add Question", path: "/admin/add-question" },
     { name: "Question List", path: "/admin/question-list" },
   ];
-
+  const logout = () => {
+    localStorage.removeItem("admin");
+    localStorage.removeItem("userType");
+    localStorage.removeItem("token");
+    navigate("/admin/login");
+  };
   return (
     <>
       {/* Mobile Header */}
@@ -53,7 +58,10 @@ const Sidebar = () => {
           </ul>
         </nav>
         <div className="absolute bottom-0 left-0 right-0 p-4">
-          <button className="w-full flex items-center justify-center space-x-2 bg-purple-600 py-2 px-4 rounded-lg text-white hover:bg-purple-700 transition-colors duration-200">
+          <button
+            onClick={logout}
+            className="w-full flex items-center justify-center space-x-2 bg-purple-600 py-2 px-4 rounded-lg text-white hover:bg-purple-700 transition-colors duration-200"
+          >
             <LogOut size={20} />
             <span>Sign Out</span>
           </button>

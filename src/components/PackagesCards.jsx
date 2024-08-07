@@ -6,12 +6,15 @@ import { apiUrl } from "../Api";
 import Loader from "./Loader";
 import { ShoppingBag } from "lucide-react";
 import StripeCheckout from "react-stripe-checkout";
+import { useNavigate } from "react-router-dom";
 
 const Packages = () => {
   const [packagesData, setPackagesData] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [OpenBuySection, setOpenBuySection] = useState(false);
-  const [totalPrice, settotalPrice] = useState(0);
+  const navigate = useNavigate();
+  let loggedInUser = localStorage.getItem("user");
+  let currentUsePkg = localStorage.getItem("boughtpkg");
+  console.log("currentUsePkg", currentUsePkg);
   const [ref, inView] = useInView({
     triggerOnce: true,
     threshold: 0.1,
@@ -38,26 +41,38 @@ const Packages = () => {
     }
   };
 
-  const buyPackage = async (pkgId, price) => {
-    // setOpenBuySection(true);
-    settotalPrice(price);
-    // open a modal
-    // try {
-    //   setLoading(true);
-    //   const { data } = await axios.get(`${apiUrl}/user/buypackage/${userid}/${pkgId}`);
-    //   if (data.success) {
-    //     setPackagesData(data.data);
-    //   }
-    //   setLoading(false);
-    // } catch (error) {
-    //   console.error("Error fetching packages:", error);
-    //   setLoading(false);
-    // }
+  const buyPackage = async (pkgId, price, pckgName) => {
+    let loggedInUser = localStorage.getItem("user");
+    if (!loggedInUser) navigate("/login");
+    localStorage.setItem("pkgId", pkgId);
+    localStorage.setItem("pckgName", pckgName);
+    localStorage.setItem("price", price);
   };
-  // var totalPrice = _.sum(state.map((val) => val.price * val.qty));
+  // After buy a package by this user we will update the database for buy it more games
+  const orderConfirmed = async () => {
+    try {
+      let loggedInUser = localStorage.getItem("user");
+      loggedInUser = JSON.parse(loggedInUser);
+      let PackagesId = localStorage.getItem("pkgId");
+      let PackagesName = localStorage.getItem("pckgName");
+      let Price = localStorage.getItem("price");
+      setLoading(true);
+      const { data } = await axios.post(
+        `${apiUrl}/user/buypackage/${loggedInUser._id}/${PackagesId}/${PackagesName}`
+      );
+      if (data.success) {
+        localStorage.setItem("boughtpkg", data.data.currentPackage);
+      }
+      setLoading(false);
+    } catch (error) {
+      console.error("Error fetching packages:", error);
+      setLoading(false);
+    }
+  };
   const makePayment = (token) => {
     console.log(token);
     //this shows body contains token and
+    let totalPrice = localStorage.getItem("price");
     const body = {
       token,
       totalPrice,
@@ -72,7 +87,12 @@ const Packages = () => {
       headers,
       body: JSON.stringify(body),
     })
-      .then((response) => {})
+      .then(async (response) => {
+        console.log("res", response);
+        if (response.ok && response.status === 200) {
+          await orderConfirmed();
+        }
+      })
       .catch((err) => console.log(`err is here: ${err}`));
   };
 
@@ -87,7 +107,7 @@ const Packages = () => {
           ) : (
             <>
               {packagesData.map(
-                ({ _id, number, text, price, discount, img }, index) => {
+                ({ _id, number, name, text, price, discount, img }, index) => {
                   return (
                     <animated.div
                       key={_id || index}
@@ -113,22 +133,39 @@ const Packages = () => {
                           <p className="text-lg font-bold text-gray-800 mb-2">
                             {price} دك
                           </p>
-                          <StripeCheckout
-                            stripeKey="pk_test_51IsiGeERaO9lvsvDPuC3K4mxPf0HwBIZXt5bE3f0XArZE6yFTs9ETnr5bOFfhp2hNNM5CImOCzXaIybketwxF6wZ00uzqnWqUP"
-                            // name:pass it dynamically
-                            token={makePayment}
-                            amount={totalPrice * 100}
-                            currency="pkr"
-                            shippingAddress
-                            billingAddress
-                          >
+                          {loggedInUser ? (
+                            <StripeCheckout
+                              stripeKey="pk_test_51IsiGeERaO9lvsvDPuC3K4mxPf0HwBIZXt5bE3f0XArZE6yFTs9ETnr5bOFfhp2hNNM5CImOCzXaIybketwxF6wZ00uzqnWqUP"
+                              // name:pass it dynamically
+                              token={makePayment}
+                              amount={price}
+                              currency="USD"
+                              shippingAddress
+                              billingAddress
+                            >
+                              <button
+                                onClick={() => buyPackage(_id, price, name)}
+                                className={`w-full py-1 px-2 rounded-md transition-colors text-sm 
+                                  ${
+                                    currentUsePkg.includes(name)
+                                      ? "bg-gray-400 text-white cursor-not-allowed"
+                                      : "bg-orange-400 text-white hover:bg-orange-500"
+                                  }`}
+                                disabled={currentUsePkg.includes(name)}
+                              >
+                                {currentUsePkg.includes(name)
+                                  ? "Purchased"
+                                  : "Buy"}
+                              </button>
+                            </StripeCheckout>
+                          ) : (
                             <button
-                              onClick={() => buyPackage(_id, price)}
+                              onClick={() => navigate("/login")}
                               className="w-full bg-orange-400 text-white py-1 px-2 rounded-md hover:bg-orange-500 transition-colors text-sm"
                             >
                               Buy
                             </button>
-                          </StripeCheckout>
+                          )}
                         </div>
                       </div>
                     </animated.div>
