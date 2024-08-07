@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { apiAdd } from "../Api"; // Assuming this is correctly defined in your Api.js
+import { apiUrl } from "../Api"; // Assuming this is correctly defined in your Api.js
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -18,7 +18,7 @@ const Login = () => {
     }
 
     try {
-      const response = await fetch(`${apiAdd}/user/signin`, {
+      const response = await fetch(`${apiUrl}/user/signin`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

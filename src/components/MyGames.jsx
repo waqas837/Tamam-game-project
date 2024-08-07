@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import Modal from "react-modal";
 import { X } from "lucide-react";
-import { apiAdd } from "../Api";
+import { apiUrl } from "../Api";
 import Loader from "./Loader";
 
 Modal.setAppElement("#root"); // Use the ID of your root element
@@ -40,7 +40,7 @@ const getImageSrc = (imageUrl) => {
   if (imageUrl.startsWith("http://") || imageUrl.startsWith("https://")) {
     return imageUrl;
   } else {
-    return `${apiAdd}/images/${imageUrl}`;
+    return `${apiUrl}/images/${imageUrl}`;
   }
 };
 
@@ -99,7 +99,7 @@ const GameCategoriesPage = () => {
         fetchAllGames: true,
       };
       let { data } = await axios.post(
-        `${apiAdd}/user/getAllQuestionsForUser`,
+        `${apiUrl}/user/getAllQuestionsForUser`,
         dataToSend
       );
       if (data.success) {
@@ -128,7 +128,7 @@ const GameCategoriesPage = () => {
     let loggedInUser = JSON.parse(localStorage.getItem("user"));
     setModalIsOpen(false);
     await axios.post(
-      `${apiAdd}/user/startovergame/${loggedInUser._id}/${currentGameId}`
+      `${apiUrl}/user/startovergame/${loggedInUser._id}/${currentGameId}`
     );
     // You might want to refresh the games list or navigate to a new page here
     getQuestions(); // Refresh the games list

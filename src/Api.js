@@ -1,2 +1,2 @@
-let apiAdd = "http://localhost:1000";
-export { apiAdd };
+let apiUrl = "http://localhost:1000";
+export { apiUrl };

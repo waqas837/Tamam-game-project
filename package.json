@@ -21,7 +21,8 @@
     "react-modal": "^3.16.1",
     "react-phone-input-2": "^2.15.1",
     "react-router-dom": "^6.25.1",
-    "react-spring": "^9.7.4"
+    "react-spring": "^9.7.4",
+    "react-stripe-checkout": "^2.6.3"
   },
   "devDependencies": {
     "@types/react": "^18.2.66",

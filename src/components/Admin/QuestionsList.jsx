@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Trash } from "lucide-react";
-import { apiAdd } from "../../Api";
+import { apiUrl } from "../../Api";
 import axios from "axios";
 
 const QuestionList = () => {
@@ -14,7 +14,7 @@ const QuestionList = () => {
   const [editingQuestion, setEditingQuestion] = useState(null);
   const getQuestions = async () => {
     try {
-      let { data } = await axios.get(`${apiAdd}/admin/getAllQuestions`);
+      let { data } = await axios.get(`${apiUrl}/admin/getAllQuestions`);
       if (data.success) {
         const sortedQuestions = data.data.sort((a, b) => b.id - a.id);
         setQuestions(sortedQuestions);

@@ -3,7 +3,7 @@ import { toast, Toaster } from "react-hot-toast";
 import { Check } from "lucide-react";
 import { useSpring, animated } from "react-spring";
 import axios from "axios";
-import { apiAdd } from "../Api";
+import { apiUrl } from "../Api";
 
 const CategoryCard = ({ category, isSelected, onClick }) => {
   const [isHovered, setIsHovered] = useState(false);
@@ -85,7 +85,7 @@ const getImageSrc = (imageUrl) => {
   if (imageUrl.startsWith("http://") || imageUrl.startsWith("https://")) {
     return imageUrl; // Return the external URL directly
   } else {
-    return `${apiAdd}/images/${imageUrl}`; // Return local URL
+    return `${apiUrl}/images/${imageUrl}`; // Return local URL
   }
 };
 const CategorySelection = ({ setcategoriesIds }) => {
@@ -98,7 +98,7 @@ const CategorySelection = ({ setcategoriesIds }) => {
 
   const getQuestions = async () => {
     try {
-      let { data } = await axios.get(`${apiAdd}/admin/getAllQuestions`);
+      let { data } = await axios.get(`${apiUrl}/admin/getAllQuestions`);
       if (data.success) {
         setCategories(data.data);
         console.log("data.data", data.data);

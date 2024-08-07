@@ -3,7 +3,7 @@ import { motion } from "framer-motion";
 import { Shield, Users, Trophy } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import { apiAdd } from "../Api";
+import { apiUrl } from "../Api";
 import toast, { Toaster } from "react-hot-toast";
 
 const CreateGameForm = ({ categoriesIds }) => {
@@ -48,7 +48,7 @@ const CreateGameForm = ({ categoriesIds }) => {
         team1, // Include team1 in the request
         team2, // Include team2 in the request
       };
-      let { data } = await axios.post(`${apiAdd}/user/createGame`, gameCreate);
+      let { data } = await axios.post(`${apiUrl}/user/createGame`, gameCreate);
       if (data.success === false) {
         toast.error("Your limit is reached. Please buy package instead.");
       } else if (data.success) {

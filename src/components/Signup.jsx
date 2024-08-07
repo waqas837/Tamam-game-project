@@ -3,7 +3,7 @@ import PhoneInput from "react-phone-input-2";
 import "react-phone-input-2/lib/style.css";
 import { useForm } from "react-hook-form";
 import axios from "axios";
-import { apiAdd } from "../Api";
+import { apiUrl } from "../Api";
 import { useNavigate } from "react-router-dom";
 import { Eye, EyeOff } from "lucide-react";
 
@@ -37,7 +37,7 @@ const Signup = () => {
     setErrorMessage(""); // Clear previous errors
 
     try {
-      const response = await axios.post(`${apiAdd}/user/signup`, data);
+      const response = await axios.post(`${apiUrl}/user/signup`, data);
       console.log(response.data); // Handle the response data as needed
 
       // Save user information in local storage

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import { apiAdd } from "../../Api";
+import { apiUrl } from "../../Api";
 import toast, { Toaster } from "react-hot-toast";
 
 const AddCategoryAndQuestions = () => {
@@ -65,7 +65,7 @@ const AddCategoryAndQuestions = () => {
         }
       });
 
-      await axios.post(`${apiAdd}/admin/postQuestion`, formData, {
+      await axios.post(`${apiUrl}/admin/postQuestion`, formData, {
         headers: {
           "Content-Type": "multipart/form-data",
         },

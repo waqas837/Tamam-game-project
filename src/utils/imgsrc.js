@@ -3,7 +3,7 @@ const getImageSrc = (imageUrl) => {
   if (imageUrl.startsWith("http://") || imageUrl.startsWith("https://")) {
     return imageUrl; // Return the external URL directly
   } else {
-    return `${apiAdd}/images/${imageUrl}`; // Return local URL
+    return `${apiUrl}/images/${imageUrl}`; // Return local URL
   }
 };
 

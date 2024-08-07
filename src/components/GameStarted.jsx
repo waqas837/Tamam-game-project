@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import Modal from "react-modal";
-import { apiAdd } from "../Api";
+import { apiUrl } from "../Api";
 import axios from "axios";
 import { Play, Pause, X, RotateCcw } from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
@@ -80,7 +80,7 @@ const GameInterface = () => {
         userData: loggedInUser,
       };
       let { data } = await axios.post(
-        `${apiAdd}/user/getAllQuestionsForUser`,
+        `${apiUrl}/user/getAllQuestionsForUser`,
         dataToSend
       );
       if (data.success) {
@@ -167,7 +167,7 @@ const GameInterface = () => {
 
       try {
         await axios.post(
-          `${apiAdd}/user/singleCorrectAnswer`,
+          `${apiUrl}/user/singleCorrectAnswer`,
           correctAnswerData
         );
         console.log("Data sent to backend successfully");
@@ -208,7 +208,7 @@ const GameInterface = () => {
     if (imageUrl.startsWith("http://") || imageUrl.startsWith("https://")) {
       return imageUrl; // Return the external URL directly
     } else {
-      return `${apiAdd}/images/${imageUrl}`; // Return local URL
+      return `${apiUrl}/images/${imageUrl}`; // Return local URL
     }
   };
   Modal.setAppElement("#root");
