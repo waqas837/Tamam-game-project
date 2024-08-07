@@ -1,3 +1,3 @@
 // let apiUrl = "http://localhost:1000"; 
-let apiUrl = "http://tamam.drawsketch.co";
+let apiUrl = "https://tamam.drawsketch.co";
 export { apiUrl };
