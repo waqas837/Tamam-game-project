@@ -4,6 +4,7 @@ import { apiAdd } from "../Api";
 import axios from "axios";
 import { Play, Pause, X, RotateCcw } from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
+import { Trophy, Sparkles, Star } from "lucide-react";
 import Loader from "./Loader";
 const GameInterface = () => {
   const [modalIsOpen, setModalIsOpen] = useState(false);
@@ -18,6 +19,8 @@ const GameInterface = () => {
     Team1Score: "",
     Team2: "",
     Team2Score: "",
+    team1Id: "",
+    team2Id: "",
   });
   const [showAnswer, setshowAnswer] = useState(false);
   const [categories, setCategories] = useState([]);
@@ -65,7 +68,7 @@ const GameInterface = () => {
   };
   useEffect(() => {
     getQuestions();
-  }, []);
+  }, [showAnswer]);
 
   const getQuestions = async () => {
     setloading(true);
@@ -73,7 +76,7 @@ const GameInterface = () => {
     loggedInUser = JSON.parse(loggedInUser);
     try {
       let dataToSend = {
-        metaData: location.state,
+        gameId: location.state.gameId,
         userData: loggedInUser,
       };
       let { data } = await axios.post(
@@ -81,30 +84,22 @@ const GameInterface = () => {
         dataToSend
       );
       if (data.success) {
-        // console.log(
-        //   " data.data.myGames[0].FreePackage[0].GameName",
-        //   data.data.myGames[0].FreePackage[0].allQuestions
-        // );
-        console.log(
-          "data.data.myGames[0]",
-          data.data.myGames.FreePackage[0].Game1.Teams[0].teamName
-        );
-        let GameName = data.data.myGames.FreePackage[0].Game1.GameName;
-        // console.log("GameName", GameName)
-        let Team1 = data.data.myGames.FreePackage[0].Game1.Teams[0].teamName;
-        let Team2 = data.data.myGames.FreePackage[0].Game1.Teams[1].teamName;
-        let Team1Score = data.data.myGames.FreePackage[0].Game1.Teams[0].score;
-        let Team2Score = data.data.myGames.FreePackage[0].Game1.Teams[1].score;
+        // Assuming `data.LongInfo.catAndQues` contains the provided structure
+        let GameName = data.LongInfo.myGames.GameName;
+        let Team1 = data.LongInfo.teams[0].name;
+        let Team2 = data.LongInfo.teams[1].name;
+        let Team1Score = data.LongInfo.teams[0].score;
+        let Team2Score = data.LongInfo.teams[1].score;
         setGameInfo({
           GameName: GameName,
           Team1,
           Team1Score,
           Team2,
           Team2Score,
+          team1Id: data.LongInfo.teams[0]._id,
+          team2Id: data.LongInfo.teams[1]._id,
         });
-        setCategories(data.data.myGames.FreePackage[0].Game1.allQuestions);
-        console.log("data.data.myGames[0]", data.data);
-        // console.log("data.data", data.data.myGames[0].FreePackage[0]);
+        setCategories(data.LongInfo.categoriesWithQuestions);
         setloading(false);
       }
     } catch (error) {
@@ -123,26 +118,26 @@ const GameInterface = () => {
     setshowAnswer(!showAnswer);
   };
 
-  const handleCorrectAnswer = async (team) => {
+  const handleCorrectAnswer = async (team, teamid) => {
     if (modalContent) {
       const { category, questionIndex } = modalContent;
       const points = categories[category].questions[questionIndex].points;
 
-      let newTeam1Score = team1Score;
-      let newTeam2Score = team2Score;
+      let newTeam1Score = GameInfo.Team1Score;
+      let newTeam2Score = GameInfo.Team1Score;
 
       if (team === GameInfo.Team1) {
-        newTeam1Score += points;
+        newTeam1Score += Number(points);
         setTeam1Score(newTeam1Score);
       } else {
-        newTeam2Score += points;
+        newTeam2Score += Number(points);
         setTeam2Score(newTeam2Score);
       }
 
       setGameInfo({
         ...GameInfo,
-        Team1Score: newTeam1Score,
-        Team2Score: newTeam2Score,
+        Team1Score: "⏳",
+        Team2Score: "⏳",
       });
 
       setCategories((prevCategories) => {
@@ -167,6 +162,7 @@ const GameInterface = () => {
         pointsGot: points,
         correctTeam: team,
         categories,
+        teamid,
       };
 
       try {
@@ -183,8 +179,10 @@ const GameInterface = () => {
     }
   };
   const getWinner = () => {
-    if (team1Score > team2Score) return "Team 1 Wins!";
-    if (team2Score > team1Score) return "Team 2 Wins!";
+    if (GameInfo.Team1Score > GameInfo.Team2Score)
+      return GameInfo.Team1 + " Wins";
+    if (GameInfo.Team2Score > GameInfo.Team1Score)
+      return GameInfo.Team2 + " Wins";
     return "It's a Tie!";
   };
   const areAllQuestionsAnswered = () => {
@@ -193,7 +191,7 @@ const GameInterface = () => {
     );
     if (res) {
       let results = getWinner();
-      navigate("/results", { state: { results } });
+      // navigate("/results", { state: { results } });
     }
     return res;
   };
@@ -389,13 +387,17 @@ const GameInterface = () => {
               <div className="flex gap-4 mb-4">
                 <button
                   className="bg-green-600 text-white py-2 px-4 rounded-lg shadow-md hover:bg-green-700 transition-colors duration-300 flex-1"
-                  onClick={() => handleCorrectAnswer(GameInfo.Team1)}
+                  onClick={() =>
+                    handleCorrectAnswer(GameInfo.Team1, GameInfo.team1Id)
+                  }
                 >
                   {GameInfo.Team1} Correct
                 </button>
                 <button
                   className="bg-green-600 text-white py-2 px-4 rounded-lg shadow-md hover:bg-green-700 transition-colors duration-300 flex-1"
-                  onClick={() => handleCorrectAnswer(GameInfo.Team2)}
+                  onClick={() =>
+                    handleCorrectAnswer(GameInfo.Team2, GameInfo.team2Id)
+                  }
                 >
                   {GameInfo.Team2} Correct
                 </button>
@@ -406,11 +408,21 @@ const GameInterface = () => {
       </Modal>
 
       {gameOver && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-70">
-          <div className="bg-white p-6 rounded-lg shadow-lg max-w-md mx-auto text-center relative">
-            <h2 className="text-3xl font-bold mb-3 text-black">
-              {getWinner()}
-            </h2>
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-70 z-50">
+          <div className="bg-white p-8 rounded-lg shadow-xl max-w-md mx-auto text-center relative overflow-hidden">
+            <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-yellow-400 via-red-500 to-pink-500 animate-gradient"></div>
+
+            <div className="flex justify-center items-center mb-4">
+              <Trophy className="text-yellow-500 w-12 h-12 mr-2 animate-bounce" />
+              <Trophy className="text-yellow-500 w-12 h-12 ml-2 animate-bounce" />
+            </div>
+            {getWinner()}
+            <Sparkles className="absolute top-4 right-4 text-yellow-400 w-6 h-6 animate-spin-slow" />
+            <Sparkles className="absolute bottom-4 left-4 text-yellow-400 w-6 h-6 animate-spin-slow" />
+            <Star className="absolute top-1/4 left-4 text-yellow-400 w-4 h-4 animate-pulse" />
+            <Star className="absolute bottom-1/4 right-4 text-yellow-400 w-4 h-4 animate-pulse" />
+            <br />
+            <br />
             <button
               className="bg-red-500 text-white py-2 px-4 rounded-lg shadow-md hover:bg-red-600 transition-shadow duration-300"
               onClick={() => setGameOver(false)}

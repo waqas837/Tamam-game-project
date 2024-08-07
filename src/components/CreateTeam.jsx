@@ -10,6 +10,7 @@ const CreateGameForm = ({ categoriesIds }) => {
   const [gameName, setGameName] = useState("");
   const [team1, setTeam1] = useState("");
   const [team2, setTeam2] = useState("");
+  const [gameid, setgameid] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
@@ -51,12 +52,18 @@ const CreateGameForm = ({ categoriesIds }) => {
       if (data.success === false) {
         toast.error("Your limit is reached. Please buy package instead.");
       } else if (data.success) {
+        console.log("needed data", data.gameid);
+
         toast.success(data.message);
         setGameName("");
         setTeam1("");
         setTeam2("");
         navigate("/started-game", {
-          state: { categoriesIds, teams: { gameName, team1, team2 } },
+          state: {
+            categoriesIds,
+            gameId: data.gameid,
+            teams: { gameName, team1, team2 },
+          },
         });
       }
     } catch (error) {

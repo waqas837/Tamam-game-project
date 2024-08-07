@@ -1,11 +1,14 @@
-import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
 import Modal from "react-modal";
 import { X } from "lucide-react";
 import { apiAdd } from "../Api";
 import Loader from "./Loader";
 
+Modal.setAppElement("#root"); // Use the ID of your root element
+
+// Helper components
 const Card = ({ children, className }) => (
   <div
     className={`bg-gradient-to-br from-pink-50 to-white shadow-lg rounded-lg overflow-hidden ${className}`}
@@ -32,7 +35,7 @@ const CardContent = ({ children, className }) => (
   <div className={`p-6 ${className}`}>{children}</div>
 );
 
-// Get images url.
+// Get images url
 const getImageSrc = (imageUrl) => {
   if (imageUrl.startsWith("http://") || imageUrl.startsWith("https://")) {
     return imageUrl;
@@ -41,46 +44,42 @@ const getImageSrc = (imageUrl) => {
   }
 };
 
+// GameCard component
 const GameCard = ({ val, openModal }) => (
-  <div onClick={openModal}>
-    <Card className="cursor-pointer w-full max-w-md mx-auto transform transition-all duration-300 hover:scale-105">
-      <CardHeader>
-        {val.currentPackage}
-        <CardTitle>{val.myGames.FreePackage[0].Game1.GameName}</CardTitle>
+  <div onClick={() => openModal(val._id, val.GameName)}>
+    <Card className="cursor-pointer w-full max-w-md mx-auto transform transition-all duration-300 hover:scale-105 hover:shadow-lg bg-gradient-to-br from-pink-50 to-purple-50 border border-pink-200">
+      <CardHeader className="text-2xl font-semibold text-center text-purple-800 pb-2 border-b border-pink-200">
+        {val.GameName}
       </CardHeader>
-      <CardContent>
-        <div className="grid grid-cols-3 gap-4">
-          {val.myGames.FreePackage[0].Game1.allQuestions.map(
-            (category, index) => (
-              <div key={index} className="flex flex-col items-center">
+      <CardContent className="p-6">
+        <div className="grid grid-cols-3 gap-6">
+          {val.categories.map((category, index) => (
+            <div key={index} className="flex flex-col items-center">
+              <div className="relative w-24 h-24 rounded-full overflow-hidden shadow-md border-2 border-pink-300">
                 <img
                   src={getImageSrc(category.image)}
-                  alt={category}
-                  className="w-20 h-20 rounded-lg shadow-md border-2 border-pink-200"
+                  alt={category.name}
+                  className="w-full h-full object-cover"
                 />
-                <span className="mt-2 text-xs text-center text-pink-700">
-                  {category.name}
-                </span>
               </div>
-            )
-          )}
+              <span className="mt-3 text-sm font-medium text-center text-purple-700">
+                {category.name}
+              </span>
+            </div>
+          ))}
         </div>
       </CardContent>
     </Card>
   </div>
 );
 
+// Main GameCategoriesPage component
 const GameCategoriesPage = () => {
   const navigate = useNavigate();
-  const [GameInfo, setGameInfo] = useState({
-    GameName: "",
-    Team1: "",
-    Team1Score: "",
-    Team2: "",
-    Team2Score: "",
-  });
+  const [currentGameId, setCurrentGameId] = useState(null);
+  const [currentGameName, setCurrentGameName] = useState(null);
   const [categories, setCategories] = useState([]);
-  const [loading, setloading] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [modalIsOpen, setModalIsOpen] = useState(false);
 
   useEffect(() => {
@@ -88,63 +87,61 @@ const GameCategoriesPage = () => {
     if (!loggedInUser) {
       navigate("/login");
     }
-  }, []);
-
-  useEffect(() => {
     getQuestions();
-  }, []);
+  }, [navigate]);
 
   const getQuestions = async () => {
-    setloading(true);
-    let loggedInUser = localStorage.getItem("user");
-    loggedInUser = JSON.parse(loggedInUser);
+    setLoading(true);
+    let loggedInUser = JSON.parse(localStorage.getItem("user"));
     try {
       let dataToSend = {
         userData: loggedInUser,
+        fetchAllGames: true,
       };
       let { data } = await axios.post(
         `${apiAdd}/user/getAllQuestionsForUser`,
         dataToSend
       );
       if (data.success) {
-        let GameName = data.data.myGames.FreePackage[0].Game1.GameName;
-        let Team1 = data.data.myGames.FreePackage[0].Game1.Teams[0].teamName;
-        let Team2 = data.data.myGames.FreePackage[0].Game1.Teams[1].teamName;
-        let Team1Score = data.data.myGames.FreePackage[0].Game1.Teams[0].score;
-        let Team2Score = data.data.myGames.FreePackage[0].Game1.Teams[1].score;
-        setGameInfo({
-          GameName: GameName,
-          Team1,
-          Team1Score,
-          Team2,
-          Team2Score,
-        });
-        setCategories([data.data]);
-        console.log("data.data", data.data);
-        setloading(false);
+        setCategories(data.YourGames);
+        setLoading(false);
       }
     } catch (error) {
-      setloading(false);
+      setLoading(false);
       console.log("err in handleSubmit", error);
     }
   };
 
-  const openModal = () => {
+  const openModal = (gameId, gameName) => {
+    setCurrentGameId(gameId);
+    setCurrentGameName(gameName);
     setModalIsOpen(true);
   };
 
   const closeModal = () => {
     setModalIsOpen(false);
+    setCurrentGameId(null);
+    setCurrentGameName(null);
   };
 
-  const closeModalStartOver = () => {
+  const closeModalStartOver = async () => {
+    let loggedInUser = JSON.parse(localStorage.getItem("user"));
     setModalIsOpen(false);
+    await axios.post(
+      `${apiAdd}/user/startovergame/${loggedInUser._id}/${currentGameId}`
+    );
+    // You might want to refresh the games list or navigate to a new page here
+    getQuestions(); // Refresh the games list
   };
 
   const closeModalResume = () => {
     setModalIsOpen(false);
+    navigate("/started-game", {
+      state: { gameId: currentGameId, gameName: currentGameName },
+    });
   };
 
+  // Modal styles
   const customStyles = {
     content: {
       top: "50%",
@@ -172,10 +169,9 @@ const GameCategoriesPage = () => {
       </h1>
       <div className="text-center">{loading && <Loader />}</div>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-        {categories &&
-          categories.map((val, index) => (
-            <GameCard val={val} key={index} openModal={openModal} />
-          ))}
+        {categories.map((val, index) => (
+          <GameCard val={val} key={index} openModal={openModal} />
+        ))}
       </div>
       <Modal
         isOpen={modalIsOpen}
@@ -191,7 +187,7 @@ const GameCategoriesPage = () => {
             <X size={24} />
           </button>
           <h2 className="text-2xl font-bold text-gray-800 mb-6 pr-8">
-            What do you want to do with the game?
+            What do you want to do with {currentGameName}?
           </h2>
           <div className="flex flex-col space-y-4">
             <button
