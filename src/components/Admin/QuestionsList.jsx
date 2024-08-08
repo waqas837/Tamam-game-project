@@ -28,7 +28,7 @@ const QuestionList = () => {
         setQuestions(sortedQuestions);
       }
     } catch (error) {
-      console.log("err in getQuestions", error);
+      console.log("خطأ في الحصول على الأسئلة", error);
     }
   };
 
@@ -38,12 +38,12 @@ const QuestionList = () => {
         data: { questionId: selectedItem.questionId },
       });
       if (response.data.success) {
-        toast.success("Question deleted.");
+        toast.success("تم حذف السؤال.");
         getQuestions();
         closeModal();
       }
     } catch (error) {
-      console.log("Error deleting question:", error);
+      console.log("خطأ في حذف السؤال:", error);
     }
   };
 
@@ -53,12 +53,12 @@ const QuestionList = () => {
         data: { categoryId: selectedItem.categoryId },
       });
       if (response.data.success) {
-        toast.success("Category deleted.");
+        toast.success("تم حذف الفئة.");
         getQuestions();
         closeModal();
       }
     } catch (error) {
-      console.log("Error deleting category:", error);
+      console.log("خطأ في حذف الفئة:", error);
     }
   };
 
@@ -99,26 +99,26 @@ const QuestionList = () => {
     <div className="max-w-full mx-auto p-4 sm:p-8">
       <Toaster />
       <h2 className="text-2xl sm:text-3xl font-bold mb-4 sm:mb-8 text-center text-pink-600">
-        Question List
+        قائمة الأسئلة
       </h2>
       <div className="bg-white shadow-md rounded-lg overflow-x-auto">
         <table className="w-full divide-y divide-gray-200">
           <thead className="bg-gray-50">
             <tr>
               <th className="px-3 py-2 sm:px-6 sm:py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Question
+                السؤال
               </th>
               <th className="px-3 py-2 sm:px-6 sm:py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Points
+                النقاط
               </th>
               <th className="px-3 py-2 sm:px-6 sm:py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Answer
+                الإجابة
               </th>
               <th className="px-3 py-2 sm:px-6 sm:py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Category
+                الفئة
               </th>
               <th className="px-3 py-2 sm:px-6 sm:py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Actions
+                الإجراءات
               </th>
             </tr>
           </thead>
@@ -154,26 +154,26 @@ const QuestionList = () => {
         isOpen={isModalOpen}
         onRequestClose={closeModal}
         style={modalStyles}
-        contentLabel="Delete Options"
+        contentLabel="خيارات الحذف"
       >
-        <h2 className="text-xl font-bold mb-4">Delete Options</h2>
+        <h2 className="text-xl font-bold mb-4">خيارات الحذف</h2>
         <button
           onClick={deleteQuestion}
           className="block w-full px-4 py-2 mb-2 text-sm text-left text-white bg-red-500 hover:bg-red-600 rounded"
         >
-          Delete Question
+          حذف السؤال
         </button>
         <button
           onClick={deleteCategory}
           className="block w-full px-4 py-2 mb-4 text-sm text-left text-white bg-red-500 hover:bg-red-600 rounded"
         >
-          Delete Category
+          حذف الفئة
         </button>
         <button
           onClick={closeModal}
           className="block w-full px-4 py-2 text-sm text-center text-gray-800 bg-gray-200 hover:bg-gray-300 rounded"
         >
-          Cancel
+          إلغاء
         </button>
       </Modal>
     </div>

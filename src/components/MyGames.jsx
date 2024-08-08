@@ -167,10 +167,10 @@ const GameCategoriesPage = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-pink-200 via-pink-300 to-pink-400 p-8">
       <h1 className="text-5xl font-bold text-gray-800 text-center mb-12 shadow-text">
-        My Games
+        ألعابي
       </h1>
       {!loading && categories.length === 0 && (
-        <h1 className="text-center">No Games Found!</h1>
+        <h1 className="text-center">لم يتم العثور على ألعاب!</h1>
       )}
       <div className="text-center">{loading && <Loader />}</div>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -182,7 +182,7 @@ const GameCategoriesPage = () => {
         isOpen={modalIsOpen}
         onRequestClose={closeModal}
         style={customStyles}
-        contentLabel="Game Options Modal"
+        contentLabel="خيارات اللعبة"
       >
         <div className="relative">
           <button
@@ -192,20 +192,20 @@ const GameCategoriesPage = () => {
             <X size={24} />
           </button>
           <h2 className="text-2xl font-bold text-gray-800 mb-6 pr-8">
-            What do you want to do with {currentGameName}?
+            ماذا تريد أن تفعل مع {currentGameName}؟
           </h2>
           <div className="flex flex-col space-y-4">
             <button
               onClick={closeModalStartOver}
               className="bg-pink-500 hover:bg-pink-600 text-white font-bold py-2 px-4 rounded transition duration-300"
             >
-              Start Over
+              ابدأ من جديد
             </button>
             <button
               onClick={closeModalResume}
               className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded transition duration-300"
             >
-              Resume
+              استئناف
             </button>
           </div>
         </div>

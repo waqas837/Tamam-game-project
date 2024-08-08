@@ -13,7 +13,7 @@ const Login = () => {
     setError("");
 
     if (!email || !password) {
-      setError("Please enter both email and password.");
+      setError("يرجى إدخال البريد الإلكتروني وكلمة المرور.");
       return;
     }
 
@@ -34,25 +34,29 @@ const Login = () => {
         navigate("/start-game");
       } else {
         setError(
-          data.message || "Login failed. Please check your credentials."
+          data.message ||
+            "فشل تسجيل الدخول. يرجى التحقق من بيانات الاعتماد الخاصة بك."
         );
       }
     } catch (error) {
       console.error("Login failed:", error);
-      setError("Login failed. Please try again later.");
+      setError("فشل تسجيل الدخول. يرجى المحاولة مرة أخرى لاحقًا.");
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
+    <div
+      dir="rtl"
+      className="min-h-screen flex items-center justify-center bg-gray-100"
+    >
       <div className="bg-white p-8 rounded-lg shadow-lg max-w-md w-full">
         <h2 className="text-2xl font-bold mb-6 text-pink-600 text-center">
-          Login
+          تسجيل الدخول
         </h2>
         <form onSubmit={handleSubmit}>
           <div className="mb-4">
             <label className="block text-gray-700 mb-2" htmlFor="email">
-              Email
+              البريد الإلكتروني
             </label>
             <input
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-pink-500"
@@ -60,13 +64,13 @@ const Login = () => {
               id="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="Enter your email"
+              placeholder="أدخل بريدك الإلكتروني"
               required
             />
           </div>
           <div className="mb-6">
             <label className="block text-gray-700 mb-2" htmlFor="password">
-              Password
+              كلمة المرور
             </label>
             <input
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-pink-500"
@@ -74,7 +78,7 @@ const Login = () => {
               id="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              placeholder="Enter your password"
+              placeholder="أدخل كلمة المرور"
               required
             />
           </div>
@@ -85,13 +89,13 @@ const Login = () => {
             type="submit"
             className="w-full bg-pink-600 text-white py-2 rounded-lg hover:bg-pink-700 transition duration-300"
           >
-            Login
+            تسجيل الدخول
           </button>
         </form>
         <p className="mt-4 text-center text-gray-600">
-          Don't have an account?{" "}
+          ليس لديك حساب؟{" "}
           <Link to="/signup" className="text-pink-600 hover:underline">
-            Sign Up
+            إنشاء حساب
           </Link>
         </p>
       </div>

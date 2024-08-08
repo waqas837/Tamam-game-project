@@ -180,11 +180,12 @@ const GameInterface = () => {
   };
   const getWinner = () => {
     if (GameInfo.Team1Score > GameInfo.Team2Score)
-      return GameInfo.Team1 + " Wins";
+      return GameInfo.Team1 + " يفوز";
     if (GameInfo.Team2Score > GameInfo.Team1Score)
-      return GameInfo.Team2 + " Wins";
-    return "It's a Tie!";
+      return GameInfo.Team2 + " يفوز";
+    return "إنه تعادل!";
   };
+
   const areAllQuestionsAnswered = () => {
     let res = categories.every((category) =>
       category.questions.every((question) => question.answered === true)
@@ -221,10 +222,10 @@ const GameInterface = () => {
       {loading && <Loader />}
       <div className="flex justify-between items-center w-full max-w-6xl mx-auto mb-4">
         <div className="text-white text-xl font-bold">
-          {GameInfo.Team1}: {GameInfo.Team1Score} Points
+          {GameInfo.Team1}: {GameInfo.Team1Score} نقاط
         </div>
         <div className="text-white text-xl font-bold">
-          {GameInfo.Team2}: {GameInfo.Team2Score} Points
+          {GameInfo.Team2}: {GameInfo.Team2Score} نقاط
         </div>
       </div>
 
@@ -272,7 +273,7 @@ const GameInterface = () => {
           className="bg-red-500 text-white py-2 px-4 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300"
           onClick={handleGameOver}
         >
-          Game Over
+          انتهت اللعبة
         </button>
       </div>
       <Modal
@@ -370,12 +371,12 @@ const GameInterface = () => {
                 className="bg-purple-600 text-white py-2 px-4 rounded-lg shadow-md hover:bg-purple-700 transition-colors duration-300 w-full mb-4"
                 onClick={() => setshowAnswer(!showAnswer)}
               >
-                View Answer
+                عرض الإجابة
               </button>
               {showAnswer && (
                 <div className="bg-gray-100 p-3 rounded-lg mb-4 border border-gray-200 shadow-sm">
                   <p className="text-gray-800">
-                    Answer:{" "}
+                    إجابة:{" "}
                     {
                       categories[modalContent.category].questions[
                         modalContent.questionIndex
@@ -391,7 +392,7 @@ const GameInterface = () => {
                     handleCorrectAnswer(GameInfo.Team1, GameInfo.team1Id)
                   }
                 >
-                  {GameInfo.Team1} Correct
+                  {GameInfo.Team1} صحيح
                 </button>
                 <button
                   className="bg-green-600 text-white py-2 px-4 rounded-lg shadow-md hover:bg-green-700 transition-colors duration-300 flex-1"
@@ -399,7 +400,7 @@ const GameInterface = () => {
                     handleCorrectAnswer(GameInfo.Team2, GameInfo.team2Id)
                   }
                 >
-                  {GameInfo.Team2} Correct
+                  {GameInfo.Team2} صحيح
                 </button>
               </div>
             </>
@@ -427,7 +428,7 @@ const GameInterface = () => {
               className="bg-red-500 text-white py-2 px-4 rounded-lg shadow-md hover:bg-red-600 transition-shadow duration-300"
               onClick={() => setGameOver(false)}
             >
-              Close
+              إغلاق
             </button>
           </div>
         </div>

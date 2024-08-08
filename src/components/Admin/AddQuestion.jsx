@@ -79,24 +79,24 @@ const AddCategoryAndQuestions = () => {
         },
       });
 
-      toast.success("Category and questions submitted successfully!"); // Success toast notification
+      toast.success("تم إرسال الفئة والأسئلة بنجاح!"); // Success toast notification
       setloading(false);
     } catch (error) {
       console.error("Error in handleSubmit", error);
-      toast.error("An error occurred while submitting the form."); // Success toast notification
+      toast.error("حدث خطأ أثناء إرسال النموذج."); // Error toast notification
     }
   };
 
   return (
     <div className="max-w-4xl mx-auto p-8 rounded-lg shadow-lg bg-gradient-to-br from-pink-100 to-purple-200 text-gray-800">
       <h2 className="text-3xl font-bold mb-8 text-center text-purple-800">
-        Add Category and Questions
+        إضافة فئة وأسئلة
       </h2>
       <Toaster />
       <form onSubmit={handleSubmit} className="space-y-6">
         <div>
           <label className="block mb-2 text-lg font-medium text-purple-700">
-            Category
+            فئة
           </label>
           <input
             type="text"
@@ -108,7 +108,7 @@ const AddCategoryAndQuestions = () => {
         </div>
         <div>
           <label className="block mb-2 text-lg font-medium text-purple-700">
-            Category Image
+            صورة الفئة
           </label>
           <input
             name="categoryImage"
@@ -123,12 +123,12 @@ const AddCategoryAndQuestions = () => {
         {questions.map((q, index) => (
           <div key={index} className="border-2 border-pink-300 p-4 rounded-lg">
             <h3 className="text-xl font-semibold mb-4 text-purple-700">
-              Question {index + 1}
+              سؤال {index + 1}
             </h3>
             <div className="space-y-4">
               <div>
                 <label className="block mb-2 text-md font-medium text-purple-700">
-                  Question
+                  سؤال
                 </label>
                 <input
                   type="text"
@@ -142,7 +142,7 @@ const AddCategoryAndQuestions = () => {
               </div>
               <div>
                 <label className="block mb-2 text-md font-medium text-purple-700">
-                  Answer
+                  إجابة
                 </label>
                 <input
                   type="text"
@@ -156,7 +156,7 @@ const AddCategoryAndQuestions = () => {
               </div>
               <div>
                 <label className="block mb-2 text-md font-medium text-purple-700">
-                  Points
+                  نقاط
                 </label>
                 <select
                   value={q.points}
@@ -177,7 +177,7 @@ const AddCategoryAndQuestions = () => {
               </div>
               <div>
                 <label className="block mb-2 text-md font-medium text-purple-700">
-                  Upload Image or Video
+                  تحميل صورة أو فيديو
                 </label>
                 <input
                   name="questionFiles"
@@ -196,7 +196,7 @@ const AddCategoryAndQuestions = () => {
           type="submit"
           className="w-full py-3 bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 rounded-lg font-semibold text-white shadow-md hover:shadow-lg transition duration-300"
         >
-          {loading ? "..." : "Submit Category and Questions"}
+          {loading ? "جارٍ التحميل..." : "إرسال الفئة والأسئلة"}
         </button>
       </form>
     </div>

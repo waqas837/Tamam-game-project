@@ -75,7 +75,7 @@ const Navbar = () => {
               to={"/#pkgs"}
               className="relative block text-navy-700 py-2 px-4 rounded-lg transition-all duration-300 ease-in-out hover:text-navy-900 hover:bg-pink-100 border border-transparent hover:border-pink-700 ripple-effect"
             >
-              Browse Packages
+              تصفح الباقات
             </Link>
 
             {/* Conditionally render "My Games" link if logged in */}
@@ -84,7 +84,7 @@ const Navbar = () => {
                 to="/my-games"
                 className="relative block text-navy-700 py-2 px-4 rounded-lg transition-all duration-300 ease-in-out hover:text-navy-900 hover:bg-pink-100 border border-transparent hover:border-pink-700 ripple-effect"
               >
-                My Games
+                ألعابي
               </Link>
             )}
 
@@ -94,7 +94,7 @@ const Navbar = () => {
                 to="/login"
                 className="relative block text-navy-700 py-2 px-4 rounded-lg transition-all duration-300 ease-in-out hover:text-navy-900 hover:bg-pink-100 border border-transparent hover:border-pink-700 ripple-effect"
               >
-                Login
+                تسجيل الدخول
               </Link>
             )}
 
@@ -106,7 +106,7 @@ const Navbar = () => {
                   onClick={handleLogout}
                   className="text-pink-600 hover:text-pink-800"
                 >
-                  Logout
+                  تسجيل الخروج
                 </button>
               </div>
             )}
@@ -158,7 +158,7 @@ const Navbar = () => {
             to={"/#pkgs"}
             className="relative block text-navy-700 py-2 px-4 rounded-lg transition-all duration-300 ease-in-out hover:text-navy-900 hover:bg-pink-100 border border-transparent hover:border-pink-700 ripple-effect"
           >
-            Browse Packages
+            تصفح الباقات
           </Link>
 
           {/* Conditionally render "My Games" link if logged in */}
@@ -167,7 +167,7 @@ const Navbar = () => {
               to="/my-games"
               className="relative block text-navy-700 py-2 px-4 rounded-lg transition-all duration-300 ease-in-out hover:text-navy-900 hover:bg-pink-100 border border-transparent hover:border-pink-700 ripple-effect"
             >
-              My Games
+              ألعابي
             </Link>
           )}
 
@@ -177,7 +177,7 @@ const Navbar = () => {
               to="/login"
               className="relative block text-navy-700 py-2 px-4 rounded-lg transition-all duration-300 ease-in-out hover:text-navy-900 hover:bg-pink-100 border border-transparent hover:border-pink-700 ripple-effect"
             >
-              Login
+              تسجيل الدخول
             </Link>
           )}
 
@@ -189,7 +189,7 @@ const Navbar = () => {
                 onClick={handleLogout}
                 className="block mt-2 text-pink-600 hover:text-pink-800"
               >
-                Logout
+                تسجيل الخروج
               </button>
             </div>
           )}

@@ -29,7 +29,7 @@ const Signup = () => {
 
   const onSubmit = async (data) => {
     if (!validatePhoneNumber(data.phone)) {
-      setErrorMessage("Invalid phone number");
+      setErrorMessage("رقم الهاتف غير صحيح");
       return;
     }
 
@@ -47,8 +47,8 @@ const Signup = () => {
       // Redirect to dashboard
       navigate("/start-game");
     } catch (error) {
-      console.error("Error during signup:", error);
-      setErrorMessage(error.response?.data?.message || "Signup failed");
+      console.error("خطأ أثناء التسجيل:", error);
+      setErrorMessage(error.response?.data?.message || "فشل التسجيل");
     } finally {
       setLoading(false); // Hide loader
     }
@@ -58,9 +58,9 @@ const Signup = () => {
     <div className="min-h-screen flex items-center justify-center mt-10">
       <div className="w-full max-w-md p-8 bg-white rounded-lg shadow-lg">
         <h1 className="text-2xl font-bold mb-6 text-center text-pink-600">
-          Sign Up
+          تسجيل
         </h1>
-        {loading && <div className="text-center mb-4">Loading...</div>}{" "}
+        {loading && <div className="text-center mb-4">جارٍ التحميل...</div>}{" "}
         {/* Loader */}
         {errorMessage && (
           <div className="text-red-500 mb-4 text-center">{errorMessage}</div>
@@ -69,7 +69,7 @@ const Signup = () => {
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
           <div>
             <label htmlFor="username" className="block text-gray-700 mb-1">
-              Username
+              اسم المستخدم
             </label>
             <input
               id="username"
@@ -79,13 +79,13 @@ const Signup = () => {
               className="w-full p-3 border border-gray-300 rounded-lg"
             />
             {errors.username && (
-              <span className="text-red-500 text-sm">Username is required</span>
+              <span className="text-red-500 text-sm">اسم المستخدم مطلوب</span>
             )}
           </div>
 
           <div>
             <label htmlFor="email" className="block text-gray-700 mb-1">
-              Email
+              البريد الإلكتروني
             </label>
             <input
               id="email"
@@ -95,13 +95,15 @@ const Signup = () => {
               className="w-full p-3 border border-gray-300 rounded-lg"
             />
             {errors.email && (
-              <span className="text-red-500 text-sm">Email is required</span>
+              <span className="text-red-500 text-sm">
+                البريد الإلكتروني مطلوب
+              </span>
             )}
           </div>
 
           <div>
             <label htmlFor="password" className="block text-gray-700 mb-1">
-              Password
+              كلمة المرور
             </label>
             <div className="relative">
               <input
@@ -124,7 +126,7 @@ const Signup = () => {
               </button>
             </div>
             {errors.password && (
-              <span className="text-red-500 text-sm">Password is required</span>
+              <span className="text-red-500 text-sm">كلمة المرور مطلوبة</span>
             )}
           </div>
 
@@ -133,7 +135,7 @@ const Signup = () => {
               htmlFor="confirmPassword"
               className="block text-gray-700 mb-1"
             >
-              Confirm Password
+              تأكيد كلمة المرور
             </label>
             <div className="relative">
               <input
@@ -157,14 +159,14 @@ const Signup = () => {
             </div>
             {errors.confirmPassword && (
               <span className="text-red-500 text-sm">
-                Please confirm your password
+                يرجى تأكيد كلمة المرور
               </span>
             )}
           </div>
 
           <div>
             <label htmlFor="phone" className="block text-gray-700 mb-1">
-              Phone Number
+              رقم الهاتف
             </label>
             <div className="relative">
               <PhoneInput
@@ -177,7 +179,7 @@ const Signup = () => {
               />
             </div>
             {!validatePhoneNumber(watch("phone")) && (
-              <span className="text-red-500 text-sm">Invalid phone number</span>
+              <span className="text-red-500 text-sm">رقم الهاتف غير صحيح</span>
             )}
           </div>
 
@@ -185,7 +187,7 @@ const Signup = () => {
             type="submit"
             className="w-full py-3 bg-pink-600 text-white font-semibold rounded-lg hover:bg-pink-700"
           >
-            Sign Up
+            تسجيل
           </button>
         </form>
       </div>
