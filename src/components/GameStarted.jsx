@@ -344,7 +344,7 @@ const GameInterface = () => {
                     />
                   ) : categories[modalContent.category].questions[
                       modalContent.questionIndex
-                    ].image.match(/\.(mp4|webm|ogg|avi|mov)$/i) ? (
+                    ].image ? (
                     <video
                       controls
                       className="w-full rounded-lg mb-4 border border-gray-300 shadow-sm"
@@ -355,7 +355,7 @@ const GameInterface = () => {
                             modalContent.questionIndex
                           ].image
                         )}
-                        type="video/mp4"
+                        // type="video/mp4"
                       />
                       Your browser does not support the video tag.
                     </video>

@@ -14,6 +14,7 @@ const Sidebar = () => {
   const navItems = [
     { name: "إضافة سؤال", path: "/admin/add-question" },
     { name: "قائمة الأسئلة", path: "/admin/question-list" },
+    { name: "Users List", path: "/admin/user-list" },
   ];
 
   const logout = () => {

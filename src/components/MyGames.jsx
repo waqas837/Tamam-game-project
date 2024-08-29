@@ -165,52 +165,96 @@ const GameCategoriesPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-pink-200 via-pink-300 to-pink-400 p-8">
-      <h1 className="text-5xl font-bold text-gray-800 text-center mb-12 shadow-text">
-        ألعابي
-      </h1>
-      {!loading && categories.length === 0 && (
-        <h1 className="text-center">لم يتم العثور على ألعاب!</h1>
-      )}
-      <div className="text-center">{loading && <Loader />}</div>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-        {categories.map((val, index) => (
-          <GameCard val={val} key={index} openModal={openModal} />
-        ))}
-      </div>
-      <Modal
-        isOpen={modalIsOpen}
-        onRequestClose={closeModal}
-        style={customStyles}
-        contentLabel="خيارات اللعبة"
-      >
-        <div className="relative">
-          <button
-            onClick={closeModal}
-            className="absolute -top-6 -right-5 p-2 text-gray-500 hover:text-gray-700 transition-colors duration-200"
-          >
-            <X size={24} />
-          </button>
-          <h2 className="text-2xl font-bold text-gray-800 mb-6 pr-8">
-            ماذا تريد أن تفعل مع {currentGameName}؟
-          </h2>
-          <div className="flex flex-col space-y-4">
-            <button
-              onClick={closeModalStartOver}
-              className="bg-pink-500 hover:bg-pink-600 text-white font-bold py-2 px-4 rounded transition duration-300"
-            >
-              ابدأ من جديد
-            </button>
-            <button
-              onClick={closeModalResume}
-              className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded transition duration-300"
-            >
-              استئناف
-            </button>
+    <>
+      <div className="bg-gradient-to-br from-pink-200 via-pink-300 to-pink-400 p-8">
+        <h1 className="text-5xl font-bold underline text-gray-800 text-center mb-12 shadow-text">
+          User Dashboard
+        </h1>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          {/* User Info
+          <div className="bg-white p-6 rounded-lg shadow-lg">
+            <h2 className="text-2xl font-bold text-gray-800 mb-4">User</h2>
+            <p className="text-lg text-gray-600">John Doe</p>
+            <p className="text-lg text-gray-600">Email: john.doe@example.com</p>
+          </div> */}
+
+          {/* Money Spent */}
+          <div className="bg-white p-6 rounded-lg shadow-lg">
+            <h2 className="text-2xl font-bold text-gray-800 mb-4">
+              Money Spent
+            </h2>
+            <p className="text-3xl text-pink-500 font-semibold">$1200</p>
+          </div>
+
+          {/* Number of Games */}
+          <div className="bg-white p-6 rounded-lg shadow-lg">
+            <h2 className="text-2xl font-bold text-gray-800 mb-4">
+              Number of Games
+            </h2>
+            <p className="text-3xl text-pink-500 font-semibold">
+              {categories && categories.length}
+            </p>
+          </div>
+
+          {/* Online/Offline Status */}
+          <div className="bg-white p-6 rounded-lg shadow-lg">
+            <h2 className="text-2xl font-bold text-gray-800 mb-4">My Status</h2>
+            <div className="flex items-center">
+              <p>Online</p> <p></p>
+              <p className={`h-4 w-4 rounded-full mr-2 bg-green-500`}></p>
+            </div>
           </div>
         </div>
-      </Modal>
-    </div>
+      </div>
+
+      <div className="min-h-screen bg-gradient-to-br from-pink-200 via-pink-300 to-pink-400 p-8">
+        <h1 className="text-4xl font-bold text-gray-800 text-center mb-12 shadow-text">
+          ألعابي
+        </h1>
+        {!loading && categories.length === 0 && (
+          <h1 className="text-center">لم يتم العثور على ألعاب!</h1>
+        )}
+        <div className="text-center">{loading && <Loader />}</div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          {categories.map((val, index) => (
+            <GameCard val={val} key={index} openModal={openModal} />
+          ))}
+        </div>
+        <Modal
+          isOpen={modalIsOpen}
+          onRequestClose={closeModal}
+          style={customStyles}
+          contentLabel="خيارات اللعبة"
+        >
+          <div className="relative">
+            <button
+              onClick={closeModal}
+              className="absolute -top-6 -right-5 p-2 text-gray-500 hover:text-gray-700 transition-colors duration-200"
+            >
+              <X size={24} />
+            </button>
+            <h2 className="text-2xl font-bold text-gray-800 mb-6 pr-8">
+              ماذا تريد أن تفعل مع {currentGameName}؟
+            </h2>
+            <div className="flex flex-col space-y-4">
+              <button
+                onClick={closeModalStartOver}
+                className="bg-pink-500 hover:bg-pink-600 text-white font-bold py-2 px-4 rounded transition duration-300"
+              >
+                ابدأ من جديد
+              </button>
+              <button
+                onClick={closeModalResume}
+                className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded transition duration-300"
+              >
+                استئناف
+              </button>
+            </div>
+          </div>
+        </Modal>
+      </div>
+    </>
   );
 };
 

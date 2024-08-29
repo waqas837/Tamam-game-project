@@ -5,6 +5,7 @@ import {
   Route,
   useLocation,
 } from "react-router-dom";
+import Test from "./components/Test";
 import Login from "./components/Login";
 import Signup from "./components/Signup";
 import Home from "./components/Home";
@@ -21,6 +22,7 @@ import MyGames from "./components/MyGames";
 import Result from "./components/Result";
 import NotFound from "./components/NotFound"; // Import the NotFound component
 import PwaAlert from "./components/PwaAlert"; // Import the NotFound component
+import UserList from "./components/Admin/UserList";
 
 const App = () => {
   const location = useLocation();
@@ -32,6 +34,7 @@ const App = () => {
       {!isAdminRoute && <NavbarSimple />}
       <Routes>
         <Route path="/" element={<Home />} />
+        <Route path="/test" element={<Test />} />
         <Route path="/start-game" element={<StartGame />} />
         <Route path="/my-games" element={<MyGames />} />
         <Route path="/started-game" element={<GameStarted />} />
@@ -43,6 +46,7 @@ const App = () => {
           <Route path="login" element={<AdminLogin />} />
           <Route path="add-question" element={<AddQuestion />} />
           <Route path="question-list" element={<QuestionsList />} />
+          <Route path="user-list" element={<UserList />} />
         </Route>
         <Route path="*" element={<NotFound />} /> {/* Wildcard route for 404 */}
       </Routes>

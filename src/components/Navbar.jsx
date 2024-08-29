@@ -84,7 +84,7 @@ const Navbar = () => {
                 to="/my-games"
                 className="relative block text-navy-700 py-2 px-4 rounded-lg transition-all duration-300 ease-in-out hover:text-navy-900 hover:bg-pink-100 border border-transparent hover:border-pink-700 ripple-effect"
               >
-                ألعابي
+               لوحة التحكم
               </Link>
             )}
 
@@ -167,7 +167,7 @@ const Navbar = () => {
               to="/my-games"
               className="relative block text-navy-700 py-2 px-4 rounded-lg transition-all duration-300 ease-in-out hover:text-navy-900 hover:bg-pink-100 border border-transparent hover:border-pink-700 ripple-effect"
             >
-              ألعابي
+               لوحة التحكم
             </Link>
           )}
 
