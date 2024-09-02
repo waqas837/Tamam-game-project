@@ -1,30 +1,138 @@
 import React from "react";
 import { Link } from "react-router-dom";
-
 const Footer = () => {
-  return (
-    <footer className="bg-gray-900 text-white py-6 mt-12">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex flex-col md:flex-row justify-between items-center">
-          {/* Logo Section */}
-          <div className="flex-shrink-0">
-            <Link to="/" className="text-2xl font-bold text-pink-500">
-              عصر مخك
-            </Link>
-          </div>
+  // ICONS LIST
+  let snapchat = (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="14.658"
+      height="13.682"
+      viewBox="0 0 14.658 13.682"
+    >
+      <path
+        id="logo-snapchat-outline"
+        d="M15.781,11.875a5.811,5.811,0,0,1-1-.162,3.084,3.084,0,0,1-2.08-1.6c-.211-.447-.081-.568.362-.733s.91-.236,1.126-.7a.871.871,0,0,0-.318-1.084c-.48-.321-.927-.007-1.424.063.114-1.425.264-2.7-.692-3.9A4.2,4.2,0,0,0,8.461,2.25,4.2,4.2,0,0,0,5.169,3.757c-.958,1.2-.806,2.479-.692,3.906-.5-.069-.941-.39-1.424-.066a.873.873,0,0,0-.166,1.313c.353.4.966.29,1.327.629.2.186.106.385-.011.615A2.924,2.924,0,0,1,2.07,11.727c-.122.023-.681.088-.947.112a3.316,3.316,0,0,0,.05.664,1.46,1.46,0,0,0,.724.919c.341.2,1.084.2,1.273.474.092.137.054.375.163.531a.727.727,0,0,0,.469.3c.568.11,1.14-.22,1.723-.064a4.638,4.638,0,0,1,1.2.733,3.223,3.223,0,0,0,1.552.534c1.163.067,1.83-.578,2.766-1.112.6-.34,1.165-.118,1.8-.082.614.035.718-.282.9-.76a.835.835,0,0,0,.047-.148.321.321,0,0,0,.069-.045,1.631,1.631,0,0,1,.39-.087,2.584,2.584,0,0,0,.891-.342,1.368,1.368,0,0,0,.6-1,2.862,2.862,0,0,0,.042-.479ZM6.987,5.182c.27,0,.489.328.489.733s-.218.733-.489.733S6.5,6.32,6.5,5.915,6.717,5.182,6.987,5.182Zm3.164,2.373a2.383,2.383,0,0,1-3.4,0A.245.245,0,0,1,7.1,7.207a1.907,1.907,0,0,0,1.354.57,1.928,1.928,0,0,0,1.355-.571.244.244,0,1,1,.343.348Zm-.233-.907c-.27,0-.489-.328-.489-.733s.218-.733.489-.733.489.328.489.733S10.189,6.647,9.918,6.647Z"
+        transform="translate(-1.123 -2.25)"
+        fill="#fff"
+      />
+    </svg>
+  );
+  let fbicon = (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="6.541"
+      height="14.018"
+      viewBox="0 0 6.541 14.018"
+    >
+      <g id="Group_8" data-name="Group 8" transform="translate(0 0)">
+        <path
+          id="Path_1155"
+          data-name="Path 1155"
+          d="M2054.915-665.954v-1.121a.594.594,0,0,1,.62-.674h1.572v-2.4l-2.165-.009a2.735,2.735,0,0,0-2.95,2.938v1.267H2050.6v2.8h1.4v7.009h2.8v-7.009h2.081l.1-1.1.155-1.7Z"
+          transform="translate(-2050.601 670.159)"
+          fill="#fff"
+        />
+      </g>
+    </svg>
+  );
+  let twitterIcon = (
+    <svg
+      id="Group_11"
+      data-name="Group 11"
+      xmlns="http://www.w3.org/2000/svg"
+      width="13.092"
+      height="11.833"
+      viewBox="0 0 13.092 11.833"
+    >
+      <path
+        id="x-social-media-black-icon"
+        d="M10.31,0h2.007L7.932,5.013l5.159,6.821H9.052L5.888,7.7l-3.62,4.137H.258L4.949,6.472,0,0H4.142L7,3.781Zm-.7,10.632h1.112L3.538,1.139H2.344Z"
+        transform="translate(0 0)"
+        fill="#fff"
+      />
+    </svg>
+  );
 
-          {/* Links Section */}
-          <div className="flex flex-col md:flex-row space-y-4 md:space-y-0 md:space-x-6 rtl:space-x-reverse"></div>
+  let instaIcon = (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="14.016"
+      height="14.018"
+      viewBox="0 0 14.016 14.018"
+    >
+      <g id="Group_154" data-name="Group 154" transform="translate(0 0)">
+        <path
+          id="Path_1162"
+          data-name="Path 1162"
+          d="M2333.473-658.85a1.345,1.345,0,0,1-1.344,1.343h-8.6a1.345,1.345,0,0,1-1.344-1.343v-5.739h2.093a3.844,3.844,0,0,0-.136.4,3.825,3.825,0,0,0-.146,1.043,3.838,3.838,0,0,0,3.833,3.833,3.837,3.837,0,0,0,3.832-3.833,3.773,3.773,0,0,0-.148-1.043,3.736,3.736,0,0,0-.135-.4h2.093v5.739Zm-7.644-5.739a2.466,2.466,0,0,1,2-1.028,2.463,2.463,0,0,1,2,1.028,2.5,2.5,0,0,1,.149.235,2.437,2.437,0,0,1,.319,1.2,2.47,2.47,0,0,1-2.467,2.467,2.47,2.47,0,0,1-2.468-2.467,2.434,2.434,0,0,1,.32-1.2,2.521,2.521,0,0,1,.147-.235Zm7.077-3.955.31,0v2.376l-2.366.008-.009-2.375,2.066-.006Zm-.778-1.616h-8.6a2.711,2.711,0,0,0-2.708,2.709v8.6a2.712,2.712,0,0,0,2.708,2.709h8.6a2.712,2.712,0,0,0,2.709-2.709v-8.6a2.712,2.712,0,0,0-2.709-2.709Z"
+          transform="translate(-2320.822 670.159)"
+          fill="#fff"
+        />
+      </g>
+    </svg>
+  );
+  let tiktokIcon = (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="11.998"
+      height="13.844"
+      viewBox="0 0 11.998 13.844"
+    >
+      <path
+        id="logo-tiktok"
+        d="M13.878,4.086c-.095-.049-.183-.1-.272-.159a3.836,3.836,0,0,1-.7-.594,3.3,3.3,0,0,1-.789-1.628h0a2.016,2.016,0,0,1-.032-.58H9.711v9.194c0,.123,0,.245-.005.366,0,.015,0,.03,0,.045s0,.014,0,.021,0,0,0,.005a2.018,2.018,0,0,1-1.016,1.6,1.987,1.987,0,0,1-.984.259,2.018,2.018,0,0,1,0-4.036,1.987,1.987,0,0,1,.617.1l0-2.421a4.414,4.414,0,0,0-3.4,1A4.669,4.669,0,0,0,3.9,8.51a4.351,4.351,0,0,0-.525,2,4.721,4.721,0,0,0,.255,1.578v.006a4.641,4.641,0,0,0,.646,1.177,4.853,4.853,0,0,0,1.03.97v-.006l.006.006a4.44,4.44,0,0,0,2.426.73,4.289,4.289,0,0,0,1.8-.4,4.419,4.419,0,0,0,2.26-2.424,4.957,4.957,0,0,0,.287-1.515V5.753c.029.017.413.272.413.272a5.477,5.477,0,0,0,1.417.586,8.146,8.146,0,0,0,1.454.2V4.449a3.067,3.067,0,0,1-1.494-.363Z"
+        transform="translate(-3.374 -1.125)"
+        fill="#fff"
+      />
+    </svg>
+  );
+
+  return (
+    <div className="bg-[url('/footerbg.png')] bg-no-repeat bg-cover m-auto text-center p-6 h-[300px] text-white">
+      {/* Social Links */}
+      <div className="flex justify-center items-center flex-col translate-y-36">
+        <div className="flex justify-center items-center gap-10 mb-4">
+          <Link to="#" aria-label="Snapchat">
+            {snapchat}
+          </Link>
+          <Link to="#" aria-label="Facebook">
+            {fbicon}
+          </Link>
+          <Link to="#" aria-label="Twitter">
+            {twitterIcon}
+          </Link>
+          <Link to="#" aria-label="Instagram">
+            {instaIcon}
+          </Link>
+          <Link to="#" aria-label="TikTok">
+            {tiktokIcon}
+          </Link>
         </div>
 
-        {/* Bottom Section */}
-        <div className="mt-6 text-center">
-          <p className="text-gray-400">
-            &copy; {new Date().getFullYear()} عصر مخك. جميع الحقوق محفوظة.
-          </p>
+        {/* Divider */}
+        <div className="w-full flex justify-center my-8">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="1163"
+            height="1"
+            viewBox="0 0 1163 1"
+            className="opacity-45"
+          >
+            <line
+              x2="1163"
+              transform="translate(0 0.5)"
+              stroke="#fff"
+              strokeWidth="1"
+            />
+          </svg>
+        </div>
+
+        {/* Footer Text */}
+        <div className=" ">
+          <span>جميع الحقوق محفوظة لدى موقع اعصر مخك © 2024</span>
         </div>
       </div>
-    </footer>
+    </div>
   );
 };
 

@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="659" height="231" viewBox="0 0 659 231">
+  <g id="Group_9087" data-name="Group 9087" transform="translate(-908.5 -1850.667)">
+    <g id="Ellipse_34" data-name="Ellipse 34" transform="translate(908.5 1948.667)" fill="none" stroke="#8e8e8e" stroke-width="20" stroke-dasharray="1 20">
+      <circle cx="42.5" cy="42.5" r="42.5" stroke="none"/>
+      <circle cx="42.5" cy="42.5" r="32.5" fill="none"/>
+    </g>
+    <g id="Ellipse_35" data-name="Ellipse 35" transform="translate(1416.5 1850.667)" fill="none" stroke="#8e8e8e" stroke-width="20" stroke-dasharray="1 20">
+      <circle cx="42.5" cy="42.5" r="42.5" stroke="none"/>
+      <circle cx="42.5" cy="42.5" r="32.5" fill="none"/>
+    </g>
+    <circle id="Ellipse_30" data-name="Ellipse 30" cx="66" cy="66" r="66" transform="translate(1435.5 1883.667)" fill="#f5c527"/>
+    <circle id="Ellipse_31" data-name="Ellipse 31" cx="66" cy="66" r="66" transform="translate(1280.5 1936.667)" fill="#fab5ca"/>
+    <circle id="Ellipse_32" data-name="Ellipse 32" cx="66" cy="66" r="66" transform="translate(1140.5 1851.667)" fill="#ff809f"/>
+    <circle id="Ellipse_33" data-name="Ellipse 33" cx="66" cy="66" r="66" transform="translate(1000.5 1949.667)" fill="#c4b8ff"/>
+    <text id="تحدي" transform="translate(1501.5 1957.667)" fill="#fcfcf4" font-size="39" font-family="SegoeUI, Segoe UI"><tspan x="-42.333" y="0">تحدي</tspan></text>
+    <text id="ذكاء" transform="translate(1346.5 2012.667)" fill="#fcfcf4" font-size="39" font-family="SegoeUI, Segoe UI"><tspan x="-32.563" y="0">ذكاء</tspan></text>
+    <text id="متعة" transform="translate(1206.5 1923.667)" fill="#fcfcf4" font-size="39" font-family="SegoeUI, Segoe UI"><tspan x="-39.086" y="0">متعة</tspan></text>
+    <text id="ترفية" transform="translate(1066.5 2023.667)" fill="#fcfcf4" font-size="39" font-family="SegoeUI, Segoe UI"><tspan x="-39.076" y="0">ترفية</tspan></text>
+  </g>
+</svg>

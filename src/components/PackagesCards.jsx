@@ -33,6 +33,7 @@ const Packages = () => {
       const { data } = await axios.get(`${apiUrl}/user/fetchAllPackages`);
       if (data.success) {
         setPackagesData(data.data);
+        console.log("data.data)", data.data);
       }
       setLoading(false);
     } catch (error) {
@@ -97,9 +98,30 @@ const Packages = () => {
   };
 
   return (
-    <div className="bg-gray-100 p-4">
+    <div className="bg-[url('/cardsbg.png')] bg-no-repeat bg-cover text-white m-auto text-center p-32">
       <div className="max-w-6xl mx-auto">
-        <div id="pkgs" className="flex flex-wrap -mx-2">
+        <h1 className="text-[36px] mb-5">باقات الألعاب</h1>
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="54"
+          height="1"
+          viewBox="0 0 54 1"
+          className="m-auto"
+        >
+          <line
+            id="Line_53"
+            data-name="Line 53"
+            x1="54"
+            transform="translate(0 0.5)"
+            fill="none"
+            stroke="#efefef"
+            stroke-width="1"
+          />
+        </svg>
+        <h2 className="text-[18px]  my-5">
+          لكل مستخدم لعبة واحدة مجانية يمكنك من خلالها تجربة الفئات الموجودة
+        </h2>
+        <div id="pkgs" className="relative flex flex-wrap -mx-28">
           {loading ? (
             <div className="w-full flex justify-center items-center">
               <Loader />
@@ -113,11 +135,13 @@ const Packages = () => {
                       key={_id || index}
                       style={animationProps}
                       ref={ref}
-                      className="w-full sm:w-1/2 md:w-1/3 lg:w-1/4 p-2"
+                      className="w-full sm:w-1/2 md:w-1/3 lg:w-1/4 "
                     >
-                      <div className="relative bg-white rounded-3xl shadow-md overflow-hidden h-full">
-                        <img src={img} alt="" className="w-full object-cover" />
-                        {discount && (
+                      <div
+                        style={{ backgroundImage: `url(${img})` }}
+                        className="bg-no-repeat text-white m-auto text-center  h-screen z-10"
+                      >
+                        {/* {discount && (
                           <div className="absolute top-2 right-2 bg-red-500 text-white px-2 py-1 text-xs rounded">
                             {discount}% خصم
                           </div>
@@ -166,8 +190,11 @@ const Packages = () => {
                               Buy
                             </button>
                           )}
-                        </div>
+                        </div> */}
                       </div>
+                      <button className="absolute top-[410px] left-20 bg-yellow-500 p-6 rounded-full text-[25px] focus:ring-2 ring-yellow-200">
+                        شراء
+                      </button>
                     </animated.div>
                   );
                 }

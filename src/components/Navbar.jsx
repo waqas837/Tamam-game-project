@@ -51,15 +51,7 @@ const Navbar = () => {
   };
 
   return (
-    <nav
-      className="shadow-md text-pink-500"
-      style={{
-        backgroundImage: 'url("pink.png")',
-        backgroundSize: "100vw",
-        backgroundPosition: "center",
-        backgroundRepeat: "no-repeat",
-      }}
-    >
+    <nav className=" text-pink-500">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16 items-center">
           {/* Logo Section */}
@@ -84,7 +76,7 @@ const Navbar = () => {
                 to="/my-games"
                 className="relative block text-navy-700 py-2 px-4 rounded-lg transition-all duration-300 ease-in-out hover:text-navy-900 hover:bg-pink-100 border border-transparent hover:border-pink-700 ripple-effect"
               >
-               لوحة التحكم
+                لوحة التحكم
               </Link>
             )}
 
@@ -167,7 +159,7 @@ const Navbar = () => {
               to="/my-games"
               className="relative block text-navy-700 py-2 px-4 rounded-lg transition-all duration-300 ease-in-out hover:text-navy-900 hover:bg-pink-100 border border-transparent hover:border-pink-700 ripple-effect"
             >
-               لوحة التحكم
+              لوحة التحكم
             </Link>
           )}
 

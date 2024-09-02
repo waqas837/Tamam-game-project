@@ -1,0 +1,16 @@
+.bg-animate {
+  /* Default background fully yellow */
+  background: linear-gradient(
+    to right,
+    rgb(250 204 21 / var(--tw-bg-opacity)) 50%,
+    white 50%
+  );
+  background-size: 200% 100%;
+  background-position: left;
+  transition: background-position 0.1s ease;
+}
+
+.bg-animate:hover {
+  /* On hover, move the background position to create the wave effect */
+  background-position: right;
+}
