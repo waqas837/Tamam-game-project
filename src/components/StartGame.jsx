@@ -1,50 +1,43 @@
 import React, { useState } from "react";
 import Categories from "./Category";
 import CreateTeam from "./CreateTeam";
+import { ArrowLeft, ArrowUpLeft } from "lucide-react";
 
 const GameInstructions = () => {
-  const [categoriesIds, setcategoriesIds] = useState([])
+  const [categoriesIds, setcategoriesIds] = useState([]);
   return (
     <>
-      <section className="py-12 bg-white text-gray-800">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <h1 className="text-3xl font-bold mb-8 text-pink-600 text-center">
-            تعليمات اللعبة
-          </h1>
-          <div className="space-y-6">
-            <div className="flex items-center space-x-4 rtl:space-x-reverse">
-              <div className="w-12 h-12 flex items-center justify-center rounded-full bg-pink-600 text-white font-semibold">
-                1
-              </div>
-              <p className="text-lg">
-                <span className="font-bold">الخطوة 1:</span> اختر ما يصل إلى 4
-                فئات.
+      <div className="bg-[url('/bg.png')] bg-no-repeat bg-cover text-white m-auto text-center p-6">
+        <section className="py-52">
+          <h1 className="text-[140px] font-bold my-10">إنشاء لعبة</h1>
+          <h2 className="text-[40px] my-10">
+            لعبة جماعية تفاعلية نختبر فيها معرفتكم و ثقافتكم
+          </h2>
+          <h3 className="text-[18px] my-10">
+            محتوى تجريبي يمكن استبداله فيما بعد بالمحتوى الفعلى المتفق عليه مع
+            فريق وضع المحتوى
+          </h3>
+          {/* buttons */}
+          <div className="flex justify-center my-10 flex-wrap gap-8">
+            <button className="group relative flex items-center justify-between bg-yellow-400 text-black px-28 py-7 rounded-full bg-animate focus:ring-4 ring-yellow-300">
+              <p className="absolute left-20">ألعابي</p>
+              <p className="group-hover:bg-blue-500 absolute left-1 bg-black rounded-full text-white p-3">
+                <ArrowUpLeft />
               </p>
-            </div>
-            <div className="flex items-center space-x-4 rtl:space-x-reverse">
-              <div className="w-12 h-12 flex items-center justify-center rounded-full bg-pink-600 text-white font-semibold">
-                2
-              </div>
-              <p className="text-lg">
-                <span className="font-bold">الخطوة 2:</span> أدخل اسم اللعبة.
+            </button>
+            <button className="relative flex items-center justify-between bg-white text-black px-28 py-7 rounded-full">
+              <p className="absolute left-20">لعبة جديدة</p>
+              <p className="absolute left-1 bg-blue-500 rounded-full text-white p-3">
+                <ArrowLeft />
               </p>
-            </div>
-            <div className="flex items-center space-x-4 rtl:space-x-reverse">
-              <div className="w-12 h-12 flex items-center justify-center rounded-full bg-pink-600 text-white font-semibold">
-                3
-              </div>
-              <p className="text-lg">
-                <span className="font-bold">الخطوة 3:</span> أدخل أسماء
-                الفريقين، ثم اضغط على زر "لعب".
-              </p>
-            </div>
+            </button>
           </div>
-        </div>
-      </section>
+        </section>
+      </div>
       {/* Categories */}
       <Categories setcategoriesIds={setcategoriesIds} />
       {/* Create teams */}
-      <CreateTeam categoriesIds={categoriesIds}/>
+      <CreateTeam categoriesIds={categoriesIds} />
     </>
   );
 };

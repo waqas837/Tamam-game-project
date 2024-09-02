@@ -14,11 +14,6 @@ const CategoryCard = ({ category, isSelected, onClick }) => {
       : isHovered
       ? "scale(1.03)"
       : "scale(1)",
-    boxShadow: isSelected
-      ? "0 10px 20px rgba(220, 38, 38, 0.2)"
-      : isHovered
-      ? "0 5px 15px rgba(0, 0, 0, 0.1)"
-      : "0 2px 10px rgba(0, 0, 0, 0.05)",
     config: { tension: 300, friction: 20 },
   });
 
@@ -37,7 +32,7 @@ const CategoryCard = ({ category, isSelected, onClick }) => {
     <animated.div
       style={springProps}
       className={`relative overflow-hidden rounded-lg cursor-pointer ${
-        isSelected ? "ring-4 ring-pink-500 bg-pink-50" : "bg-white"
+        isSelected ? "ring ring-yellow-400 shadow-lg" : "bg-white"
       }`}
       onClick={onClick}
       onMouseEnter={() => setIsHovered(true)}
@@ -47,15 +42,43 @@ const CategoryCard = ({ category, isSelected, onClick }) => {
         style={imageSpringProps}
         src={getImageSrc(category.image)}
         alt={category.name}
-        className="w-full h-48 object-cover"
+        className="w-full object-cover"
       />
       <animated.div
         style={descriptionSpringProps}
-        className="absolute inset-0 bg-black bg-opacity-70 flex items-center justify-center p-4"
+        className="absolute inset-0 bg-black bg-opacity-10 flex items-center justify-center p-4"
       >
         <p className="text-white text-sm text-center">{category.description}</p>
       </animated.div>
-      <div className="absolute top-2 right-2">
+      <div className="absolute top-2 right-2 flex items-center">
+        {/* Yellow "I" icon */}
+        <div className="px-2 py-1 mr-2">
+          <svg
+            id="exclamation-circle-fill"
+            xmlns="http://www.w3.org/2000/svg"
+            width="50"
+            height="50"
+            viewBox="0 0 30 80"
+          >
+            <g id="Group_9130" data-name="Group 9130">
+              <circle
+                id="Ellipse_43"
+                data-name="Ellipse 43"
+                cx="23.5"
+                cy="23.5"
+                r="23.5"
+                fill="#fff"
+              />
+              <path
+                id="Path_1762"
+                data-name="Path 1762"
+                d="M47,23.5A23.5,23.5,0,1,1,23.5,0,23.5,23.5,0,0,1,47,23.5ZM23.5,11.75a2.658,2.658,0,0,0-2.644,2.923l1.028,10.3a1.622,1.622,0,0,0,3.231,0l1.028-10.3A2.658,2.658,0,0,0,23.5,11.75Zm.006,17.625a2.938,2.938,0,1,0,2.938,2.938A2.938,2.938,0,0,0,23.506,29.375Z"
+                fill="#f5c527"
+              />
+            </g>
+          </svg>
+          I
+        </div>
         <animated.div
           style={{
             ...useSpring({
@@ -64,11 +87,11 @@ const CategoryCard = ({ category, isSelected, onClick }) => {
             }),
           }}
         >
-          {isSelected && (
-            <div className="bg-pink-500 text-white p-1 rounded-full">
+          {/* {isSelected && (
+            <div className="bg-blue-500 text-white p-1 rounded-full">
               <Check size={20} />
             </div>
-          )}
+          )} */}
         </animated.div>
       </div>
       <div className="p-4">
@@ -79,15 +102,16 @@ const CategoryCard = ({ category, isSelected, onClick }) => {
     </animated.div>
   );
 };
+
 // Get images url.
 const getImageSrc = (imageUrl) => {
-  // Check if the image URL contains 'http' or 'https' indicating an external link
   if (imageUrl.startsWith("http://") || imageUrl.startsWith("https://")) {
-    return imageUrl; // Return the external URL directly
+    return imageUrl;
   } else {
-    return `${apiUrl}/images/${imageUrl}`; // Return local URL
+    return `${apiUrl}/images/${imageUrl}`;
   }
 };
+
 const CategorySelection = ({ setcategoriesIds }) => {
   const [selectedCategories, setSelectedCategories] = useState([]);
   const [categories, setCategories] = useState([]);
@@ -107,24 +131,23 @@ const CategorySelection = ({ setcategoriesIds }) => {
       console.log("err in handleSubmit", error);
     }
   };
+
   const toggleCategory = (id) => {
     let updatedSelectedCategories;
 
     if (selectedCategories.includes(id)) {
-      // Remove the category from the selection
       updatedSelectedCategories = selectedCategories.filter(
         (categoryId) => categoryId !== id
       );
     } else if (selectedCategories.length < 6) {
-      // Add the category to the selection, but only if less than 6 are selected
       updatedSelectedCategories = [...selectedCategories, id];
     } else {
       toast.error("يمكنك اختيار ما يصل إلى 6 فئات فقط.");
-      return; // Exit if the user tried to select more than 6 categories
+      return;
     }
 
     setSelectedCategories(updatedSelectedCategories);
-    setcategoriesIds(updatedSelectedCategories); // Update the parent state with the new selection
+    setcategoriesIds(updatedSelectedCategories);
   };
 
   const titleProps = useSpring({
@@ -134,16 +157,11 @@ const CategorySelection = ({ setcategoriesIds }) => {
   });
 
   return (
-    <section className="py-16 bg-gradient-to-br from-pink-100 via-purple-100 to-blue-100">
+    <section className="py-16">
       <Toaster />
       <div className="container mx-auto text-center px-4">
         <animated.div style={titleProps}>
-          <h1 className="text-5xl font-bold mb-4 text-pink-600 bg-clip-text text-transparent bg-gradient-to-r from-pink-500 to-purple-500">
-            اختر فئاتك المفضلة
-          </h1>
-          <p className="text-xl mb-12 text-gray-600">
-            حدد حتى 6 فئات لتخصيص تجربتك الفريدة
-          </p>
+          <h1 className="text-[78px] font-bold mb-4">الفئات الدائمه</h1>
         </animated.div>
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
           {categories.map((category) => (

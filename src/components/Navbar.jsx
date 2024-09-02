@@ -7,6 +7,48 @@ const Navbar = () => {
   const [user, setUser] = useState(null);
   const location = useLocation();
   const navigate = useNavigate();
+  let lockicon = (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="33"
+      height="33"
+      viewBox="0 0 33 33"
+    >
+      <g id="Group_8999" data-name="Group 8999" transform="translate(0 -1)">
+        <rect
+          id="Rectangle_17815"
+          data-name="Rectangle 17815"
+          width="33"
+          height="33"
+          rx="16.5"
+          transform="translate(0 1)"
+          fill="#232323"
+        />
+        <g id="lock-on_curved" transform="translate(-30 -15.143)">
+          <path
+            id="Path_1661"
+            data-name="Path 1661"
+            d="M50.476,31.076V27.81a3.81,3.81,0,0,0-7.619,0v3.266m7.619,0a13.688,13.688,0,0,0-3.81-.409,13.689,13.689,0,0,0-3.81.409m7.619,0c2.117.634,2.857,2.077,2.857,4.829,0,4.006-1.569,5.238-6.667,5.238S40,39.91,40,35.9c0-2.752.74-4.2,2.857-4.829"
+            fill="none"
+            stroke="#fff"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="1.2"
+          />
+          <rect
+            id="Rectangle_17850"
+            data-name="Rectangle 17850"
+            width="2"
+            height="4"
+            rx="1"
+            transform="translate(46 34.143)"
+            fill="#fff"
+          />
+        </g>
+      </g>
+    </svg>
+  );
+
   useEffect(() => {
     // Handle user data from localStorage
     const loggedInUser = localStorage.getItem("user");
@@ -63,32 +105,43 @@ const Navbar = () => {
 
           {/* Links Section */}
           <div className="hidden md:flex space-x-6 rtl:space-x-reverse">
-            <Link
-              to={"/#pkgs"}
-              className="relative block text-navy-700 py-2 px-4 rounded-lg transition-all duration-300 ease-in-out hover:text-navy-900 hover:bg-pink-100 border border-transparent hover:border-pink-700 ripple-effect"
-            >
-              تصفح الباقات
-            </Link>
-
+            <div className="flex justify-between items-center gap-5">
+              <Link to="/start-game">ألعب</Link> <Link to="/">قصتنا</Link>{" "}
+              {/* <Link to="/">تواصل معنا</Link> */}
+            </div>
             {/* Conditionally render "My Games" link if logged in */}
             {user && (
-              <Link
-                to="/my-games"
-                className="relative block text-navy-700 py-2 px-4 rounded-lg transition-all duration-300 ease-in-out hover:text-navy-900 hover:bg-pink-100 border border-transparent hover:border-pink-700 ripple-effect"
-              >
-                لوحة التحكم
-              </Link>
+              <>
+                <Link
+                  to="/my-games"
+                  className="group relative flex items-center justify-between border text-black px-24 py-6 rounded-full"
+                >
+                  <p className="absolute left-12"> عدد الألعاب المتبقية:</p>
+                  <p className="absolute left-3 text-[25px] text-[#D140C8] rounded-full font-bold p-1">
+                    {"2"}
+                  </p>
+                </Link>
+              </>
             )}
 
             {/* Conditionally render Login link */}
             {!user && (
               <Link
                 to="/login"
-                className="relative block text-navy-700 py-2 px-4 rounded-lg transition-all duration-300 ease-in-out hover:text-navy-900 hover:bg-pink-100 border border-transparent hover:border-pink-700 ripple-effect"
+                className="group relative flex items-center justify-between bg-yellow-400 text-black px-28 py-6 rounded-full focus:ring-4 ring-yellow-300"
               >
-                تسجيل الدخول
+                <p className="absolute left-20"> تسجيل الدخول</p>
+                <p className="absolute left-1 bg-black rounded-full text-white p-1">
+                  {lockicon}
+                </p>
               </Link>
             )}
+            {/* <Link
+              to={"/#pkgs"}
+              className="relative block text-navy-700 py-2 px-4 rounded-lg transition-all duration-300 ease-in-out hover:text-navy-900 hover:bg-pink-100 border border-transparent hover:border-pink-700 ripple-effect"
+            >
+              تصفح الباقات
+            </Link> */}
 
             {/* Display User Info if logged in */}
             {user && (
@@ -146,12 +199,12 @@ const Navbar = () => {
         } overflow-hidden`}
       >
         <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
-          <Link
+          {/* <Link
             to={"/#pkgs"}
             className="relative block text-navy-700 py-2 px-4 rounded-lg transition-all duration-300 ease-in-out hover:text-navy-900 hover:bg-pink-100 border border-transparent hover:border-pink-700 ripple-effect"
           >
             تصفح الباقات
-          </Link>
+          </Link> */}
 
           {/* Conditionally render "My Games" link if logged in */}
           {user && (
