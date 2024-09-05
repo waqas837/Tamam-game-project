@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import { toast, Toaster } from "react-hot-toast";
-import { Check } from "lucide-react";
 import { useSpring, animated } from "react-spring";
 import axios from "axios";
 import { apiUrl } from "../Api";
@@ -31,9 +30,7 @@ const CategoryCard = ({ category, isSelected, onClick }) => {
   return (
     <animated.div
       style={springProps}
-      className={`relative overflow-hidden rounded-lg cursor-pointer ${
-        isSelected ? "ring ring-yellow-400 shadow-lg" : "bg-white"
-      }`}
+      className={`relative overflow-hidden rounded-lg cursor-pointer `}
       onClick={onClick}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
@@ -42,11 +39,13 @@ const CategoryCard = ({ category, isSelected, onClick }) => {
         style={imageSpringProps}
         src={getImageSrc(category.image)}
         alt={category.name}
-        className="w-full object-cover"
+        className={`*:w-full object-cover ${
+          isSelected ? "border-2 border-yellow-500 rounded-3xl" : ""
+        }`}
       />
       <animated.div
         style={descriptionSpringProps}
-        className="absolute inset-0 bg-black bg-opacity-10 flex items-center justify-center p-4"
+        className="absolute inset-0 flex items-center justify-center p-4"
       >
         <p className="text-white text-sm text-center">{category.description}</p>
       </animated.div>
@@ -163,7 +162,7 @@ const CategorySelection = ({ setcategoriesIds }) => {
         <animated.div style={titleProps}>
           <h1 className="text-[78px] font-bold mb-4">الفئات الدائمه</h1>
         </animated.div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8 place-items-center">
           {categories.map((category) => (
             <CategoryCard
               key={category._id}

@@ -15,6 +15,8 @@ const Packages = () => {
   const navigate = useNavigate();
   let loggedInUser = localStorage.getItem("user");
   let currentUsePkg = localStorage.getItem("boughtpkg");
+  const [responseData, setResponseData] = useState(null);
+  const [error, setError] = useState(null);
   console.log("currentUsePkg", currentUsePkg);
   const [ref, inView] = useInView({
     triggerOnce: true,
@@ -97,7 +99,51 @@ const Packages = () => {
       })
       .catch((err) => console.log(`err is here: ${err}`));
   };
+  const tryCharge = async (id, price) => {
+    toast.loading("Processing");
+    const options = {
+      method: "POST",
+      url: "https://sandboxapi.upayments.com/api/v1/charge",
+      headers: {
+        accept: "application/json",
+        "content-type": "application/json",
+        Authorization: "Bearer jtest123",
+      },
+      data: {
+        order: {
+          id: "202210101202210123",
+          reference: "202210101",
+          description: "Test product",
+          currency: "KWD",
+          amount: 20,
+        },
+        language: "en",
+        paymentGateway: { src: "knet" },
+        reference: { id: "ord_000000101121012121211231212" },
+        customer: {
+          uniqueId: "2129879kjbljg76788",
+          name: "test",
+          email: "test@test.com",
+          mobile: "+9651234567",
+        },
+        returnUrl: "http://localhost:5173/payment",
+        cancelUrl: "https://www.yourwebsite.com/cancel",
+        notificationUrl: "https://www.yourwebsite.com/notification",
+      },
+    };
 
+    axios
+      .request(options)
+      .then(function (response) {
+        toast.dismiss();
+        let link = response.data.data.link;
+        console.log(response.data);
+        window.location.href = link;
+      })
+      .catch(function (error) {
+        console.error(error);
+      });
+  };
   return (
     <div className="bg-[url('/cardsbg.png')] bg-no-repeat bg-cover text-white m-auto text-center p-32">
       <Toaster />
@@ -123,7 +169,7 @@ const Packages = () => {
         <h2 className="text-[18px]  my-5">
           لكل مستخدم لعبة واحدة مجانية يمكنك من خلالها تجربة الفئات الموجودة
         </h2>
-        <div id="pkgs" className="relative flex flex-wrap -mx-28">
+        <div id="pkgs" className="relative flex flex-wrap -mx-2">
           {loading ? (
             <div className="w-full flex justify-center items-center">
               <Loader />
@@ -137,66 +183,20 @@ const Packages = () => {
                       key={_id || index}
                       style={animationProps}
                       ref={ref}
-                      className="w-full sm:w-1/2 md:w-1/3 lg:w-1/4 "
+                      className="w-full sm:w-1/2 md:w-1/3 lg:w-1/4 p-2"
                     >
                       <div
                         style={{ backgroundImage: `url(${img})` }}
-                        className="bg-no-repeat text-white m-auto text-center  h-screen z-10"
+                        className="bg-no-repeat bg-contain bg-top text-white m-auto text-center h-48 sm:h-56 md:h-64 lg:h-72 rounded-lg relative flex flex-col justify-end"
                       >
-                        {/* {discount && (
-                          <div className="absolute top-2 right-2 bg-red-500 text-white px-2 py-1 text-xs rounded">
-                            {discount}% خصم
-                          </div>
-                        )}
-                        <div className="p-3">
-                          <h2 className="text-2xl font-bold text-gray-800">
-                            {number}
-                          </h2>
-                          <p className="text-gray-600 text-base">{text}</p>
-                          <p className="text-xs text-gray-600 mb-2">
-                            باقة تتيح لك إنشاء {number} {text}
-                          </p>
-                          <p className="text-lg font-bold text-gray-800 mb-2">
-                            {price} دك
-                          </p>
-                          {loggedInUser ? (
-                            <StripeCheckout
-                              stripeKey="pk_test_51IsiGeERaO9lvsvDPuC3K4mxPf0HwBIZXt5bE3f0XArZE6yFTs9ETnr5bOFfhp2hNNM5CImOCzXaIybketwxF6wZ00uzqnWqUP"
-                              // name:pass it dynamically
-                              token={makePayment}
-                              amount={price}
-                              currency="USD"
-                              shippingAddress
-                              billingAddress
-                            >
-                              <button
-                                onClick={() => buyPackage(_id, price, name)}
-                                className={`w-full py-1 px-2 rounded-md transition-colors text-sm 
-                                  ${
-                                    currentUsePkg.includes(name)
-                                      ? "bg-gray-400 text-white cursor-not-allowed"
-                                      : "bg-orange-400 text-white hover:bg-orange-500"
-                                  }`}
-                                disabled={currentUsePkg.includes(name)}
-                              >
-                                {currentUsePkg.includes(name)
-                                  ? "Purchased"
-                                  : "Buy"}
-                              </button>
-                            </StripeCheckout>
-                          ) : (
-                            <button
-                              onClick={() => navigate("/login")}
-                              className="w-full bg-orange-400 text-white py-1 px-2 rounded-md hover:bg-orange-500 transition-colors text-sm"
-                            >
-                              Buy
-                            </button>
-                          )}
-                        </div> */}
+                        {/* Optional: Discount or other content */}
+                        <button
+                          onClick={() => tryCharge(_id, price)}
+                          className="bg-yellow-500 p-2 md:p-3 text-xs md:text-base rounded-full focus:ring-2 ring-yellow-200 -mb-4 mx-auto"
+                        >
+                          شراء
+                        </button>
                       </div>
-                      <button className="absolute top-[410px] left-20 bg-yellow-500 p-6 rounded-full text-[25px] focus:ring-2 ring-yellow-200">
-                        شراء
-                      </button>
                     </animated.div>
                   );
                 }

@@ -5,7 +5,6 @@ import {
   Route,
   useLocation,
 } from "react-router-dom";
-import Test from "./components/Test";;
 import Home from "./components/Home";
 import NavbarSimple from "./components/Navbar";
 import StartGame from "./components/StartGame";
@@ -28,11 +27,10 @@ const App = () => {
   const isAdminRoute = location.pathname.startsWith("/admin");
   return (
     <div>
-      <PwaAlert/>
+      <PwaAlert />
       {!isAdminRoute && <NavbarSimple />}
       <Routes>
         <Route path="/" element={<Home />} />
-        <Route path="/test" element={<Test />} />
         <Route path="/start-game" element={<StartGame />} />
         <Route path="/my-games" element={<MyGames />} />
         <Route path="/started-game" element={<GameStarted />} />
