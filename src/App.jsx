@@ -5,9 +5,7 @@ import {
   Route,
   useLocation,
 } from "react-router-dom";
-import Test from "./components/Test";
-import Login from "./components/Login";
-import Signup from "./components/Signup";
+import Test from "./components/Test";;
 import Home from "./components/Home";
 import NavbarSimple from "./components/Navbar";
 import StartGame from "./components/StartGame";
@@ -39,8 +37,8 @@ const App = () => {
         <Route path="/my-games" element={<MyGames />} />
         <Route path="/started-game" element={<GameStarted />} />
         <Route path="/results" element={<Result />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/signup" element={<Signup />} />
+        {/* <Route path="/login" element={<Login />} />
+        <Route path="/signup" element={<Signup />} /> */}
         {/* Admin Routes */}
         <Route path="/admin" element={<AdminLayout />}>
           <Route path="login" element={<AdminLogin />} />

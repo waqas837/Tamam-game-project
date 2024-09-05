@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from "react";
-import { X, Lock, Shield, Eye, EyeOff, ArrowUpLeft } from "lucide-react";
+import { X, Eye, EyeOff, ArrowUpLeft } from "lucide-react";
+import { useNavigate } from "react-router-dom"; // Assuming you use React Router
+import { apiUrl } from "../Api";
 
 const LoginModal = ({
   isOpen,
@@ -10,6 +12,10 @@ const LoginModal = ({
 }) => {
   const [isAnimating, setIsAnimating] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const navigate = useNavigate(); // For navigation after successful login
 
   useEffect(() => {
     if (isOpen) {
@@ -23,8 +29,6 @@ const LoginModal = ({
   const togglePasswordVisibility = () => {
     setShowPassword(!showPassword);
   };
-
-  if (!isOpen && !isAnimating) return null;
   let msgIcon = (
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -70,6 +74,44 @@ const LoginModal = ({
       />
     </svg>
   );
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError("");
+
+    if (!email || !password) {
+      setError("يرجى إدخال البريد الإلكتروني وكلمة المرور.");
+      return;
+    }
+
+    try {
+      const response = await fetch(`${apiUrl}/user/signin`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email, password }),
+      });
+
+      const data = await response.json();
+      if (response.ok && data.success) {
+        localStorage.setItem("user", JSON.stringify(data.user));
+        localStorage.setItem("token", data.token);
+        localStorage.setItem("boughtpkg", data.user.currentPackage);
+        navigate("/start-game");
+        onClose(); // Close modal on successful login
+      } else {
+        setError(
+          data.message ||
+            "فشل تسجيل الدخول. يرجى التحقق من بيانات الاعتماد الخاصة بك."
+        );
+      }
+    } catch (error) {
+      console.error("Login failed:", error);
+      setError("فشل تسجيل الدخول. يرجى المحاولة مرة أخرى لاحقًا.");
+    }
+  };
+
+  if (!isOpen && !isAnimating) return null;
 
   return (
     <div
@@ -102,20 +144,23 @@ const LoginModal = ({
         </div>
 
         {/* Login Form */}
-        <div className="space-y-5">
-          {/* Email Input with Right-Side Icon */}
+        <form onSubmit={handleSubmit} className="space-y-5">
+          {/* Email Input */}
           <div className="relative">
             <input
               type="email"
-              placeholder="Email"
-              className="w-full px-4 py-2 pr-10 border rounded-full focus:outline-none focus:ring-2 focus:ring-yel-500"
+              placeholder="البريد الإلكتروني"
+              className="w-full px-4 py-2 pr-10 border rounded-full focus:outline-none focus:ring-2 ring-yellow-400 focus:ring-yel-500"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
             />
             <span className="absolute inset-y-0 right-0 flex items-center pr-3">
               {msgIcon}
             </span>
           </div>
 
-          {/* Password Input with Icons on Both Sides */}
+          {/* Password Input */}
           <div className="relative">
             <span
               className="absolute inset-y-0 left-0 flex items-center pl-3 cursor-pointer"
@@ -129,30 +174,39 @@ const LoginModal = ({
             </span>
             <input
               type={showPassword ? "text" : "password"}
-              placeholder="Password"
+              placeholder="كلمة المرور"
               className="w-full px-4 py-2 pl-10 pr-10 border rounded-full focus:outline-none focus:ring-2 focus:ring-yellow-500"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
             />
             <span className="absolute inset-y-0 right-0 flex items-center pr-3">
               {Shield}
             </span>
           </div>
-          <br />
-          <p className="text-black text-xs text-left ">نسيت كلمة المرور ؟</p>
-          <br />
-          <button className="m-auto group relative flex items-center justify-between bg-yellow-400 text-black px-10 py-3 rounded-full focus:ring-4 ring-yellow-300">
-            <p className="text-sm ml-2">تسجيل الدخول</p>
+
+          {/* Error Message */}
+          {error && (
+            <div className="text-red-500 text-center mb-4">{error}</div>
+          )}
+
+          <button
+            type="submit"
+            className="m-auto group relative flex items-center justify-between bg-yellow-400 text-black px-10 py-3 rounded-full focus:ring-4 ring-yellow-300"
+          >
+            <p className="text-sm ml-2">تسجيل</p>
             <p className="group-hover:bg-blue-500 absolute left-1 bg-black rounded-full text-white p-3">
               <ArrowUpLeft size={12} />
             </p>
           </button>
-          <div>
-            <button
-              onClick={() => openSignupHandler(true)}
-              className="mt-4 text-sm text-center m-auto underline text-black"
-            >
-              ليس لدي حساب{" "}
-            </button>
-          </div>
+        </form>
+        <div className="text-center mt-4">
+          <button
+            onClick={() => openSignupHandler(true)}
+            className="text-sm underline text-black"
+          >
+            ليس لدي حساب
+          </button>
         </div>
       </div>
     </div>

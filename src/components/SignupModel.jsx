@@ -1,16 +1,39 @@
+// update code
 import React, { useState, useEffect } from "react";
-import { X, ArrowUpLeft, EyeOff, Eye } from "lucide-react";
 import PhoneInput from "react-phone-input-2";
 import "react-phone-input-2/lib/style.css";
-const LoginModal = ({ isOpen, onClose, direction = "rtl", title }) => {
+import { useForm } from "react-hook-form";
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
+import { X, Eye, EyeOff, ArrowUpLeft } from "lucide-react";
+import { apiUrl } from "../Api";
+
+const SignupModal = ({
+  isOpen,
+  onClose,
+  direction = "rtl",
+  title,
+  closeHandler,
+}) => {
+  const {
+    register,
+    handleSubmit,
+    setValue,
+    watch,
+    formState: { errors },
+  } = useForm();
   const [isAnimating, setIsAnimating] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (isOpen) {
       setIsAnimating(true);
     } else {
-      const timer = setTimeout(() => setIsAnimating(false), 300); // Match this with your transition duration
+      const timer = setTimeout(() => setIsAnimating(false), 300);
       return () => clearTimeout(timer);
     }
   }, [isOpen]);
@@ -19,27 +42,14 @@ const LoginModal = ({ isOpen, onClose, direction = "rtl", title }) => {
     setShowPassword(!showPassword);
   };
 
-  if (!isOpen && !isAnimating) return null;
-  let msgIcon = (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      width="22"
-      height="16.5"
-      viewBox="0 0 22 16.5"
-    >
-      <g id="envelope" transform="translate(0 -24)">
-        <g id="Group_9176" data-name="Group 9176" transform="translate(0 24)">
-          <path
-            id="Path_1773"
-            data-name="Path 1773"
-            d="M0,26.75A2.75,2.75,0,0,1,2.75,24h16.5A2.75,2.75,0,0,1,22,26.75v11a2.75,2.75,0,0,1-2.75,2.75H2.75A2.75,2.75,0,0,1,0,37.75Zm2.75-1.375A1.375,1.375,0,0,0,1.375,26.75v.3L11,32.823l9.625-5.775v-.3a1.375,1.375,0,0,0-1.375-1.375Zm17.875,3.277-6.474,3.884,6.474,3.983Zm-.047,9.455-7.755-4.773L11,34.427,9.177,33.333,1.422,38.1a1.375,1.375,0,0,0,1.328,1.02h16.5a1.375,1.375,0,0,0,1.328-1.019Zm-19.2-1.587,6.474-3.983L1.375,28.652Z"
-            transform="translate(0 -24)"
-            fill="#d140c8"
-          />
-        </g>
-      </g>
-    </svg>
-  );
+  const toggleConfirmPasswordVisibility = () => {
+    setShowConfirmPassword(!showConfirmPassword);
+  };
+
+  const validatePhoneNumber = (phone) => {
+    const regex = /^[+]?[0-9]{10,15}$/;
+    return regex.test(phone);
+  };
   let Shield = (
     <svg
       id="Group_9179"
@@ -65,6 +75,31 @@ const LoginModal = ({ isOpen, onClose, direction = "rtl", title }) => {
       />
     </svg>
   );
+  const onSubmit = async (data) => {
+    if (!validatePhoneNumber(data.phone)) {
+      setErrorMessage("رقم الهاتف غير صحيح");
+      return;
+    }
+    setLoading(true);
+    setErrorMessage("");
+    try {
+      const response = await axios.post(`${apiUrl}/user/signup`, data);
+      localStorage.setItem("user", JSON.stringify(response.data.user));
+      localStorage.setItem("token", response.data.token);
+      localStorage.setItem("boughtpkg", response.data.user.currentPackage);
+      console.log("response.data.success", response.data.success)
+      if (response.data.success) {
+        closeHandler()
+        navigate("/start-game");
+      }
+    } catch (error) {
+      setErrorMessage(error.response?.data?.message || "فشل التسجيل");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (!isOpen && !isAnimating) return null;
 
   return (
     <div
@@ -96,39 +131,47 @@ const LoginModal = ({ isOpen, onClose, direction = "rtl", title }) => {
           </button>
         </div>
 
-        {/* Login Form */}
-        <div className="space-y-5">
-          {/* Email Input with Right-Side Icon */}
-
+        {/* Signup Form */}
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
           <div className="flex gap-x-3">
             <input
               type="text"
               placeholder="الاسم الأول"
-              className="w-1/2 px-4 py-2 pr-10 border rounded-full focus:outline-none focus:ring-2 focus:ring-yel-500"
+              {...register("firstName", { required: "الاسم الأول مطلوب" })}
+              className="w-1/2 px-4 py-2 pr-10 border rounded-full focus:outline-none focus:ring-2 focus:ring-yellow-500"
             />
+            {errors.firstName && (
+              <span className="text-red-500 text-sm">
+                {errors.firstName.message}
+              </span>
+            )}
 
             <input
               type="text"
               placeholder="اسم العائلة"
-              className="w-1/2 px-4 py-2 pr-10 border rounded-full focus:outline-none focus:ring-2 focus:ring-yel-500"
+              {...register("lastName", { required: "اسم العائلة مطلوب" })}
+              className="w-1/2 px-4 py-2 pr-10 border rounded-full focus:outline-none focus:ring-2 focus:ring-yellow-500"
             />
+            {errors.lastName && (
+              <span className="text-red-500 text-sm">
+                {errors.lastName.message}
+              </span>
+            )}
           </div>
 
           <input
-            type={"email"}
-            placeholder="البريد الالكتروني"
+            type="email"
+            placeholder="البريد الإلكتروني"
+            {...register("email", { required: "البريد الإلكتروني مطلوب" })}
             className="w-full px-4 py-2 pl-10 pr-10 border rounded-full focus:outline-none focus:ring-2 focus:ring-yellow-500"
           />
-          <br />
-          <input
-            type="date"
-            placeholder="البريد الالكتروني"
-            dir="rtl"
-            className="text-black w-full px-4 py-2 pl-10 pr-10 border rounded-full focus:outline-none focus:ring-2 focus:ring-yellow-500"
-          />
+          {errors.email && (
+            <span className="text-red-500 text-sm">{errors.email.message}</span>
+          )}
+
           <PhoneInput
             country={"us"}
-            buttonClass="bg-gray-200"
+            value={watch("phone")}
             inputStyle={{
               width: "100%",
               textAlign: "center",
@@ -136,65 +179,95 @@ const LoginModal = ({ isOpen, onClose, direction = "rtl", title }) => {
               color: "black",
               padding: 20,
             }}
+            onChange={(phone) => setValue("phone", phone)}
+            inputClass="w-full p-3 border border-gray-300 rounded-lg"
+            containerClass="w-full"
           />
-          <br />
-          {/* Password Input with Icons on Both Sides */}
-          <div className="relative">
-            <span
-              className="absolute inset-y-0 left-0 flex items-center pl-3 cursor-pointer"
+          {errors.phone && (
+            <span className="text-red-500 text-sm">رقم الهاتف مطلوب</span>
+          )}
+
+          {/* Password Input */}
+          <div className="relative mb-4">
+            <input
+              type={showPassword ? "text" : "password"}
+              placeholder="كلمة المرور"
+              {...register("password", { required: "كلمة المرور مطلوبة" })}
+              className="w-full px-4 py-2 pl-10 pr-10 border rounded-full focus:outline-none focus:ring-2 focus:ring-yellow-500"
+            />
+            <span className="absolute inset-y-0 right-0 flex items-center pr-3">
+              {Shield}
+            </span>
+            <button
+              type="button"
               onClick={togglePasswordVisibility}
+              className="absolute inset-y-0 left-0 flex items-center pl-3"
             >
               {showPassword ? (
                 <EyeOff className="w-5 h-5 text-gray-400" />
               ) : (
                 <Eye className="w-5 h-5 text-gray-400" />
               )}
-            </span>
+            </button>
+          </div>
+
+          {/* Confirm Password Input */}
+          <div className="relative">
             <input
               type={showPassword ? "text" : "password"}
-              placeholder="Password"
+              placeholder="تأكيد كلمة المرور"
+              {...register("confirmPassword", {
+                required: "تأكيد كلمة المرور مطلوب",
+                validate: (value) =>
+                  value === watch("password") || "كلمتا المرور غير متطابقتين",
+              })}
               className="w-full px-4 py-2 pl-10 pr-10 border rounded-full focus:outline-none focus:ring-2 focus:ring-yellow-500"
             />
             <span className="absolute inset-y-0 right-0 flex items-center pr-3">
               {Shield}
             </span>
-          </div>
-
-          {/* Password Input with Icons on Both Sides */}
-          <div className="relative">
-            <span
-              className="absolute inset-y-0 left-0 flex items-center pl-3 cursor-pointer"
+            <button
+              type="button"
               onClick={togglePasswordVisibility}
+              className="absolute inset-y-0 left-0 flex items-center pl-3"
             >
               {showPassword ? (
                 <EyeOff className="w-5 h-5 text-gray-400" />
               ) : (
                 <Eye className="w-5 h-5 text-gray-400" />
               )}
-            </span>
-            <input
-              type={showPassword ? "text" : "password"}
-              placeholder="Password"
-              className="w-full px-4 py-2 pl-10 pr-10 border rounded-full focus:outline-none focus:ring-2 focus:ring-yellow-500"
-            />
-            <span className="absolute inset-y-0 right-0 flex items-center pr-3">
-              {Shield}
-            </span>
+            </button>
           </div>
 
-          <p className="text-black text-xs text-left ">نسيت كلمة المرور ؟</p>
-          <br />
-          <button className="m-auto group relative flex items-center justify-between bg-yellow-400 text-black px-10 py-3 rounded-full   focus:ring-4 ring-yellow-300">
-            <p className="text-sm ml-2">تسجيل </p>
+          {errors.confirmPassword && (
+            <p className="text-red-500 text-sm mt-1">
+              {errors.confirmPassword.message}
+            </p>
+          )}
+
+          {errors.password && (
+            <span className="text-red-500 text-sm">
+              {errors.password.message}
+            </span>
+          )}
+
+          {/* Error and Submit Button */}
+          {errorMessage && (
+            <div className="text-red-500 mb-4 text-center">{errorMessage}</div>
+          )}
+          <button
+            type="submit"
+            className="m-auto group relative flex items-center justify-between bg-yellow-400 text-black px-10 py-3 rounded-full focus:ring-4 ring-yellow-300"
+          >
+            <p className="text-sm ml-2">تسجيل</p>
             <p className="group-hover:bg-blue-500 absolute left-1 bg-black rounded-full text-white p-3">
               <ArrowUpLeft size={12} />
             </p>
           </button>
-          <p className="mt-4 text-sm text-center underline text-black"></p>
-        </div>
+        </form>
       </div>
     </div>
   );
 };
 
-export default LoginModal;
+export default SignupModal;

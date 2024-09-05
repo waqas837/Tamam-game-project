@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import "./Navbar.css"; // Import the custom CSS for the ripple effect
+import toast, { Toaster } from "react-hot-toast";
 import LoginModal from "./LoginModal";
 import SignupModel from "./SignupModel";
 const Navbar = () => {
@@ -18,7 +19,7 @@ const Navbar = () => {
       // close login modal
       setIsModalOpen(false);
       // open the signup model
-      setIsModalOpenSIGNUP(true)
+      setIsModalOpenSIGNUP(true);
     }
   };
   let lockicon = (
@@ -103,11 +104,11 @@ const Navbar = () => {
     localStorage.removeItem("pckgName");
     localStorage.removeItem("price");
     setUser(null);
-    navigate("/login");
   };
 
   return (
     <nav className=" text-pink-500">
+      <Toaster />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16 items-center">
           {/* Logo Section */}
@@ -131,6 +132,7 @@ const Navbar = () => {
             direction={direction}
             title="حساب جديد"
             openSignupHandler={openSignupHandler}
+            closeHandler={() => setIsModalOpenSIGNUP(false)}
           />
           {/* Links Section */}
           <div className="hidden md:flex space-x-6 rtl:space-x-reverse">

@@ -5,6 +5,7 @@ import Modal from "react-modal";
 import { X } from "lucide-react";
 import { apiUrl } from "../Api";
 import Loader from "./Loader";
+import toast, { Toaster } from "react-hot-toast";
 
 Modal.setAppElement("#root"); // Use the ID of your root element
 
@@ -81,11 +82,12 @@ const GameCategoriesPage = () => {
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(false);
   const [modalIsOpen, setModalIsOpen] = useState(false);
+  const [moneySpent, setmoneySpent] = useState([]);
 
   useEffect(() => {
     let loggedInUser = localStorage.getItem("user");
     if (!loggedInUser) {
-      navigate("/login");
+      toast("Please Login");
     }
     getQuestions();
   }, [navigate]);
@@ -102,9 +104,10 @@ const GameCategoriesPage = () => {
         `${apiUrl}/user/getAllQuestionsForUser`,
         dataToSend
       );
-      console.log("data", data)
+      console.log("data", data);
       if (data.success) {
         setCategories(data.YourGames);
+        setmoneySpent(data.moneySpent);
         setLoading(false);
       } else {
         setLoading(false);
@@ -178,14 +181,14 @@ const GameCategoriesPage = () => {
             <p className="text-lg text-gray-600">John Doe</p>
             <p className="text-lg text-gray-600">Email: john.doe@example.com</p>
           </div> */}
-
+          <Toaster />
           {/* Money Spent */}
           <div className="bg-white p-6 rounded-lg shadow-lg">
             <h2 className="text-2xl font-bold text-gray-500 mb-4">
               Money Spent
             </h2>
             <p className="text-3xl text-pink-500 font-semibold">
-              {categories.moneySpent} KD
+              {moneySpent} KD
             </p>
           </div>
 

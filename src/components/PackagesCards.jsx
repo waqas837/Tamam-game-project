@@ -7,6 +7,7 @@ import Loader from "./Loader";
 import { ShoppingBag } from "lucide-react";
 import StripeCheckout from "react-stripe-checkout";
 import { useNavigate } from "react-router-dom";
+import toast, { Toaster } from "react-hot-toast";
 
 const Packages = () => {
   const [packagesData, setPackagesData] = useState([]);
@@ -44,7 +45,7 @@ const Packages = () => {
 
   const buyPackage = async (pkgId, price, pckgName) => {
     let loggedInUser = localStorage.getItem("user");
-    if (!loggedInUser) navigate("/login");
+    if (!loggedInUser) toast("Please Login");
     localStorage.setItem("pkgId", pkgId);
     localStorage.setItem("pckgName", pckgName);
     localStorage.setItem("price", price);
@@ -99,6 +100,7 @@ const Packages = () => {
 
   return (
     <div className="bg-[url('/cardsbg.png')] bg-no-repeat bg-cover text-white m-auto text-center p-32">
+      <Toaster />
       <div className="max-w-6xl mx-auto">
         <h1 className="text-[36px] mb-5">باقات الألعاب</h1>
         <svg
