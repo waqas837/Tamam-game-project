@@ -115,7 +115,7 @@ const Packages = () => {
           reference: "202210101",
           description: "Test product",
           currency: "KWD",
-          amount: 20,
+          amount: price,
         },
         language: "en",
         paymentGateway: { src: "knet" },
