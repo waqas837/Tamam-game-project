@@ -2,9 +2,11 @@ import React, { useState } from "react";
 import Categories from "./Category";
 import CreateTeam from "./CreateTeam";
 import { ArrowLeft, ArrowUpLeft } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 const GameInstructions = () => {
   const [categoriesIds, setcategoriesIds] = useState([]);
+  const navigate = useNavigate();
   return (
     <>
       <div className="bg-[url('/bg.png')] bg-no-repeat bg-cover text-white m-auto text-center p-6">
@@ -19,13 +21,25 @@ const GameInstructions = () => {
           </h3>
           {/* buttons */}
           <div className="flex justify-center my-10 flex-wrap gap-8">
-            <button className="group relative flex items-center justify-between bg-yellow-400 text-black px-28 py-7 rounded-full bg-animate focus:ring-4 ring-yellow-300">
+            <button
+              onClick={() => navigate("/my-games")}
+              className="group relative flex items-center justify-between bg-yellow-400 text-black px-28 py-7 rounded-full bg-animate focus:ring-4 ring-yellow-300"
+            >
               <p className="absolute left-20">ألعابي</p>
               <p className="group-hover:bg-blue-500 absolute left-1 bg-black rounded-full text-white p-3">
                 <ArrowUpLeft />
               </p>
             </button>
-            <button className="relative flex items-center justify-between bg-white text-black px-28 py-7 rounded-full">
+            <button
+              onClick={() => {
+                navigate("/start-game"); // Navigate to the correct page first
+                const element = document.getElementById("createTeam");
+                if (element) {
+                  element.scrollIntoView({ behavior: "smooth" });
+                }
+              }}
+              className="relative flex items-center justify-between bg-white text-black px-28 py-7 rounded-full"
+            >
               <p className="absolute left-20">لعبة جديدة</p>
               <p className="absolute left-1 bg-blue-500 rounded-full text-white p-3">
                 <ArrowLeft />
@@ -37,7 +51,9 @@ const GameInstructions = () => {
       {/* Categories */}
       <Categories setcategoriesIds={setcategoriesIds} />
       {/* Create teams */}
-      <CreateTeam categoriesIds={categoriesIds} />
+      <div id="createTeam">
+        <CreateTeam categoriesIds={categoriesIds} />
+      </div>
     </>
   );
 };

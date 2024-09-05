@@ -18,10 +18,12 @@ const AddCategoryAndQuestions = () => {
       points: 200,
     })
   );
+
   useEffect(() => {
     let isAdmin = localStorage.getItem("admin");
     if (!isAdmin) navigate("/admin/login");
   }, []);
+
   useEffect(() => {
     questions.forEach((_, index) => {
       if (questions[index].file) {
@@ -85,6 +87,14 @@ const AddCategoryAndQuestions = () => {
       console.error("Error in handleSubmit", error);
       toast.error("حدث خطأ أثناء إرسال النموذج."); // Error toast notification
     }
+  };
+
+  // Function to add a new question field
+  const addQuestionField = () => {
+    setQuestions([
+      ...questions,
+      { question: "", answer: "", file: null, points: 200 },
+    ]);
   };
 
   return (
@@ -192,9 +202,20 @@ const AddCategoryAndQuestions = () => {
           </div>
         ))}
 
+        {/* Add Question Button */}
+        <div className="text-center mt-4">
+          <button
+            type="button"
+            onClick={addQuestionField}
+            className="inline-flex items-center justify-center px-4 py-2 border border-transparent rounded-md shadow-sm text-white bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 transition duration-300"
+          >
+            + أضف سؤال
+          </button>
+        </div>
+
         <button
           type="submit"
-          className="w-full py-3 bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 rounded-lg font-semibold text-white shadow-md hover:shadow-lg transition duration-300"
+          className="w-full py-3 mt-6 bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 rounded-lg font-semibold text-white shadow-md hover:shadow-lg transition duration-300"
         >
           {loading ? "جارٍ التحميل..." : "إرسال الفئة والأسئلة"}
         </button>

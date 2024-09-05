@@ -104,6 +104,7 @@ const Navbar = () => {
     localStorage.removeItem("pckgName");
     localStorage.removeItem("price");
     setUser(null);
+    navigate("/");
   };
 
   return (
@@ -240,19 +241,19 @@ const Navbar = () => {
 
           {/* Conditionally render "My Games" link if logged in */}
           {user && (
-            <Link
-              to="/my-games"
+            <button
+              onClick={() => navigate("/my-games")}
               className="relative block text-navy-700 py-2 px-4 rounded-lg transition-all duration-300 ease-in-out hover:text-navy-900 hover:bg-pink-100 border border-transparent hover:border-pink-700 ripple-effect"
             >
               لوحة التحكم
-            </Link>
+            </button>
           )}
 
           {/* Conditionally render Login link */}
           {!user && (
             <button
-              // onClick={() => setOpen(true)}
-              className="relative block text-navy-700 py-2 px-4 rounded-lg transition-all duration-300 ease-in-out hover:text-navy-900 hover:bg-pink-100 border border-transparent hover:border-pink-700 ripple-effect"
+              onClick={() => setIsModalOpen(true)}
+              className="relative block text-navy-700 py-2 px-4 rounded-lg transition-all duration-300 ease-in-out hover:text-navy-900 hover:bg-pink-100 border border-transparent ripple-effect"
             >
               تسجيل الدخول
             </button>
@@ -260,11 +261,11 @@ const Navbar = () => {
 
           {/* Display User Info in Mobile Menu */}
           {user && (
-            <div className="pt-2">
+            <div className="pt-2 w-full">
               <span className="block text-navy-700">{user.username}</span>
               <button
                 onClick={handleLogout}
-                className="block mt-2 text-pink-600 hover:text-pink-800"
+                className="relative block text-navy-700 py-2 px-4 rounded-lg transition-all duration-300 ease-in-out hover:text-navy-900 hover:bg-pink-100 border border-transparent hover:border-pink-700 ripple-effect"
               >
                 تسجيل الخروج
               </button>
