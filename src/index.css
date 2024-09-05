@@ -11,3 +11,6 @@
   font-style: normal;
   font-variation-settings: "slnt" 0;
 }
+.custom-phone-input {
+  width: 1000px; /* Set your desired width */
+}

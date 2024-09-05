@@ -26,7 +26,7 @@ const CardHeader = ({ children, className }) => (
 );
 
 const CardTitle = ({ children, className }) => (
-  <h2 className={`text-2xl font-bold text-gray-800 ${className}`}>
+  <h2 className={`text-2xl font-bold text-gray-500 ${className}`}>
     {children}
   </h2>
 );
@@ -102,6 +102,7 @@ const GameCategoriesPage = () => {
         `${apiUrl}/user/getAllQuestionsForUser`,
         dataToSend
       );
+      console.log("data", data)
       if (data.success) {
         setCategories(data.YourGames);
         setLoading(false);
@@ -166,30 +167,31 @@ const GameCategoriesPage = () => {
 
   return (
     <>
-      <div className="bg-gradient-to-br from-pink-200 via-pink-300 to-pink-400 p-8">
-        <h1 className="text-5xl font-bold underline text-gray-800 text-center mb-12 shadow-text">
+      <div className="p-8 my-20">
+        <h1 className="text-5xl text-gray-500 text-center mb-12 shadow-text">
           User Dashboard
         </h1>
-
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {/* User Info
           <div className="bg-white p-6 rounded-lg shadow-lg">
-            <h2 className="text-2xl font-bold text-gray-800 mb-4">User</h2>
+            <h2 className="text-2xl font-bold text-gray-500 mb-4">User</h2>
             <p className="text-lg text-gray-600">John Doe</p>
             <p className="text-lg text-gray-600">Email: john.doe@example.com</p>
           </div> */}
 
           {/* Money Spent */}
           <div className="bg-white p-6 rounded-lg shadow-lg">
-            <h2 className="text-2xl font-bold text-gray-800 mb-4">
+            <h2 className="text-2xl font-bold text-gray-500 mb-4">
               Money Spent
             </h2>
-            <p className="text-3xl text-pink-500 font-semibold">$1200</p>
+            <p className="text-3xl text-pink-500 font-semibold">
+              {categories.moneySpent} KD
+            </p>
           </div>
 
           {/* Number of Games */}
           <div className="bg-white p-6 rounded-lg shadow-lg">
-            <h2 className="text-2xl font-bold text-gray-800 mb-4">
+            <h2 className="text-2xl font-bold text-gray-500 mb-4">
               Number of Games
             </h2>
             <p className="text-3xl text-pink-500 font-semibold">
@@ -199,7 +201,7 @@ const GameCategoriesPage = () => {
 
           {/* Online/Offline Status */}
           <div className="bg-white p-6 rounded-lg shadow-lg">
-            <h2 className="text-2xl font-bold text-gray-800 mb-4">My Status</h2>
+            <h2 className="text-2xl font-bold text-gray-500 mb-4">My Status</h2>
             <div className="flex items-center">
               <p>Online</p> <p></p>
               <p className={`h-4 w-4 rounded-full mr-2 bg-green-500`}></p>
@@ -208,8 +210,8 @@ const GameCategoriesPage = () => {
         </div>
       </div>
 
-      <div className="min-h-screen bg-gradient-to-br from-pink-200 via-pink-300 to-pink-400 p-8">
-        <h1 className="text-4xl font-bold text-gray-800 text-center mb-12 shadow-text">
+      <div className="min-h-screen p-8">
+        <h1 className="text-4xl font-bold text-gray-500 text-center mb-12 shadow-text">
           ألعابي
         </h1>
         {!loading && categories.length === 0 && (
@@ -234,7 +236,7 @@ const GameCategoriesPage = () => {
             >
               <X size={24} />
             </button>
-            <h2 className="text-2xl font-bold text-gray-800 mb-6 pr-8">
+            <h2 className="text-2xl font-bold text-gray-500 mb-6 pr-8">
               ماذا تريد أن تفعل مع {currentGameName}؟
             </h2>
             <div className="flex flex-col space-y-4">

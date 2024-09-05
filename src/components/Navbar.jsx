@@ -1,12 +1,26 @@
 import React, { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import "./Navbar.css"; // Import the custom CSS for the ripple effect
-
+import LoginModal from "./LoginModal";
+import SignupModel from "./SignupModel";
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [user, setUser] = useState(null);
+  const [direction, setDirection] = useState("rtl");
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isModalOpenSIGNUP, setIsModalOpenSIGNUP] = useState(false);
+  const [openSignup, setopenSignup] = useState(false);
+
   const location = useLocation();
   const navigate = useNavigate();
+  const openSignupHandler = (boolen) => {
+    if (boolen) {
+      // close login modal
+      setIsModalOpen(false);
+      // open the signup model
+      setIsModalOpenSIGNUP(true)
+    }
+  };
   let lockicon = (
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -102,7 +116,22 @@ const Navbar = () => {
               <img src="logo.png" width={100} height={100} alt="logo.png" />
             </Link>
           </div>
+          {/* Login and Signup Modals */}
+          <LoginModal
+            isOpen={isModalOpen}
+            onClose={() => setIsModalOpen(false)}
+            direction={direction}
+            title="تسجيل الدخول"
+            openSignupHandler={openSignupHandler}
+          />
 
+          <SignupModel
+            isOpen={isModalOpenSIGNUP}
+            onClose={() => setIsModalOpenSIGNUP(false)}
+            direction={direction}
+            title="حساب جديد"
+            openSignupHandler={openSignupHandler}
+          />
           {/* Links Section */}
           <div className="hidden md:flex space-x-6 rtl:space-x-reverse">
             <div className="flex justify-between items-center gap-5">
@@ -123,18 +152,19 @@ const Navbar = () => {
                 </Link>
               </>
             )}
+            {/* Modal */}
 
             {/* Conditionally render Login link */}
             {!user && (
-              <Link
-                to="/login"
+              <button
+                onClick={() => setIsModalOpen(true)}
                 className="group relative flex items-center justify-between bg-yellow-400 text-black px-28 py-6 rounded-full focus:ring-4 ring-yellow-300"
               >
                 <p className="absolute left-20"> تسجيل الدخول</p>
                 <p className="absolute left-1 bg-black rounded-full text-white p-1">
                   {lockicon}
                 </p>
-              </Link>
+              </button>
             )}
             {/* <Link
               to={"/#pkgs"}
@@ -218,12 +248,12 @@ const Navbar = () => {
 
           {/* Conditionally render Login link */}
           {!user && (
-            <Link
-              to="/login"
+            <button
+              // onClick={() => setOpen(true)}
               className="relative block text-navy-700 py-2 px-4 rounded-lg transition-all duration-300 ease-in-out hover:text-navy-900 hover:bg-pink-100 border border-transparent hover:border-pink-700 ripple-effect"
             >
               تسجيل الدخول
-            </Link>
+            </button>
           )}
 
           {/* Display User Info in Mobile Menu */}
