@@ -183,14 +183,14 @@ const GameCategoriesPage = () => {
           </div> */}
           <Toaster />
           {/* Money Spent */}
-          <div className="bg-white p-6 rounded-lg shadow-lg">
+          {/* <div className="bg-white p-6 rounded-lg shadow-lg">
             <h2 className="text-2xl font-bold text-gray-500 mb-4">
               Money Spent
             </h2>
             <p className="text-3xl text-pink-500 font-semibold">
               {moneySpent} KD
             </p>
-          </div>
+          </div> */}
 
           {/* Number of Games */}
           <div className="bg-white p-6 rounded-lg shadow-lg">

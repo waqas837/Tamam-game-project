@@ -1,12 +1,15 @@
 import React, { useEffect, useState } from "react";
 import Modal from "react-modal";
-import { apiUrl } from "../Api";
+import { apiUrl, frontendWebAddress } from "../Api";
 import axios from "axios";
 import { Play, Pause, X, RotateCcw } from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { Trophy, Sparkles, Star } from "lucide-react";
 import Loader from "./Loader";
 import { QRCodeSVG } from "qrcode.react";
+import socket from "../socket";
+import { Modal as NewModal } from "react-responsive-modal";
+import "react-responsive-modal/styles.css";
 
 const GameInterface = () => {
   const [modalIsOpen, setModalIsOpen] = useState(false);
@@ -37,6 +40,19 @@ const GameInterface = () => {
   const [gameid, setgameid] = useState("");
   const [error, setError] = useState("");
   const navigate = useNavigate();
+  const [OutSourceAnswer, setOutSourceAnswer] = useState();
+  const [openNewModal, setopenNewModal] = useState(false);
+  useEffect(() => {
+    if (socket) {
+      socket.on("answered", (data) => {
+        setOutSourceAnswer(data);
+        setopenNewModal(true);
+      });
+    }
+    return () => {
+      socket.off("answered");
+    };
+  }, [socket]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -314,11 +330,25 @@ const GameInterface = () => {
 
   return (
     <>
-      <div>
-        <img src="gameplaybg.png" width={"100%"} alt="" />
-      </div>
+      <NewModal
+        open={openNewModal}
+        onClose={() => setopenNewModal(false)}
+        center
+      >
+        <div className="p-10 bg-white rounded-lg">
+          <h1 className="text-2xl font-semibold text-gray-800 mb-4">
+            Remote Answer
+          </h1>
+          <h3 className="text-lg font-medium text-gray-600 mb-2">
+            TEAM: <span className="font-bold">{OutSourceAnswer?.teamName}</span>
+          </h3>
+          <h3 className="text-lg font-medium text-gray-600">
+            Answer: <span className="font-bold">{OutSourceAnswer?.answer}</span>
+          </h3>
+        </div>
+      </NewModal>
       <div className="min-h-screen bg-gradient-to-br p-4 flex flex-col">
-        <h1 className="text-center font-bold text-white text-2xl">
+        <h1 className="text-center text-2xl text-pink-600">
           {GameInfo.GameName}
         </h1>
         {loading && <Loader />}
@@ -687,13 +717,13 @@ const GameInterface = () => {
                   }
                 </h2>
 
-                <p className="text-[#099BFF] text-center text-[30px] my-1">
+                {/* <p className="text-[#099BFF] text-center text-[30px] my-1">
                   {
                     categories[modalContent.category].questions[
                       modalContent.questionIndex
                     ].answer
                   }
-                </p>
+                </p> */}
                 <div className="grid grid-cols-1 md:grid-cols-3">
                   {/* section 1 */}
                   <div className="flex flex-col items-center gap-y-5">
@@ -701,7 +731,11 @@ const GameInterface = () => {
                       إجابة الفريق الأول
                     </p>
                     <div className="p-3 border-2 rounded-xl">
-                      <QRCodeSVG size={100} value="https://reactjs.org/" />
+                      <QRCodeSVG
+                        o
+                        size={100}
+                        value={`${frontendWebAddress}/answer/${GameInfo.Team1}`}
+                      />
                     </div>
                     <img
                       src="team.png"
@@ -770,7 +804,10 @@ const GameInterface = () => {
                       إجابة الفريق الأول
                     </p>
                     <div className="p-3 border-2 rounded-xl">
-                      <QRCodeSVG size={100} value="https://reactjs.org/" />
+                      <QRCodeSVG
+                        size={100}
+                        value={`${frontendWebAddress}/answer/${GameInfo.Team2}`}
+                      />
                     </div>
                     <img
                       src="team.png"
