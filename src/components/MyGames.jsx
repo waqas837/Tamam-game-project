@@ -83,12 +83,15 @@ const GameCategoriesPage = () => {
   const [loading, setLoading] = useState(false);
   const [modalIsOpen, setModalIsOpen] = useState(false);
   const [moneySpent, setmoneySpent] = useState([]);
+  const [user, setUser] = useState(null);
 
   useEffect(() => {
     let loggedInUser = localStorage.getItem("user");
     if (!loggedInUser) {
       toast("Please Login");
+      return;
     }
+    setUser(JSON.parse(loggedInUser));
     getQuestions();
   }, [navigate]);
 
@@ -192,10 +195,10 @@ const GameCategoriesPage = () => {
             </p>
           </div> */}
 
-          {/* Number of Games */}
+          {/* Current Games */}
           <div className="bg-white p-6 rounded-lg shadow-lg">
             <h2 className="text-2xl font-bold text-gray-500 mb-4">
-              Number of Games
+              Current Games
             </h2>
             <p className="text-3xl text-pink-500 font-semibold">
               {categories && categories.length}
@@ -208,6 +211,21 @@ const GameCategoriesPage = () => {
             <div className="flex items-center">
               <p>Online</p> <p></p>
               <p className={`h-4 w-4 rounded-full mr-2 bg-green-500`}></p>
+            </div>
+          </div>
+
+          {/* Remaining Games */}
+          <div className="bg-white p-6 rounded-lg shadow-lg">
+            <h2 className="text-2xl font-bold text-gray-500 mb-4">
+              {" "}
+              Games Remaining
+            </h2>
+            <div className="flex items-center">
+              <p className="text-2xl font-bold text-pink-500 mb-4">
+                {" "}
+                {user ? user.remainingGames : "0"}
+              </p>{" "}
+              <p></p>
             </div>
           </div>
         </div>

@@ -10,7 +10,6 @@ const Navbar = () => {
   const [direction, setDirection] = useState("rtl");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isModalOpenSIGNUP, setIsModalOpenSIGNUP] = useState(false);
-  const [openSignup, setopenSignup] = useState(false);
 
   const location = useLocation();
   const navigate = useNavigate();
@@ -150,7 +149,7 @@ const Navbar = () => {
                 >
                   <p className="absolute left-12"> عدد الألعاب المتبقية:</p>
                   <p className="absolute left-3 text-[25px] text-[#D140C8] rounded-full font-bold p-1">
-                    {"2"}
+                    {user ? user.remainingGames : "0"}
                   </p>
                 </Link>
               </>
