@@ -266,6 +266,7 @@ const GameInterface = () => {
       let loggedInUser = localStorage.getItem("user");
       loggedInUser = JSON.parse(loggedInUser);
       const correctAnswerData = {
+        gameid: location.state.gameId,
         userid: loggedInUser._id,
         gameName: GameInfo.GameName,
         categoryId: categories[category]._id, // Add category ID
@@ -362,19 +363,23 @@ const GameInterface = () => {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10 space-y-6 max-w-7xl mx-auto">
-          {categories.map((category, categoryIndex) => (
-            <div
-              key={categoryIndex}
-              className="bg-white bg-opacity-30 backdrop-blur-lg rounded-lg flex items-center justify-center"
-            >
-              {/* Left Column: First 3 Questions */}
-              <div className="-translate-y-5 -translate-x-5 flex-none w-1/4 p-2 flex flex-col items-end space-y-2">
-                {category.questions
-                  .slice(0, 3)
-                  .map((question, questionIndex) => (
+          {categories.map((category, categoryIndex) => {
+            // Divide the questions array into two halves
+            const midIndex = Math.ceil(category.questions.length / 2);
+            const firstHalfQuestions = category.questions.slice(0, midIndex);
+            const secondHalfQuestions = category.questions.slice(midIndex);
+
+            return (
+              <div
+                key={categoryIndex}
+                className="bg-white bg-opacity-30 rounded-lg flex items-center justify-between p-5"
+              >
+                {/* Left Column: Render the first half of the questions */}
+                <div className="flex flex-col space-y-3">
+                  {firstHalfQuestions.map((question, questionIndex) => (
                     <button
                       key={questionIndex}
-                      className={`p-3 rounded-full text-center ${
+                      className={`-translate-x-10 -translate-y-5 p-2 rounded-full text-center text-sm ${
                         question.answered
                           ? "bg-gray-400 cursor-not-allowed border"
                           : "bg-gray-200 hover:bg-gray-400 text-black border"
@@ -388,42 +393,41 @@ const GameInterface = () => {
                       {question.points}
                     </button>
                   ))}
-              </div>
+                </div>
 
-              {/* Center Column: Category Image */}
-              <div>
-                <img
-                  src={getImageSrc(category.image)} // Use the function to determine the
-                  alt={category.name}
-                  className="rounded-lg"
-                />
-                <h2 className="mt-2 text-center">{category.name}</h2>
-              </div>
+                {/* Centered image and title */}
+                <div className="flex flex-col items-center mx-6">
+                  <img
+                    src={getImageSrc(category.image)}
+                    alt={category.name}
+                    className="rounded-lg mb-2"
+                  />
+                  <h2 className="text-center">{category.name}</h2>
+                </div>
 
-              {/* Right Column: Last 3 Questions */}
-              <div className="-translate-y-5 translate-x-5  flex-none w-1/4 p-2 flex flex-col items-start space-y-2">
-                {category.questions
-                  .slice(3, 6)
-                  .map((question, questionIndex) => (
+                {/* Right Column: Render the second half of the questions */}
+                <div className="flex flex-col space-y-3">
+                  {secondHalfQuestions.map((question, questionIndex) => (
                     <button
-                      key={questionIndex}
-                      className={`p-3 rounded-full text-center  ${
+                      key={questionIndex + midIndex}
+                      className={`translate-x-10 -translate-y-5 p-2 rounded-full text-center text-sm ${
                         question.answered
                           ? "bg-gray-400 cursor-not-allowed border"
                           : "bg-gray-200 hover:bg-gray-400 text-black border"
                       }`}
                       onClick={() =>
                         !question.answered &&
-                        openModal(categoryIndex, questionIndex)
+                        openModal(categoryIndex, questionIndex + midIndex)
                       }
                       disabled={question.answered}
                     >
                       {question.points}
                     </button>
                   ))}
+                </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
 
         <section className="bg-[url('pathcreategame.png')] bg-no-repeat bg-cover py-12 m-auto text-center w-full p-20 mt-16">
