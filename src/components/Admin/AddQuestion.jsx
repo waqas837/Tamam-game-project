@@ -15,6 +15,7 @@ const AddCategoryAndQuestions = () => {
       question: "",
       answer: "",
       file: null,
+      answerDocument: null,
       points: 200,
     })
   );
@@ -40,15 +41,17 @@ const AddCategoryAndQuestions = () => {
   const handleQuestionChange = (index, field, value) => {
     const newQuestions = [...questions];
     newQuestions[index] = { ...newQuestions[index], [field]: value };
+    console.log("newQuestions", newQuestions)
     setQuestions(newQuestions);
   };
 
-  const handleFileChange = (index, e) => {
+  const handleFileChange = (index, e, fileType) => {
     const file = e.target.files[0];
-    handleQuestionChange(index, "file", file);
+    console.log({index, fileType, file})
+    handleQuestionChange(index, fileType, file);
   };
 
-  const handleSubmit = async (e) => {
+    const handleSubmit = async (e) => {
     e.preventDefault();
     setloading(true);
     try {
@@ -56,7 +59,6 @@ const AddCategoryAndQuestions = () => {
       formData.append("category", category);
       formData.append("categoryImage", categoryImage);
 
-      // Append questions as a JSON string
       formData.append(
         "questions",
         JSON.stringify(
@@ -67,11 +69,15 @@ const AddCategoryAndQuestions = () => {
           }))
         )
       );
-
-      // Append question files
-      questions.forEach((q, index) => {
+        console.log("questions", questions)
+      questions.forEach((q) => {
         if (q.file) {
+          console.log("q.file", q.file)
           formData.append(`questionFiles`, q.file);
+        }
+        if (q.answerDocument) {
+          console.log("q.answerDocument", q.answerDocument)
+          formData.append(`answerDocument`, q.answerDocument);
         }
       });
 
@@ -81,19 +87,21 @@ const AddCategoryAndQuestions = () => {
         },
       });
 
-      toast.success("تم إرسال الفئة والأسئلة بنجاح!"); // Success toast notification
+      toast.success("تم إرسال الفئة والأسئلة بنجاح!");
       setloading(false);
     } catch (error) {
       console.error("Error in handleSubmit", error);
-      toast.error("حدث خطأ أثناء إرسال النموذج."); // Error toast notification
+      toast.error("حدث خطأ أثناء إرسال النموذج.");
+      setloading(false);
     }
   };
+
 
   // Function to add a new question field
   const addQuestionField = () => {
     setQuestions([
       ...questions,
-      { question: "", answer: "", file: null, points: 200 },
+      { question: "", answer: "", file: null, answerDocument: null, points: 200 },
     ]);
   };
 
@@ -192,10 +200,20 @@ const AddCategoryAndQuestions = () => {
                 <input
                   name="questionFiles"
                   type="file"
-                  onChange={(e) => handleFileChange(index, e)}
+                  onChange={(e) => handleFileChange(index, e, "file")}
                   className="w-full p-2 border-2 border-pink-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition duration-200"
-                  accept="image/*,video/*"
-                  required
+                />
+              </div>
+              {/* answer docoment */}
+              <div>
+                <label className="block mb-2 text-md font-medium text-purple-700">
+                  Answer Document Optional
+                </label>
+                <input
+                  name="answerDocument"
+                  type="file"
+                  onChange={(e) => handleFileChange(index, e, "answerDocument")}
+                  className="w-full p-2 border-2 border-pink-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition duration-200"
                 />
               </div>
             </div>
