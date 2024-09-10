@@ -100,6 +100,12 @@ const Packages = () => {
       .catch((err) => console.log(`err is here: ${err}`));
   };
   const tryCharge = async (id, price) => {
+    let loggedInUser = localStorage.getItem("user");
+    if (!loggedInUser) {
+      toast.error("يرجى تسجيل الدخول أولاً.");
+      return;
+    }
+    let loggedInUserData = JSON.parse(localStorage.getItem("user"));
     toast.loading("Processing");
     const options = {
       method: "POST",
@@ -121,12 +127,12 @@ const Packages = () => {
         paymentGateway: { src: "knet" },
         reference: { id: "ord_000000101121012121211231212" },
         customer: {
-          uniqueId: "2129879kjbljg76788",
-          name: "test",
-          email: "test@test.com",
-          mobile: "+9651234567",
+          uniqueId: loggedInUser._id,
+          name: loggedInUser.firstName + " " + loggedInUser.lastName,
+          email: loggedInUser.email,
+          mobile: loggedInUser.phone,
         },
-        returnUrl: "http://localhost:5173/payment",
+        returnUrl: `http://localhost:5173/payment/?userid=${loggedInUserData._id}&price=${price}&packageId=${id}`,
         cancelUrl: "https://www.yourwebsite.com/cancel",
         notificationUrl: "https://www.yourwebsite.com/notification",
       },
@@ -134,7 +140,7 @@ const Packages = () => {
 
     axios
       .request(options)
-      .then(function (response) {
+      .then(async function (response) {
         toast.dismiss();
         let link = response.data.data.link;
         console.log(response.data);

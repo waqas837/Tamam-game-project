@@ -83,6 +83,7 @@ const GameCategoriesPage = () => {
   const [loading, setLoading] = useState(false);
   const [modalIsOpen, setModalIsOpen] = useState(false);
   const [moneySpent, setmoneySpent] = useState([]);
+  const [RemainingGames, setRemainingGames] = useState(0);
   const [user, setUser] = useState(null);
 
   useEffect(() => {
@@ -111,6 +112,7 @@ const GameCategoriesPage = () => {
       if (data.success) {
         setCategories(data.YourGames);
         setmoneySpent(data.moneySpent);
+        setRemainingGames(data.remainingGames);
         setLoading(false);
       } else {
         setLoading(false);
@@ -134,13 +136,22 @@ const GameCategoriesPage = () => {
   };
 
   const closeModalStartOver = async () => {
-    let loggedInUser = JSON.parse(localStorage.getItem("user"));
-    setModalIsOpen(false);
-    await axios.post(
-      `${apiUrl}/user/startovergame/${loggedInUser._id}/${currentGameId}`
-    );
-    // You might want to refresh the games list or navigate to a new page here
-    getQuestions(); // Refresh the games list
+    try {
+      let loggedInUser = JSON.parse(localStorage.getItem("user"));
+      setModalIsOpen(false);
+      let { data } = await axios.put(
+        `${apiUrl}/user/startovergame/${loggedInUser._id}/${currentGameId}`
+      );
+      if (data.success) {
+        // You might want to refresh the games list or navigate to a new page here
+        navigate("/started-game", {
+          state: { gameId: currentGameId, gameName: currentGameName },
+        });
+        getQuestions(); // Refresh the games list
+      }
+    } catch (error) {
+      console.log("error", error);
+    }
   };
 
   const closeModalResume = () => {
@@ -223,7 +234,7 @@ const GameCategoriesPage = () => {
             <div className="flex items-center">
               <p className="text-2xl font-bold text-pink-500 mb-4">
                 {" "}
-                {user ? user.remainingGames : "0"}
+                {RemainingGames ? RemainingGames : "0"}
               </p>{" "}
               <p></p>
             </div>
@@ -258,7 +269,7 @@ const GameCategoriesPage = () => {
               <X size={24} />
             </button>
             <h2 className="text-2xl font-bold text-gray-500 mb-6 pr-8">
-              ماذا تريد أن تفعل مع {currentGameName}؟
+              ماذا تريد أن تفعل مع
             </h2>
             <div className="flex flex-col space-y-4">
               <button

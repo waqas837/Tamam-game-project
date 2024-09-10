@@ -344,9 +344,8 @@ const GameInterface = () => {
 
   // Get images url.
   const getImageSrc = (imageUrl) => {
-    if(imageUrl===null){
-
-      console.log("imageUrl", imageUrl)
+    if (imageUrl === null) {
+      console.log("imageUrl", imageUrl);
     }
     // Check if the image URL contains 'http' or 'https' indicating an external link
     if (imageUrl.startsWith("http://") || imageUrl.startsWith("https://")) {
@@ -376,23 +375,22 @@ const GameInterface = () => {
           </h3>
         </div>
       </NewModal>
-      <div className="min-h-screen bg-gradient-to-br p-4 flex flex-col">
-        <h1 className="text-center text-2xl text-pink-600">
+      <div className="min-h-screen bg-gradient-to-br flex flex-col">
+        {/* <h1 className="text-center text-2xl text-pink-600">
           {GameInfo.GameName}
-        </h1>
+        </h1> */}
         {loading && <Loader />}
-        <div className="flex justify-between items-center w-full max-w-6xl mx-auto mb-4">
+        {/* <div className="flex justify-between items-center w-full max-w-6xl mx-auto mb-4">
           <div className="text-white text-xl font-bold">
             {GameInfo.Team1}: {GameInfo.Team1Score} نقاط
           </div>
           <div className="text-white text-xl font-bold">
             {GameInfo.Team2}: {GameInfo.Team2Score} نقاط
           </div>
-        </div>
+        </div> */}
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10 space-y-6 max-w-7xl mx-auto">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 w-9/12 m-auto lg:h-[230px]">
           {categories.map((category, categoryIndex) => {
-            // Divide the questions array into two halves
             const midIndex = Math.ceil(category.questions.length / 2);
             const firstHalfQuestions = category.questions.slice(0, midIndex);
             const secondHalfQuestions = category.questions.slice(midIndex);
@@ -400,80 +398,81 @@ const GameInterface = () => {
             return (
               <div
                 key={categoryIndex}
-                className="bg-white bg-opacity-30 rounded-lg flex items-center justify-between p-5"
+                className="bg-white bg-opacity-30 rounded-lg flex relative w-full md:w-9/12 lg:w-full m-auto items-center justify-center"
               >
-                {/* Left Column: Render the first half of the questions */}
-                <div className="flex flex-col space-y-3">
-                  {firstHalfQuestions.map((question, questionIndex) => (
-                    <button
-                      key={questionIndex}
-                      className={`-translate-x-10 -translate-y-5 p-2 rounded-full text-center text-sm ${
-                        question.answered
-                          ? "bg-gray-400 cursor-not-allowed border"
-                          : "bg-gray-200 hover:bg-gray-400 text-black border"
-                      }`}
-                      onClick={() =>
-                        !question.answered &&
-                        openModal(categoryIndex, questionIndex)
-                      }
-                      disabled={question.answered}
-                    >
-                      {question.points}
-                    </button>
-                  ))}
-                </div>
-
-                {/* Centered image and title */}
-                <div className="flex flex-col items-center mx-6">
+                {/* Centered image and title with fixed size */}
+                <div className="relative flex flex-col items-center mx-6 min-w-[120px]">
                   <img
                     src={getImageSrc(category.image)}
                     alt={category.name}
+                    width={120}
+                    height={120}
                     className="rounded-lg mb-2"
                   />
-                  <h2 className="text-center">{category.name}</h2>
-                </div>
 
-                {/* Right Column: Render the second half of the questions */}
-                <div className="flex flex-col space-y-3">
-                  {secondHalfQuestions.map((question, questionIndex) => (
-                    <button
-                      key={questionIndex + midIndex}
-                      className={`translate-x-10 -translate-y-5 p-2 rounded-full text-center text-sm ${
-                        question.answered
-                          ? "bg-gray-400 cursor-not-allowed border"
-                          : "bg-gray-200 hover:bg-gray-400 text-black border"
-                      }`}
-                      onClick={() =>
-                        !question.answered &&
-                        openModal(categoryIndex, questionIndex + midIndex)
-                      }
-                      disabled={question.answered}
-                    >
-                      {question.points}
-                    </button>
-                  ))}
+                  {/* Left Column: Render the first half of the questions */}
+                  <div className="absolute left-0 top-1/2 transform -translate-y-14 -translate-x-6  flex flex-col space-y-1">
+                    {firstHalfQuestions.map((question, questionIndex) => (
+                      <button
+                        key={questionIndex}
+                        className={`p-2 rounded-full text-center text-[10px] ${
+                          question.answered
+                            ? "bg-gray-400 cursor-not-allowed border"
+                            : "bg-gray-200 hover:bg-gray-400 text-black border"
+                        }`}
+                        onClick={() =>
+                          !question.answered &&
+                          openModal(categoryIndex, questionIndex)
+                        }
+                        disabled={question.answered}
+                      >
+                        {question.points}
+                      </button>
+                    ))}
+                  </div>
+
+                  {/* Right Column: Render the second half of the questions */}
+                  <div className="absolute right-0 top-1/2 transform -translate-y-14 translate-x-6 flex flex-col space-y-1">
+                    {secondHalfQuestions.map((question, questionIndex) => (
+                      <button
+                        key={questionIndex + midIndex}
+                        className={`p-2 rounded-full text-center text-[10px] ${
+                          question.answered
+                            ? "bg-gray-400 cursor-not-allowed border"
+                            : "bg-gray-200 hover:bg-gray-400 text-black border"
+                        }`}
+                        onClick={() =>
+                          !question.answered &&
+                          openModal(categoryIndex, questionIndex + midIndex)
+                        }
+                        disabled={question.answered}
+                      >
+                        {question.points}
+                      </button>
+                    ))}
+                  </div>
                 </div>
               </div>
             );
           })}
         </div>
 
-        <section className="bg-[url('pathcreategame.png')] bg-no-repeat bg-cover py-12 m-auto text-center w-full p-20 mt-16">
+        <section className="">
           <form onSubmit={handleSubmit} className="space-y-6">
             {error && (
               <p className="text-red-300 text-center bg-red-500 bg-opacity-20 py-2 rounded-lg">
                 {error}
               </p>
             )}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-20 m-auto text-center place-items-center">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-20 text-center">
               {/* Team 1 */}
-              <div className="w-full flex flex-col items-center space-y-4">
-                <img src="team.png" alt="team.png" />
-                <p className="text-[25px] text-pink-500">{GameInfo.Team1}</p>
-                <div className="w-full border-2 px-8 py-2 rounded-md bg-white">
+              <div className="text-xs w-10/12 flex flex-col items-center space-y-2">
+                {/* <img src="team.png" width={40} height={50} alt="team.png" /> */}
+                <p className="text-sm text-pink-400">{GameInfo.Team1}</p>
+                <div className="w-10/12 border-2 px-8 py-1 rounded-md bg-white">
                   {GameInfo.Team1Score}
                 </div>
-                <div className="w-full bg-gray-100 rounded-md flex justify-between items-center p-1 text-white">
+                <div className="w-10/12 bg-gray-100 rounded-md flex justify-between items-center p-1 text-white">
                   <button
                     type="button"
                     className="bg-pink-400 rounded-full px-3 py-1"
@@ -490,7 +489,7 @@ const GameInterface = () => {
                     -
                   </button>
                 </div>
-                <h1>وسائل مساعدة</h1>
+                {/* <h1>وسائل مساعدة</h1> */}
                 {/* images */}
                 <div>
                   <button
@@ -500,8 +499,8 @@ const GameInterface = () => {
                     }
                   >
                     <img
-                      width={50}
-                      height={50}
+                      width={40}
+                      height={40}
                       src={`${
                         GameInfo.team1usedAuxMeans.hand
                           ? "/color/hand.png"
@@ -523,8 +522,8 @@ const GameInterface = () => {
                     }
                   >
                     <img
-                      width={50}
-                      height={50}
+                      width={40}
+                      height={40}
                       src={`${
                         GameInfo.team1usedAuxMeans.rating
                           ? "/color/rating.png"
@@ -545,8 +544,8 @@ const GameInterface = () => {
                     }
                   >
                     <img
-                      width={50}
-                      height={50}
+                      width={40}
+                      height={40}
                       src={`${
                         GameInfo.team1usedAuxMeans.light
                           ? "/color/light.png"
@@ -567,8 +566,8 @@ const GameInterface = () => {
                     }
                   >
                     <img
-                      width={50}
-                      height={50}
+                      width={40}
+                      height={40}
                       src={`${
                         GameInfo.team1usedAuxMeans.women
                           ? "/color/women.png"
@@ -584,13 +583,13 @@ const GameInterface = () => {
                 </div>
               </div>
               {/* Team 2 */}
-              <div className="w-full flex flex-col items-center space-y-4">
-                <img src="team.png" alt="" />
-                <p className="text-[25px] text-pink-500">{GameInfo.Team2}</p>
-                <div className="w-full border-2 px-8 py-2 rounded-md bg-white">
+              <div className="text-xs w-10/12 flex flex-col items-center space-y-2">
+                {/* <img src="team.png" width={40} height={50} alt="" /> */}
+                <p className="text-sm text-pink-400">{GameInfo.Team2}</p>
+                <div className="w-10/12 border-2 px-8 py-1 rounded-md bg-white">
                   {GameInfo.Team2Score}
                 </div>
-                <div className="w-full bg-gray-100 rounded-md flex justify-between items-center p-1 text-white">
+                <div className="w-10/12 bg-gray-100 rounded-md flex justify-between items-center p-1 text-white">
                   <button
                     type="button"
                     className="bg-pink-400 rounded-full px-3 py-1"
@@ -607,7 +606,7 @@ const GameInterface = () => {
                     -
                   </button>
                 </div>
-                <h1>وسائل مساعدة</h1>
+                {/* <h1>وسائل مساعدة</h1> */}
                 {/* images */}
                 <div>
                   <button
@@ -617,8 +616,8 @@ const GameInterface = () => {
                     }
                   >
                     <img
-                      width={50}
-                      height={50}
+                      width={40}
+                      height={40}
                       src={`${
                         GameInfo.team2usedAuxMeans.hand
                           ? "/color/hand.png"
@@ -640,8 +639,8 @@ const GameInterface = () => {
                     }
                   >
                     <img
-                      width={50}
-                      height={50}
+                      width={40}
+                      height={40}
                       src={`${
                         GameInfo.team2usedAuxMeans.rating
                           ? "/color/rating.png"
@@ -662,8 +661,8 @@ const GameInterface = () => {
                     }
                   >
                     <img
-                      width={50}
-                      height={50}
+                      width={40}
+                      height={40}
                       src={`${
                         GameInfo.team2usedAuxMeans.light
                           ? "/color/light.png"
@@ -684,8 +683,8 @@ const GameInterface = () => {
                     }
                   >
                     <img
-                      width={50}
-                      height={50}
+                      width={40}
+                      height={40}
                       src={`${
                         GameInfo.team2usedAuxMeans.women
                           ? "/color/women.png"
@@ -716,12 +715,12 @@ const GameInterface = () => {
           isOpen={modalIsOpen}
           onRequestClose={closeModal}
           contentLabel="Question Modal"
-          className="fixed inset-0 flex items-center justify-center p-4 w-full"
-          overlayClassName="fixed inset-0 bg-black bg-opacity-70"
+          className="fixed inset-0 w-full h-full m-0 p-0 flex items-center justify-center" // Fullscreen modal
+          overlayClassName="fixed inset-0 bg-black bg-opacity-70" // Fullscreen overlay
         >
           {/* step 1 */}
           {modalState.step1 && (
-            <div className="bg-white p-6 rounded-lg shadow-lg max-w-4xl w-full mx-auto relative">
+            <div className="bg-white p-6 shadow-lg h-screen w-full mx-auto relative">
               {modalContent && (
                 <>
                   <div className="flex flex-col md:flex-row justify-between items-center mb-5 border-b border-gray-200 pb-3">
@@ -758,14 +757,6 @@ const GameInterface = () => {
                       ].question
                     }
                   </h2>
-
-                  {/* <p className="text-[#099BFF] text-center text-[30px] my-1">
-                  {
-                    categories[modalContent.category].questions[
-                      modalContent.questionIndex
-                    ].answer
-                  }
-                </p> */}
                   <div className="grid grid-cols-1 md:grid-cols-3">
                     {/* section 1 */}
                     <div className="flex flex-col items-center gap-y-5">
@@ -799,14 +790,15 @@ const GameInterface = () => {
                                 ].image
                               )}
                               alt="Question Media"
-                              className="w-[100%] h-[100%] rounded-md"
+                              className="w-[100%] h-[200px] rounded-md"
                             />
                           ) : categories[modalContent.category].questions[
                               modalContent.questionIndex
                             ].image ? (
                             <video
                               controls
-                              className="w-full rounded-lg mb-4 border border-gray-300 shadow-sm"
+                              loop
+                              className="w-[100%] h-[200px] rounded-lg mb-4 border border-gray-300 shadow-sm"
                             >
                               <source
                                 src={getImageSrc(
@@ -853,7 +845,7 @@ const GameInterface = () => {
           )}
           {/* step 2 */}
           {modalState.step2 && (
-            <div className="bg-white p-6 rounded-lg shadow-lg max-w-4xl w-full mx-auto relative">
+            <div className="bg-white p-6 shadow-lg h-screen w-full mx-auto relative">
               {modalContent && (
                 <>
                   <div className="flex flex-col md:flex-row justify-between items-center mb-5 border-b border-gray-200 pb-3">
@@ -915,7 +907,7 @@ const GameInterface = () => {
                     {/* section 2 */}
                     <div className="flex flex-col items-center">
                       {/* Conditional rendering for image or video/answer document show here */}
-                      
+
                       {categories[modalContent.category].questions[
                         modalContent.questionIndex
                       ].document && (
@@ -932,14 +924,15 @@ const GameInterface = () => {
                                 ].document
                               )}
                               alt="Question Media"
-                              className="w-[100%] h-[100%] rounded-md"
+                              className="w-[100%] h-[200px] rounded-md"
                             />
                           ) : categories[modalContent.category].questions[
                               modalContent.questionIndex
                             ].document ? (
                             <video
                               controls
-                              className="w-full rounded-lg mb-4 border border-gray-300 shadow-sm"
+                              loop
+                              className="w-[100%] h-[200px] rounded-lg mb-4 border border-gray-300 shadow-sm"
                             >
                               <source
                                 src={getImageSrc(
@@ -987,7 +980,7 @@ const GameInterface = () => {
           )}
           {/* step 3 */}
           {modalState.step3 && (
-            <div className="bg-white p-6 rounded-lg shadow-lg max-w-4xl w-full mx-auto relative">
+            <div className="bg-white p-6 shadow-lg h-screen w-full mx-auto relative">
               {modalContent && (
                 <>
                   <div className="flex flex-col md:flex-row justify-between items-center mb-5 border-b border-gray-200 pb-3">
@@ -1074,14 +1067,15 @@ const GameInterface = () => {
                                 ].image
                               )}
                               alt="Question Media"
-                              className="w-[100%] h-[100%] rounded-md"
+                              className="w-[100%] h-[200px] rounded-md"
                             />
                           ) : categories[modalContent.category].questions[
                               modalContent.questionIndex
                             ].image ? (
                             <video
                               controls
-                              className="w-full rounded-lg mb-4 border border-gray-300 shadow-sm"
+                              loop
+                              className="w-[100%] h-[200px] rounded-lg mb-4 border border-gray-300 shadow-sm"
                             >
                               <source
                                 src={getImageSrc(
@@ -1138,7 +1132,7 @@ const GameInterface = () => {
           )}
 
           {modalState.step4 && (
-            <div className="bg-white p-6 rounded-lg shadow-lg max-w-4xl w-full mx-auto relative">
+            <div className="bg-white p-6 shadow-lg h-screen w-full mx-auto relative">
               <h1>step 4</h1>
             </div>
           )}

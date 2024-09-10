@@ -21,6 +21,7 @@ import NotFound from "./components/NotFound"; // Import the NotFound component
 import PwaAlert from "./components/PwaAlert"; // Import the NotFound component
 import UserList from "./components/Admin/UserList";
 import QrAnswer from "./components/QrAnswer";
+import Payment from "./components/Payment";
 
 const App = () => {
   const location = useLocation();
@@ -38,6 +39,7 @@ const App = () => {
         <Route path="/started-game" element={<GameStarted />} />
         <Route path="/results" element={<Result />} />
         <Route path="/answer/:teamName" element={<QrAnswer />} />
+        <Route path="/payment" element={<Payment />} />
         {/* <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} /> */}
         {/* Admin Routes */}

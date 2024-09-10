@@ -51,8 +51,8 @@ const CreateGameForm = ({ categoriesIds }) => {
         team2Score, // Include team2Score in the request
       };
       let { data } = await axios.post(`${apiUrl}/user/createGame`, gameCreate);
-      if (data.success === false) {
-        toast.error("Your limit is reached. Please buy package instead.");
+      if (data.limitReached) {
+        toast.error(data.message);
       } else if (data.success) {
         toast.success(data.message);
         setGameName("");
@@ -60,6 +60,7 @@ const CreateGameForm = ({ categoriesIds }) => {
         setTeam2("");
         setTeam1Score(0); // Reset team1 score
         setTeam2Score(0); // Reset team2 score
+        console.log("data.gameid,", data.gameid);
         navigate("/started-game", {
           state: {
             categoriesIds,
