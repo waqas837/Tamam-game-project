@@ -10,6 +10,7 @@ import { QRCodeSVG } from "qrcode.react";
 import socket from "../socket";
 import { Modal as NewModal } from "react-responsive-modal";
 import "react-responsive-modal/styles.css";
+import { toast, Toaster } from "react-hot-toast";
 
 const GameInterface = () => {
   // modal states
@@ -28,6 +29,7 @@ const GameInterface = () => {
   const [loading, setloading] = useState(false);
   const [gameName, setGameName] = useState("");
   const [team1, setTeam1] = useState("");
+  const [MeAnswer, setMeAnswer] = useState(false);
   const [GameInfo, setGameInfo] = useState({
     GameName: "",
     Team1: "",
@@ -62,6 +64,15 @@ const GameInterface = () => {
     };
   }, [socket]);
 
+  // handle-gameover
+  const endGame = () => {
+    toast.loading("Ending Game");
+    setGameOver(false);
+    setTimeout(() => {
+      toast.dismiss();
+      navigate("/my-games");
+    }, 3000);
+  };
   // modal handlers
   const seeAnswer = () => {
     //  off state1 and open state2
@@ -150,6 +161,9 @@ const GameInterface = () => {
   };
   // handleAuxilaryMeans
   const handleAuxilaryMeans = async (teamId, mean) => {
+    if (mean === "light") {
+      setMeAnswer(!MeAnswer);
+    }
     try {
       let { data } = await axios.put(`${apiUrl}/user/use-auxiliary-mean`, {
         teamId,
@@ -264,6 +278,7 @@ const GameInterface = () => {
   const closeModal = () => {
     setModalIsOpen(false);
     setModalContent(null);
+    setMeAnswer(false);
   };
 
   const handleCorrectAnswer = async (team, teamid) => {
@@ -770,6 +785,108 @@ const GameInterface = () => {
                           value={`${frontendWebAddress}/answer/${GameInfo.Team1}`}
                         />
                       </div>
+                      <div className="text-xs w-10/12 flex flex-col items-center space-y-2">
+                        {/* images */}
+                        <div>
+                          <button
+                            className="focus:ring focus:rounded-full"
+                            onClick={() =>
+                              handleAuxilaryMeans(GameInfo.team1Id, "hand")
+                            }
+                          >
+                            <img
+                              width={40}
+                              height={40}
+                              src={`${
+                                GameInfo.team1usedAuxMeans.hand
+                                  ? "/color/hand.png"
+                                  : "/simple/hand.png"
+                              }`}
+                              className={`${
+                                GameInfo.team1usedAuxMeans.hand
+                                  ? "border border-pink-500 rounded-full"
+                                  : ""
+                              }`}
+                              alt=""
+                            />
+                          </button>{" "}
+                          &nbsp;
+                          <button
+                            className="focus:ring focus:rounded-full"
+                            onClick={() =>
+                              handleAuxilaryMeans(GameInfo.team1Id, "rating")
+                            }
+                          >
+                            <img
+                              width={40}
+                              height={40}
+                              src={`${
+                                GameInfo.team1usedAuxMeans.rating
+                                  ? "/color/rating.png"
+                                  : "/simple/rating.png"
+                              }`}
+                              className={`${
+                                GameInfo.team1usedAuxMeans.rating
+                                  ? "border border-pink-500 rounded-full"
+                                  : ""
+                              }`}
+                            />
+                          </button>{" "}
+                          &nbsp;
+                          <button
+                            className="focus:ring focus:rounded-full"
+                            onClick={() =>
+                              handleAuxilaryMeans(GameInfo.team1Id, "light")
+                            }
+                          >
+                            <img
+                              width={40}
+                              height={40}
+                              src={`${
+                                GameInfo.team1usedAuxMeans.light
+                                  ? "/color/light.png"
+                                  : "/simple/light.png"
+                              }`}
+                              className={`${
+                                GameInfo.team1usedAuxMeans.light
+                                  ? "border border-pink-500 rounded-full"
+                                  : ""
+                              }`}
+                            />
+                          </button>{" "}
+                          &nbsp;
+                          <button
+                            className="focus:ring focus:rounded-full"
+                            onClick={() =>
+                              handleAuxilaryMeans(GameInfo.team1Id, "women")
+                            }
+                          >
+                            <img
+                              width={40}
+                              height={40}
+                              src={`${
+                                GameInfo.team1usedAuxMeans.women
+                                  ? "/color/women.png"
+                                  : "/simple/women.png"
+                              }`}
+                              className={`${
+                                GameInfo.team1usedAuxMeans.women
+                                  ? "border border-pink-500 rounded-full"
+                                  : ""
+                              }`}
+                            />
+                          </button>
+                        </div>
+                        <div className="w-full">
+                          <h2 className="text-lg font-semibold text-center mb-4 rounded bg-[#f4c93d6e]">
+                            {MeAnswer &&
+                              "Hint: " +
+                                categories[modalContent.category].questions[
+                                  modalContent.questionIndex
+                                ].hint}
+                          </h2>
+                        </div>
+                      </div>
                     </div>
                     {/* section 2 */}
                     <div className="flex flex-col items-center">
@@ -827,6 +944,107 @@ const GameInterface = () => {
                           size={100}
                           value={`${frontendWebAddress}/answer/${GameInfo.Team2}`}
                         />
+                      </div>
+                      <div className="text-xs w-10/12 flex flex-col items-center space-y-2">
+                        <div>
+                          <button
+                            className="focus:ring focus:rounded-full"
+                            onClick={() =>
+                              handleAuxilaryMeans(GameInfo.team2Id, "hand")
+                            }
+                          >
+                            <img
+                              width={40}
+                              height={40}
+                              src={`${
+                                GameInfo.team2usedAuxMeans.hand
+                                  ? "/color/hand.png"
+                                  : "/simple/hand.png"
+                              }`}
+                              className={`${
+                                GameInfo.team2usedAuxMeans.hand
+                                  ? "border border-pink-500 rounded-full"
+                                  : ""
+                              }`}
+                              alt=""
+                            />
+                          </button>{" "}
+                          &nbsp;
+                          <button
+                            className="focus:ring focus:rounded-full"
+                            onClick={() =>
+                              handleAuxilaryMeans(GameInfo.team2Id, "rating")
+                            }
+                          >
+                            <img
+                              width={40}
+                              height={40}
+                              src={`${
+                                GameInfo.team2usedAuxMeans.rating
+                                  ? "/color/rating.png"
+                                  : "/simple/rating.png"
+                              }`}
+                              className={`${
+                                GameInfo.team2usedAuxMeans.rating
+                                  ? "border border-pink-500 rounded-full"
+                                  : ""
+                              }`}
+                            />
+                          </button>{" "}
+                          &nbsp;
+                          <button
+                            className="focus:ring focus:rounded-full"
+                            onClick={() =>
+                              handleAuxilaryMeans(GameInfo.team2Id, "light")
+                            }
+                          >
+                            <img
+                              width={40}
+                              height={40}
+                              src={`${
+                                GameInfo.team2usedAuxMeans.light
+                                  ? "/color/light.png"
+                                  : "/simple/light.png"
+                              }`}
+                              className={`${
+                                GameInfo.team2usedAuxMeans.light
+                                  ? "border border-pink-500 rounded-full"
+                                  : ""
+                              }`}
+                            />
+                          </button>{" "}
+                          &nbsp;
+                          <button
+                            className="focus:ring focus:rounded-full"
+                            onClick={() =>
+                              handleAuxilaryMeans(GameInfo.team2Id, "women")
+                            }
+                          >
+                            <img
+                              width={40}
+                              height={40}
+                              src={`${
+                                GameInfo.team2usedAuxMeans.women
+                                  ? "/color/women.png"
+                                  : "/simple/women.png"
+                              }`}
+                              className={`${
+                                GameInfo.team2usedAuxMeans.women
+                                  ? "border border-pink-500 rounded-full"
+                                  : ""
+                              }`}
+                            />
+                          </button>
+                        </div>
+                      </div>
+                      <div className="w-full">
+                        <h2 className="text-lg font-semibold text-center mb-4 rounded bg-[#f4c93d6e]">
+                          {MeAnswer &&
+                            "Hint :" +
+                              categories[modalContent.category].questions[
+                                modalContent.questionIndex
+                              ].hint}
+                        </h2>
                       </div>
                     </div>
                   </div>
@@ -1156,7 +1374,7 @@ const GameInterface = () => {
               <br />
               <button
                 className="bg-red-500 text-white py-2 px-4 rounded-lg shadow-md hover:bg-red-600 transition-shadow duration-300"
-                onClick={() => setGameOver(false)}
+                onClick={() => endGame()}
               >
                 إغلاق
               </button>
