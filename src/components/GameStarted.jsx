@@ -30,6 +30,7 @@ const GameInterface = () => {
   const [gameName, setGameName] = useState("");
   const [team1, setTeam1] = useState("");
   const [MeAnswer, setMeAnswer] = useState(false);
+  const [showHand, setshowHand] = useState(false);
   const [GameInfo, setGameInfo] = useState({
     GameName: "",
     Team1: "",
@@ -163,6 +164,8 @@ const GameInterface = () => {
   const handleAuxilaryMeans = async (teamId, mean) => {
     if (mean === "light") {
       setMeAnswer(!MeAnswer);
+    } else if (mean === "hand") {
+      setshowHand(!showHand);
     }
     try {
       let { data } = await axios.put(`${apiUrl}/user/use-auxiliary-mean`, {
@@ -390,7 +393,7 @@ const GameInterface = () => {
           </h3>
         </div>
       </NewModal>
-      <div className="min-h-screen bg-gradient-to-br flex flex-col">
+      <div className="md:h-[460px] xl:h-[600px] 2xl:h-[630px] bg-gradient-to-br flex flex-col">
         {/* <h1 className="text-center text-2xl text-pink-600">
           {GameInfo.GameName}
         </h1> */}
@@ -404,7 +407,7 @@ const GameInterface = () => {
           </div>
         </div> */}
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 w-9/12 m-auto lg:h-[230px]">
+        <div className="xl:mt-5 2xl:mt-0 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 w-9/12 m-auto lg:h-[230px]">
           {categories.map((category, categoryIndex) => {
             const midIndex = Math.ceil(category.questions.length / 2);
             const firstHalfQuestions = category.questions.slice(0, midIndex);
@@ -420,17 +423,18 @@ const GameInterface = () => {
                   <img
                     src={getImageSrc(category.image)}
                     alt={category.name}
-                    width={120}
-                    height={120}
-                    className="rounded-lg mb-2"
+                    className="rounded-lg mb-2 
+                      w-[115px] h-[115px]
+                      xl:w-[155px] xl:h-[155px]
+                      2xl:w-[200px] 2xl:h-[200px]"
                   />
 
                   {/* Left Column: Render the first half of the questions */}
-                  <div className="absolute left-0 top-1/2 transform -translate-y-14 -translate-x-6  flex flex-col space-y-1">
+                  <div className="absolute left-0 top-1/2 transform -translate-y-14 -translate-x-6  flex flex-col space-y-1 xl:-translate-y-20  2xl:-translate-y-24">
                     {firstHalfQuestions.map((question, questionIndex) => (
                       <button
                         key={questionIndex}
-                        className={`p-2 rounded-full text-center text-[10px] ${
+                        className={`p-2 rounded-full text-center text-[10px] xl:text-[15px] 2xl:text-[20px] ${
                           question.answered
                             ? "bg-gray-400 cursor-not-allowed border"
                             : "bg-gray-200 hover:bg-gray-400 text-black border"
@@ -447,11 +451,11 @@ const GameInterface = () => {
                   </div>
 
                   {/* Right Column: Render the second half of the questions */}
-                  <div className="absolute right-0 top-1/2 transform -translate-y-14 translate-x-6 flex flex-col space-y-1">
+                  <div className="absolute right-0 top-1/2 transform -translate-y-14 translate-x-6 flex flex-col space-y-1 xl:-translate-y-20  2xl:-translate-y-24">
                     {secondHalfQuestions.map((question, questionIndex) => (
                       <button
                         key={questionIndex + midIndex}
-                        className={`p-2 rounded-full text-center text-[10px] ${
+                        className={`p-2 rounded-full text-center text-[10px] xl:text-[15px] 2xl:text-[20px] ${
                           question.answered
                             ? "bg-gray-400 cursor-not-allowed border"
                             : "bg-gray-200 hover:bg-gray-400 text-black border"
@@ -471,9 +475,9 @@ const GameInterface = () => {
             );
           })}
         </div>
-
+        {/* This is team section */}
         <section className="">
-          <form onSubmit={handleSubmit} className="space-y-6">
+          <form onSubmit={handleSubmit} className="space-y-6 -mt-0">
             {error && (
               <p className="text-red-300 text-center bg-red-500 bg-opacity-20 py-2 rounded-lg">
                 {error}
@@ -886,6 +890,30 @@ const GameInterface = () => {
                                 ].hint}
                           </h2>
                         </div>
+                        {showHand && (
+                          <>
+                            <br />
+                            <div class="flex space-x-4">
+                              <button class="border-2 border-gray-300 text-gray-500  -500   font-semibold py-2 px-4 rounded-lg shadow-md transition duration-300">
+                                Right Answer :
+                                {
+                                  categories[modalContent.category].questions[
+                                    modalContent.questionIndex
+                                  ].rightanswer
+                                }
+                              </button>
+
+                              <button class="border-2 border-gray-300 text-gray-500     font-semibold py-2 px-4 rounded-lg shadow-md transition duration-300">
+                                Wrong Answer :
+                                {
+                                  categories[modalContent.category].questions[
+                                    modalContent.questionIndex
+                                  ].wronganswer
+                                }
+                              </button>
+                            </div>
+                          </>
+                        )}
                       </div>
                     </div>
                     {/* section 2 */}
@@ -1046,6 +1074,27 @@ const GameInterface = () => {
                               ].hint}
                         </h2>
                       </div>
+                      {showHand && (
+                        <div class="flex space-x-4 text-[12px]">
+                          <button class="border-2 border-gray-300 text-gray-500  -500   font-semibold py-2 px-4 rounded-lg shadow-md transition duration-300">
+                            Right Answer :
+                            {
+                              categories[modalContent.category].questions[
+                                modalContent.questionIndex
+                              ].rightanswer
+                            }
+                          </button>
+
+                          <button class="border-2 border-gray-300 text-gray-500     font-semibold py-2 px-4 rounded-lg shadow-md transition duration-300">
+                            Wrong Answer :
+                            {
+                              categories[modalContent.category].questions[
+                                modalContent.questionIndex
+                              ].wronganswer
+                            }
+                          </button>
+                        </div>
+                      )}
                     </div>
                   </div>
                   <div className="my-10 text-center">

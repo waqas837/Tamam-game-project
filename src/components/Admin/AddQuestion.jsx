@@ -3,7 +3,7 @@ import axios from "axios";
 import { apiUrl } from "../../Api";
 import toast, { Toaster } from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
-import { PlusCircle } from 'lucide-react';
+import { PlusCircle } from "lucide-react";
 
 const AddCategoryAndQuestions = () => {
   const [category, setCategory] = useState("");
@@ -17,6 +17,8 @@ const AddCategoryAndQuestions = () => {
       answer: "",
       hint: "",
       file: null,
+      rightanswer: "",
+      wronganswer: "",
       answerDocument: null,
       points: 200,
     })
@@ -66,6 +68,8 @@ const AddCategoryAndQuestions = () => {
             question: q.question,
             answer: q.answer,
             hint: q.hint,
+            rightanswer: q.rightanswer,
+            wronganswer: q.wronganswer,
             points: q.points,
           }))
         )
@@ -98,7 +102,14 @@ const AddCategoryAndQuestions = () => {
   const addQuestionField = () => {
     setQuestions([
       ...questions,
-      { question: "", answer: "", hint: "", file: null, answerDocument: null, points: 200 },
+      {
+        question: "",
+        answer: "",
+        hint: "",
+        file: null,
+        answerDocument: null,
+        points: 200,
+      },
     ]);
   };
 
@@ -138,7 +149,10 @@ const AddCategoryAndQuestions = () => {
         </div>
 
         {questions.map((q, index) => (
-          <div key={index} className="border-2 border-pink-300 p-6 rounded-lg shadow-md bg-white">
+          <div
+            key={index}
+            className="border-2 border-pink-300 p-6 rounded-lg shadow-md bg-white"
+          >
             <h3 className="text-xl font-semibold mb-4 text-purple-700">
               سؤال {index + 1}
             </h3>
@@ -182,6 +196,34 @@ const AddCategoryAndQuestions = () => {
                   value={q.hint}
                   onChange={(e) =>
                     handleQuestionChange(index, "hint", e.target.value)
+                  }
+                  className="w-full p-2 border-2 border-pink-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition duration-200"
+                />
+              </div>
+
+              <div>
+                <label className="block mb-2 text-md font-medium text-purple-700">
+                  Right Answer
+                </label>
+                <input
+                  type="text"
+                  value={q.rightanswer}
+                  onChange={(e) =>
+                    handleQuestionChange(index, "rightanswer", e.target.value)
+                  }
+                  className="w-full p-2 border-2 border-pink-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition duration-200"
+                />
+              </div>
+
+              <div>
+                <label className="block mb-2 text-md font-medium text-purple-700">
+                  Wrong Answer
+                </label>
+                <input
+                  type="text"
+                  value={q.wronganswer}
+                  onChange={(e) =>
+                    handleQuestionChange(index, "wronganswer", e.target.value)
                   }
                   className="w-full p-2 border-2 border-pink-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition duration-200"
                 />
@@ -230,7 +272,9 @@ const AddCategoryAndQuestions = () => {
                   <input
                     name="answerDocument"
                     type="file"
-                    onChange={(e) => handleFileChange(index, e, "answerDocument")}
+                    onChange={(e) =>
+                      handleFileChange(index, e, "answerDocument")
+                    }
                     className="w-full p-2 border-2 border-pink-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition duration-200"
                   />
                 </div>
