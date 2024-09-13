@@ -9,6 +9,7 @@ const QrAnswer = () => {
   const submitAnswer = async (e) => {
     e.preventDefault();
     try {
+      localStorage.setItem(teamName, answer);
       socket.emit("answer", { teamName, answer });
       setanswer("");
       toast.success("Answer Submitted");

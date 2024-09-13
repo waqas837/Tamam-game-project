@@ -263,6 +263,7 @@ const AddCategoryAndQuestions = () => {
                     type="file"
                     onChange={(e) => handleFileChange(index, e, "file")}
                     className="w-full p-2 border-2 border-pink-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition duration-200"
+                    required
                   />
                 </div>
                 <div>

@@ -4,10 +4,9 @@ import { useInView } from "react-intersection-observer";
 import axios from "axios";
 import { apiUrl } from "../Api";
 import Loader from "./Loader";
-import { ShoppingBag } from "lucide-react";
-import StripeCheckout from "react-stripe-checkout";
 import { useNavigate } from "react-router-dom";
 import toast, { Toaster } from "react-hot-toast";
+import LoaderTwo from "./LoaderTwo";
 
 const Packages = () => {
   const [packagesData, setPackagesData] = useState([]);
@@ -178,7 +177,7 @@ const Packages = () => {
         <div id="pkgs" className="relative flex flex-wrap -mx-2">
           {loading ? (
             <div className="w-full flex justify-center items-center">
-              <Loader />
+              <LoaderTwo />
             </div>
           ) : (
             <>

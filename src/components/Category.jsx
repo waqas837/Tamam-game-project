@@ -39,10 +39,11 @@ const CategoryCard = ({ category, isSelected, onClick }) => {
         style={imageSpringProps}
         src={getImageSrc(category.image)}
         alt={category.name}
-        className={`*:w-full object-cover ${
+        className={`w-full h-auto max-w-[200px] md:max-w-[300px] lg:max-w-[400px] object-cover ${
           isSelected ? "border-2 border-yellow-500 rounded-3xl" : ""
         }`}
       />
+
       <animated.div
         style={descriptionSpringProps}
         className="absolute inset-0 flex items-center justify-center p-4"

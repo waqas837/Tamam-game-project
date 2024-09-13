@@ -52,7 +52,7 @@ const App = () => {
         <Route path="*" element={<NotFound />} /> {/* Wildcard route for 404 */}
       </Routes>
 
-      {!isAdminRoute && <Footer />}
+      {!isAdminRoute && isAnswerRoute && <Footer />}
     </div>
   );
 };

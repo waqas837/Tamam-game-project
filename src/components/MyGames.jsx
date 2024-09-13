@@ -47,7 +47,7 @@ const getImageSrc = (imageUrl) => {
 
 // GameCard component
 const GameCard = ({ val, openModal }) => (
-  <div onClick={() => openModal(val._id, val.GameName)}>
+  <div onClick={() => openModal(val._id, val.GameName, val.teams)}>
     <Card className="cursor-pointer w-full max-w-md mx-auto transform transition-all duration-300 hover:scale-105 hover:shadow-lg bg-gradient-to-br from-pink-50 to-purple-50 border border-pink-200">
       <CardHeader className="text-2xl font-semibold text-center text-purple-800 pb-2 border-b border-pink-200">
         {val.GameName}
@@ -85,6 +85,7 @@ const GameCategoriesPage = () => {
   const [moneySpent, setmoneySpent] = useState([]);
   const [RemainingGames, setRemainingGames] = useState(0);
   const [user, setUser] = useState(null);
+  const [Teams, setTeams] = useState(null);
 
   useEffect(() => {
     let loggedInUser = localStorage.getItem("user");
@@ -123,9 +124,10 @@ const GameCategoriesPage = () => {
     }
   };
 
-  const openModal = (gameId, gameName) => {
+  const openModal = (gameId, gameName, currentTeam) => {
     setCurrentGameId(gameId);
     setCurrentGameName(gameName);
+    setTeams(currentTeam);
     setModalIsOpen(true);
   };
 
@@ -139,8 +141,9 @@ const GameCategoriesPage = () => {
     try {
       let loggedInUser = JSON.parse(localStorage.getItem("user"));
       setModalIsOpen(false);
+      console.log("Teams[1]._id", Teams[1]._id);
       let { data } = await axios.put(
-        `${apiUrl}/user/startovergame/${loggedInUser._id}/${currentGameId}`
+        `${apiUrl}/user/startovergame/${loggedInUser._id}/${currentGameId}/${Teams[0]._id}/${Teams[1]._id}`
       );
       if (data.success) {
         // You might want to refresh the games list or navigate to a new page here

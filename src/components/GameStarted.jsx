@@ -11,6 +11,8 @@ import socket from "../socket";
 import { Modal as NewModal } from "react-responsive-modal";
 import "react-responsive-modal/styles.css";
 import { toast, Toaster } from "react-hot-toast";
+import ImageZoomer from "../utils/ImageZoomer";
+import VideoLoop from "../utils/VideoLoop";
 
 const GameInterface = () => {
   // modal states
@@ -29,7 +31,7 @@ const GameInterface = () => {
   const [loading, setloading] = useState(false);
   const [gameName, setGameName] = useState("");
   const [team1, setTeam1] = useState("");
-  const [MeAnswer, setMeAnswer] = useState(false);
+  const [MeAnswer, setMeAnswer] = useState({ team1: false, team2: false });
   const [showHand, setshowHand] = useState(false);
   const [GameInfo, setGameInfo] = useState({
     GameName: "",
@@ -52,10 +54,20 @@ const GameInterface = () => {
   const [error, setError] = useState("");
   const navigate = useNavigate();
   const [OutSourceAnswer, setOutSourceAnswer] = useState();
+
+  const [qrTeam1Answer, setqrTeam1Answer] = useState(
+    localStorage.getItem(GameInfo.Team1)
+  );
+  const [qrTeam2Answer, setqrTeam2Answer] = useState(
+    localStorage.getItem(GameInfo.Team2)
+  );
+  console.log("qrTeam1Answer", localStorage.getItem(GameInfo.Team1));
+  console.log("qrTeam2Answer", qrTeam2Answer);
   const [openNewModal, setopenNewModal] = useState(false);
   useEffect(() => {
     if (socket) {
       socket.on("answered", (data) => {
+        console.log("data", data);
         setOutSourceAnswer(data);
         setopenNewModal(true);
       });
@@ -90,7 +102,7 @@ const GameInterface = () => {
       step3: true,
     }));
   };
-  const noOneAnswer = () => {
+  const noOneAnswer = async () => {
     setModalIsOpen(false); // off modal
     //  reset the state
     setmodalState({
@@ -100,6 +112,9 @@ const GameInterface = () => {
       step4: false,
     });
     setOutSourceAnswer(null);
+    localStorage.removeItem(GameInfo.Team1);
+    localStorage.removeItem(GameInfo.Team2);
+    await disbleQuestionClosModal();
   };
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -163,7 +178,11 @@ const GameInterface = () => {
   // handleAuxilaryMeans
   const handleAuxilaryMeans = async (teamId, mean) => {
     if (mean === "light") {
-      setMeAnswer(!MeAnswer);
+      if (teamId === GameInfo.team1Id) {
+        setMeAnswer(() => ({ team1: true, team2: false }));
+      } else if (teamId === GameInfo.team2Id) {
+        setMeAnswer(() => ({ team1: false, team2: true }));
+      }
     } else if (mean === "hand") {
       setshowHand(!showHand);
     }
@@ -173,8 +192,7 @@ const GameInterface = () => {
         mean,
       });
       if (data.success) {
-        // re-render
-        await getQuestions();
+        // await getQuestions();
       }
     } catch (error) {
       console.log("error", error);
@@ -278,13 +296,45 @@ const GameInterface = () => {
     setModalIsOpen(true);
   };
 
-  const closeModal = () => {
+  const closeModal = async () => {
     setModalIsOpen(false);
     setModalContent(null);
-    setMeAnswer(false);
+    setMeAnswer({ team1: false, team2: false });
+    localStorage.removeItem(GameInfo.Team1);
+    localStorage.removeItem(GameInfo.Team2);
+    setmodalState({ step1: true, step2: false, step3: false, step4: false });
+    await disbleQuestionClosModal();
+  };
+
+  const disbleQuestionClosModal = async () => {
+    if (modalContent) {
+      const { category, questionIndex } = modalContent;
+      let loggedInUser = localStorage.getItem("user");
+      loggedInUser = JSON.parse(loggedInUser);
+      const dataToSendDisableQues = {
+        onCloseModal: true,
+        gameid: location.state.gameId,
+        questionId: categories[category].questions[questionIndex]._id, // Add question ID
+      };
+      try {
+        await axios.post(
+          `${apiUrl}/user/singleCorrectAnswer`,
+          dataToSendDisableQues
+        );
+        setshowAnswer(!showAnswer);
+        setOutSourceAnswer(null);
+      } catch (error) {
+        console.error("Error sending data to backend:", error);
+      }
+      // Check if the game is over and all questions are answered
+    }
   };
 
   const handleCorrectAnswer = async (team, teamid) => {
+    localStorage.removeItem(GameInfo.Team1);
+    localStorage.removeItem(GameInfo.Team2);
+    setshowAnswer(!showAnswer);
+    setOutSourceAnswer(null);
     if (modalContent) {
       const { category, questionIndex } = modalContent;
       const points = categories[category].questions[questionIndex].points;
@@ -294,10 +344,10 @@ const GameInterface = () => {
 
       if (team === GameInfo.Team1) {
         newTeam1Score += Number(points);
-        setTeam1Score(newTeam1Score);
+        // setTeam1Score(newTeam1Score);
       } else {
         newTeam2Score += Number(points);
-        setTeam2Score(newTeam2Score);
+        // setTeam2Score(newTeam2Score);
       }
 
       setGameInfo({
@@ -338,7 +388,6 @@ const GameInterface = () => {
           `${apiUrl}/user/singleCorrectAnswer`,
           correctAnswerData
         );
-        console.log("Data sent to backend successfully");
         setshowAnswer(!showAnswer);
         setOutSourceAnswer(null);
       } catch (error) {
@@ -376,7 +425,7 @@ const GameInterface = () => {
 
   return (
     <>
-      <NewModal
+      {/* <NewModal
         open={openNewModal}
         onClose={() => setopenNewModal(false)}
         center
@@ -392,8 +441,8 @@ const GameInterface = () => {
             Answer: <span className="font-bold">{OutSourceAnswer?.answer}</span>
           </h3>
         </div>
-      </NewModal>
-      <div className="md:h-[460px] xl:h-[600px] 2xl:h-[630px] bg-gradient-to-br flex flex-col">
+      </NewModal> */}
+      <div className="flex flex-col">
         {/* <h1 className="text-center text-2xl text-pink-600">
           {GameInfo.GameName}
         </h1> */}
@@ -406,35 +455,31 @@ const GameInterface = () => {
             {GameInfo.Team2}: {GameInfo.Team2Score} نقاط
           </div>
         </div> */}
-
-        <div className="xl:mt-5 2xl:mt-0 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 w-9/12 m-auto lg:h-[230px]">
+        <div className="mt-0 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-1 m-auto text-center w-full">
           {categories.map((category, categoryIndex) => {
             const midIndex = Math.ceil(category.questions.length / 2);
             const firstHalfQuestions = category.questions.slice(0, midIndex);
             const secondHalfQuestions = category.questions.slice(midIndex);
-
             return (
               <div
                 key={categoryIndex}
-                className="bg-white bg-opacity-30 rounded-lg flex relative w-full md:w-9/12 lg:w-full m-auto items-center justify-center"
+                className="bg-white bg-opacity-30 rounded-lg flex relative w-full  lg:w-full m-auto items-center justify-center"
               >
                 {/* Centered image and title with fixed size */}
                 <div className="relative flex flex-col items-center mx-6 min-w-[120px]">
                   <img
                     src={getImageSrc(category.image)}
                     alt={category.name}
-                    className="rounded-lg mb-2 
-                      w-[115px] h-[115px]
-                      xl:w-[155px] xl:h-[155px]
-                      2xl:w-[200px] 2xl:h-[200px]"
+                    className="rounded-lg mb-2 w-[160px] h-[160px]
+                      sm:w-[180px] sm:h-[180px]
+                      md:w-[200px] md:h-[200px]"
                   />
-
                   {/* Left Column: Render the first half of the questions */}
-                  <div className="absolute left-0 top-1/2 transform -translate-y-14 -translate-x-6  flex flex-col space-y-1 xl:-translate-y-20  2xl:-translate-y-24">
+                  <div className="absolute left-0 top-1/2 transform -translate-y-24 -translate-x-6 flex flex-col space-y-1 ">
                     {firstHalfQuestions.map((question, questionIndex) => (
                       <button
                         key={questionIndex}
-                        className={`p-2 rounded-full text-center text-[10px] xl:text-[15px] 2xl:text-[20px] ${
+                        className={`p-2 rounded-full text-center text-2xl ${
                           question.answered
                             ? "bg-gray-400 cursor-not-allowed border"
                             : "bg-gray-200 hover:bg-gray-400 text-black border"
@@ -451,11 +496,11 @@ const GameInterface = () => {
                   </div>
 
                   {/* Right Column: Render the second half of the questions */}
-                  <div className="absolute right-0 top-1/2 transform -translate-y-14 translate-x-6 flex flex-col space-y-1 xl:-translate-y-20  2xl:-translate-y-24">
+                  <div className="absolute right-0 top-1/2 transform -translate-y-24 translate-x-6 flex flex-col space-y-1">
                     {secondHalfQuestions.map((question, questionIndex) => (
                       <button
                         key={questionIndex + midIndex}
-                        className={`p-2 rounded-full text-center text-[10px] xl:text-[15px] 2xl:text-[20px] ${
+                        className={`p-2 rounded-full text-2xl  ${
                           question.answered
                             ? "bg-gray-400 cursor-not-allowed border"
                             : "bg-gray-200 hover:bg-gray-400 text-black border"
@@ -475,8 +520,8 @@ const GameInterface = () => {
             );
           })}
         </div>
-        {/* This is team section */}
-        <section className="">
+
+        <section>
           <form onSubmit={handleSubmit} className="space-y-6 -mt-0">
             {error && (
               <p className="text-red-300 text-center bg-red-500 bg-opacity-20 py-2 rounded-lg">
@@ -508,98 +553,6 @@ const GameInterface = () => {
                     -
                   </button>
                 </div>
-                {/* <h1>وسائل مساعدة</h1> */}
-                {/* images */}
-                <div>
-                  <button
-                    className="focus:ring focus:rounded-full"
-                    onClick={() =>
-                      handleAuxilaryMeans(GameInfo.team1Id, "hand")
-                    }
-                  >
-                    <img
-                      width={40}
-                      height={40}
-                      src={`${
-                        GameInfo.team1usedAuxMeans.hand
-                          ? "/color/hand.png"
-                          : "/simple/hand.png"
-                      }`}
-                      className={`${
-                        GameInfo.team1usedAuxMeans.hand
-                          ? "border border-pink-500 rounded-full"
-                          : ""
-                      }`}
-                      alt=""
-                    />
-                  </button>{" "}
-                  &nbsp;
-                  <button
-                    className="focus:ring focus:rounded-full"
-                    onClick={() =>
-                      handleAuxilaryMeans(GameInfo.team1Id, "rating")
-                    }
-                  >
-                    <img
-                      width={40}
-                      height={40}
-                      src={`${
-                        GameInfo.team1usedAuxMeans.rating
-                          ? "/color/rating.png"
-                          : "/simple/rating.png"
-                      }`}
-                      className={`${
-                        GameInfo.team1usedAuxMeans.rating
-                          ? "border border-pink-500 rounded-full"
-                          : ""
-                      }`}
-                    />
-                  </button>{" "}
-                  &nbsp;
-                  <button
-                    className="focus:ring focus:rounded-full"
-                    onClick={() =>
-                      handleAuxilaryMeans(GameInfo.team1Id, "light")
-                    }
-                  >
-                    <img
-                      width={40}
-                      height={40}
-                      src={`${
-                        GameInfo.team1usedAuxMeans.light
-                          ? "/color/light.png"
-                          : "/simple/light.png"
-                      }`}
-                      className={`${
-                        GameInfo.team1usedAuxMeans.light
-                          ? "border border-pink-500 rounded-full"
-                          : ""
-                      }`}
-                    />
-                  </button>{" "}
-                  &nbsp;
-                  <button
-                    className="focus:ring focus:rounded-full"
-                    onClick={() =>
-                      handleAuxilaryMeans(GameInfo.team1Id, "women")
-                    }
-                  >
-                    <img
-                      width={40}
-                      height={40}
-                      src={`${
-                        GameInfo.team1usedAuxMeans.women
-                          ? "/color/women.png"
-                          : "/simple/women.png"
-                      }`}
-                      className={`${
-                        GameInfo.team1usedAuxMeans.women
-                          ? "border border-pink-500 rounded-full"
-                          : ""
-                      }`}
-                    />
-                  </button>
-                </div>
               </div>
               {/* Team 2 */}
               <div className="text-xs w-10/12 flex flex-col items-center space-y-2">
@@ -627,96 +580,6 @@ const GameInterface = () => {
                 </div>
                 {/* <h1>وسائل مساعدة</h1> */}
                 {/* images */}
-                <div>
-                  <button
-                    className="focus:ring focus:rounded-full"
-                    onClick={() =>
-                      handleAuxilaryMeans(GameInfo.team2Id, "hand")
-                    }
-                  >
-                    <img
-                      width={40}
-                      height={40}
-                      src={`${
-                        GameInfo.team2usedAuxMeans.hand
-                          ? "/color/hand.png"
-                          : "/simple/hand.png"
-                      }`}
-                      className={`${
-                        GameInfo.team2usedAuxMeans.hand
-                          ? "border border-pink-500 rounded-full"
-                          : ""
-                      }`}
-                      alt=""
-                    />
-                  </button>{" "}
-                  &nbsp;
-                  <button
-                    className="focus:ring focus:rounded-full"
-                    onClick={() =>
-                      handleAuxilaryMeans(GameInfo.team2Id, "rating")
-                    }
-                  >
-                    <img
-                      width={40}
-                      height={40}
-                      src={`${
-                        GameInfo.team2usedAuxMeans.rating
-                          ? "/color/rating.png"
-                          : "/simple/rating.png"
-                      }`}
-                      className={`${
-                        GameInfo.team2usedAuxMeans.rating
-                          ? "border border-pink-500 rounded-full"
-                          : ""
-                      }`}
-                    />
-                  </button>{" "}
-                  &nbsp;
-                  <button
-                    className="focus:ring focus:rounded-full"
-                    onClick={() =>
-                      handleAuxilaryMeans(GameInfo.team2Id, "light")
-                    }
-                  >
-                    <img
-                      width={40}
-                      height={40}
-                      src={`${
-                        GameInfo.team2usedAuxMeans.light
-                          ? "/color/light.png"
-                          : "/simple/light.png"
-                      }`}
-                      className={`${
-                        GameInfo.team2usedAuxMeans.light
-                          ? "border border-pink-500 rounded-full"
-                          : ""
-                      }`}
-                    />
-                  </button>{" "}
-                  &nbsp;
-                  <button
-                    className="focus:ring focus:rounded-full"
-                    onClick={() =>
-                      handleAuxilaryMeans(GameInfo.team2Id, "women")
-                    }
-                  >
-                    <img
-                      width={40}
-                      height={40}
-                      src={`${
-                        GameInfo.team2usedAuxMeans.women
-                          ? "/color/women.png"
-                          : "/simple/women.png"
-                      }`}
-                      className={`${
-                        GameInfo.team2usedAuxMeans.women
-                          ? "border border-pink-500 rounded-full"
-                          : ""
-                      }`}
-                    />
-                  </button>
-                </div>
               </div>
             </div>
           </form>
@@ -769,16 +632,18 @@ const GameInterface = () => {
                       <X className="w-6 h-6" />
                     </button>
                   </div>
-                  <h2 className="text-lg font-semibold text-center mb-4 rounded bg-[#f4c93d6e]">
-                    {
-                      categories[modalContent.category].questions[
-                        modalContent.questionIndex
-                      ].question
-                    }
-                  </h2>
+                  <div className="mb-10">
+                    <h2 className="text-lg font-semibold text-center mb-4 rounded bg-[#f4c93d6e]">
+                      {
+                        categories[modalContent.category].questions[
+                          modalContent.questionIndex
+                        ].question
+                      }
+                    </h2>
+                  </div>
                   <div className="grid grid-cols-1 md:grid-cols-3">
                     {/* section 1 */}
-                    <div className="flex flex-col items-center gap-y-5">
+                    <div className="flex flex-col items-center gap-y-10">
                       <p className="text-[18px] text-center mb-2">
                         إجابة الفريق الأول
                       </p>
@@ -792,7 +657,7 @@ const GameInterface = () => {
                       <div className="text-xs w-10/12 flex flex-col items-center space-y-2">
                         {/* images */}
                         <div>
-                          <button
+                          {/* <button
                             className="focus:ring focus:rounded-full"
                             onClick={() =>
                               handleAuxilaryMeans(GameInfo.team1Id, "hand")
@@ -813,7 +678,7 @@ const GameInterface = () => {
                               }`}
                               alt=""
                             />
-                          </button>{" "}
+                          </button>  */}
                           &nbsp;
                           <button
                             className="focus:ring focus:rounded-full"
@@ -883,7 +748,8 @@ const GameInterface = () => {
                         </div>
                         <div className="w-full">
                           <h2 className="text-lg font-semibold text-center mb-4 rounded bg-[#f4c93d6e]">
-                            {MeAnswer &&
+                            {MeAnswer.team1 &&
+                              !GameInfo.team1usedAuxMeans.light &&
                               "Hint: " +
                                 categories[modalContent.category].questions[
                                   modalContent.questionIndex
@@ -928,32 +794,22 @@ const GameInterface = () => {
                           ].image.match(
                             /\.(jpeg|jpg|gif|png|webp|bmp|svg|jif|tiff|tif|heif|heic|jfif)$/i
                           ) ? (
-                            <img
-                              src={getImageSrc(
+                            <ImageZoomer
+                              src={
                                 categories[modalContent.category].questions[
                                   modalContent.questionIndex
                                 ].image
-                              )}
-                              alt="Question Media"
-                              className="w-[100%] h-[200px] rounded-md"
+                              }
                             />
                           ) : categories[modalContent.category].questions[
                               modalContent.questionIndex
                             ].image ? (
-                            <video
-                              controls
-                              loop
-                              className="w-[100%] h-[200px] rounded-lg mb-4 border border-gray-300 shadow-sm"
-                            >
-                              <source
-                                src={getImageSrc(
-                                  categories[modalContent.category].questions[
-                                    modalContent.questionIndex
-                                  ].image
-                                )}
+                            <>
+                              <VideoLoop
+                                categories={categories}
+                                modalContent={modalContent}
                               />
-                              Your browser does not support the video tag.
-                            </video>
+                            </>
                           ) : (
                             <p className="text-red-600 text-center">
                               Unsupported media type
@@ -963,7 +819,7 @@ const GameInterface = () => {
                       )}
                     </div>
                     {/* section 3 */}
-                    <div className="flex flex-col items-center gap-y-5">
+                    <div className="flex flex-col items-center gap-y-10">
                       <p className="text-[18px] text-center mb-2">
                         إجابة الفريق الثاني
                       </p>
@@ -975,7 +831,7 @@ const GameInterface = () => {
                       </div>
                       <div className="text-xs w-10/12 flex flex-col items-center space-y-2">
                         <div>
-                          <button
+                          {/* <button
                             className="focus:ring focus:rounded-full"
                             onClick={() =>
                               handleAuxilaryMeans(GameInfo.team2Id, "hand")
@@ -996,7 +852,7 @@ const GameInterface = () => {
                               }`}
                               alt=""
                             />
-                          </button>{" "}
+                          </button>  */}
                           &nbsp;
                           <button
                             className="focus:ring focus:rounded-full"
@@ -1064,17 +920,19 @@ const GameInterface = () => {
                             />
                           </button>
                         </div>
+                        <div className="w-full">
+                          <h2 className="text-lg font-semibold text-center mb-4 rounded bg-[#f4c93d6e]">
+                            {MeAnswer.team2 &&
+                              !GameInfo.team2usedAuxMeans.light &&
+                              "Hint: " +
+                                categories[modalContent.category].questions[
+                                  modalContent.questionIndex
+                                ].hint}
+                          </h2>
+                        </div>
                       </div>
-                      <div className="w-full">
-                        <h2 className="text-lg font-semibold text-center mb-4 rounded bg-[#f4c93d6e]">
-                          {MeAnswer &&
-                            "Hint :" +
-                              categories[modalContent.category].questions[
-                                modalContent.questionIndex
-                              ].hint}
-                        </h2>
-                      </div>
-                      {showHand && (
+
+                      {/* {showHand && (
                         <div class="flex space-x-4 text-[12px]">
                           <button class="border-2 border-gray-300 text-gray-500  -500   font-semibold py-2 px-4 rounded-lg shadow-md transition duration-300">
                             Right Answer :
@@ -1094,14 +952,14 @@ const GameInterface = () => {
                             }
                           </button>
                         </div>
-                      )}
+                      )} */}
                     </div>
                   </div>
                   <div className="my-10 text-center">
                     <br />
                     <button
                       onClick={() => seeAnswer()}
-                      className="text-red-500 border px-32 py-2 rounded-lg"
+                      className="text-white bg-gradient-to-r from-pink-500 to-red-500 border-2 border-pink-500 px-32 py-2 rounded-lg shadow-lg transform transition-transform duration-300 hover:scale-105 hover:shadow-pink-500/50"
                     >
                       See Answer
                     </button>
@@ -1115,7 +973,7 @@ const GameInterface = () => {
             <div className="bg-white p-6 shadow-lg h-screen w-full mx-auto relative">
               {modalContent && (
                 <>
-                  <div className="flex flex-col md:flex-row justify-between items-center mb-5 border-b border-gray-200 pb-3">
+                  <div className="flex flex-col md:flex-row justify-between items-center mb-5 border-b border-gray-200 pb-3  ">
                     <div className="m-auto p-2 px-5 flex justify-center items-center text-white bg-[#D140C8] gap-x-8 rounded-full">
                       <button
                         className="text-gray-600 hover:text-gray-800 transition-colors"
@@ -1142,13 +1000,15 @@ const GameInterface = () => {
                       <X className="w-6 h-6" />
                     </button>
                   </div>
-                  <h2 className="text-lg font-semibold text-center mb-4 rounded bg-[#f4c93d6e]">
-                    {
-                      categories[modalContent.category].questions[
-                        modalContent.questionIndex
-                      ].answer
-                    }
-                  </h2>
+                  <div className="mb-10">
+                    <h2 className="text-lg font-semibold text-center mb-4 rounded bg-[#f4c93d6e]">
+                      {
+                        categories[modalContent.category].questions[
+                          modalContent.questionIndex
+                        ].answer
+                      }
+                    </h2>
+                  </div>
 
                   {/* <p className="text-[#099BFF] text-center text-[30px] my-1">
                   {
@@ -1159,14 +1019,14 @@ const GameInterface = () => {
                 </p> */}
                   <div className="grid grid-cols-1 md:grid-cols-3">
                     {/* section 1 */}
-                    <div className="flex flex-col items-center gap-y-5">
+                    <div className="flex flex-col items-center gap-y-52">
                       <p className="text-[18px] text-center mb-2">
                         إجابة الفريقالأول
                       </p>
                       <div className="p-3 border-2 rounded-xl">
                         <p>
-                          {GameInfo.Team1 === OutSourceAnswer?.teamName
-                            ? OutSourceAnswer?.answer
+                          {localStorage.getItem(GameInfo.Team1)
+                            ? localStorage.getItem(GameInfo.Team1)
                             : "QRCode not Used"}
                         </p>
                       </div>
@@ -1184,49 +1044,33 @@ const GameInterface = () => {
                           ].document.match(
                             /\.(jpeg|jpg|gif|png|webp|bmp|svg|jif|tiff|tif|heif|heic|jfif)$/i
                           ) ? (
-                            <img
-                              src={getImageSrc(
+                            <ImageZoomer
+                              src={
                                 categories[modalContent.category].questions[
                                   modalContent.questionIndex
                                 ].document
-                              )}
-                              alt="Question Media"
-                              className="w-[100%] h-[200px] rounded-md"
+                              }
                             />
-                          ) : categories[modalContent.category].questions[
-                              modalContent.questionIndex
-                            ].document ? (
-                            <video
-                              controls
-                              loop
-                              className="w-[100%] h-[200px] rounded-lg mb-4 border border-gray-300 shadow-sm"
-                            >
-                              <source
-                                src={getImageSrc(
-                                  categories[modalContent.category].questions[
-                                    modalContent.questionIndex
-                                  ].document
-                                )}
-                              />
-                              Your browser does not support the video tag.
-                            </video>
                           ) : (
-                            <p className="text-red-600 text-center">
-                              Unsupported media type
-                            </p>
+                            <>
+                              <VideoLoop
+                                categories={categories}
+                                modalContent={modalContent}
+                              />
+                            </>
                           )}
                         </>
                       )}
                     </div>
                     {/* section 3 */}
-                    <div className="flex flex-col items-center gap-y-5">
+                    <div className="flex flex-col items-center gap-y-52">
                       <p className="text-[18px] text-center mb-2">
                         إجابة الفريق الثاني
                       </p>
                       <div className="p-3 border-2 rounded-xl">
                         <p>
-                          {GameInfo.Team2 === OutSourceAnswer?.teamName
-                            ? OutSourceAnswer?.answer
+                          {localStorage.getItem(GameInfo.Team2)
+                            ? localStorage.getItem(GameInfo.Team2)
                             : "QRCode not Used"}
                         </p>
                       </div>
@@ -1236,7 +1080,7 @@ const GameInterface = () => {
                     <br />
                     <button
                       onClick={() => whoAnswer()}
-                      className="text-red-500 border px-32 py-2 rounded-lg"
+                      className="text-white bg-gradient-to-r from-pink-500 to-red-500 border-2 border-pink-500 px-32 py-2 rounded-lg shadow-lg transform transition-transform duration-300 hover:scale-105 hover:shadow-pink-500/50"
                     >
                       Who Answer
                     </button>
@@ -1277,13 +1121,15 @@ const GameInterface = () => {
                       <X className="w-6 h-6" />
                     </button>
                   </div>
-                  <h2 className="text-lg font-semibold text-center mb-4 rounded bg-[#f4c93d6e]">
-                    {
-                      categories[modalContent.category].questions[
-                        modalContent.questionIndex
-                      ].answer
-                    }
-                  </h2>
+                  <div className="mb-10">
+                    <h2 className="text-lg font-semibold text-center mb-4 rounded bg-[#f4c93d6e]">
+                      {
+                        categories[modalContent.category].questions[
+                          modalContent.questionIndex
+                        ].answer
+                      }
+                    </h2>
+                  </div>
 
                   {/* <p className="text-[#099BFF] text-center text-[30px] my-1">
                   {
@@ -1294,7 +1140,7 @@ const GameInterface = () => {
                 </p> */}
                   <div className="grid grid-cols-1 md:grid-cols-3">
                     {/* section 1 */}
-                    <div className="flex flex-col items-center gap-y-5">
+                    <div className="flex flex-col items-center gap-y-14">
                       <p className="text-[18px] text-center mb-2">
                         إجابة الفريق الأول
                       </p>
@@ -1306,14 +1152,19 @@ const GameInterface = () => {
                         className="w-16 h-16 mb-2"
                       />
                       <p className="text-center">الفريق الأول</p>
-                      <button
-                        className="bg-gray-200 py-2 px-4 rounded-lg shadow-md hover:bg-gray-400 transition-colors duration-300 flex-1"
-                        onClick={() =>
-                          handleCorrectAnswer(GameInfo.Team1, GameInfo.team1Id)
-                        }
-                      >
-                        {GameInfo.Team1} صحيح
-                      </button>
+                      <div>
+                        <button
+                          className="bg-gray-200 py-2 px-4 rounded-lg shadow-md hover:bg-gray-400 transition-colors duration-300 flex-1"
+                          onClick={() =>
+                            handleCorrectAnswer(
+                              GameInfo.Team1,
+                              GameInfo.team1Id
+                            )
+                          }
+                        >
+                          {GameInfo.Team1} صحيح
+                        </button>
+                      </div>
                     </div>
                     {/* section 2 */}
                     <div className="flex flex-col items-center">
@@ -1327,33 +1178,35 @@ const GameInterface = () => {
                           ].image.match(
                             /\.(jpeg|jpg|gif|png|webp|bmp|svg|jif|tiff|tif|heif|heic|jfif)$/i
                           ) ? (
-                            <img
-                              src={getImageSrc(
+                            <ImageZoomer
+                              src={
                                 categories[modalContent.category].questions[
                                   modalContent.questionIndex
                                 ].image
-                              )}
-                              alt="Question Media"
-                              className="w-[100%] h-[200px] rounded-md"
+                              }
                             />
                           ) : categories[modalContent.category].questions[
                               modalContent.questionIndex
                             ].image ? (
-                            <video
-                              controls
-                              loop
-                              className="w-[100%] h-[200px] rounded-lg mb-4 border border-gray-300 shadow-sm"
-                            >
-                              <source
-                                src={getImageSrc(
-                                  categories[modalContent.category].questions[
-                                    modalContent.questionIndex
-                                  ].image
-                                )}
-                              />
-                              Your browser does not support the video tag.
-                            </video>
+                            <VideoLoop
+                              categories={categories}
+                              modalContent={modalContent}
+                            />
                           ) : (
+                            // <video
+                            //   controls
+                            //   loop
+                            //   className="w-[100%] h-[200px] rounded-lg mb-4 border border-gray-300 shadow-sm"
+                            // >
+                            //   <source
+                            //     src={getImageSrc(
+                            //       categories[modalContent.category].questions[
+                            //         modalContent.questionIndex
+                            //       ].image
+                            //     )}
+                            //   />
+                            //   Your browser does not support the video tag.
+                            // </video>
                             <p className="text-red-600 text-center">
                               Unsupported media type
                             </p>
@@ -1362,7 +1215,7 @@ const GameInterface = () => {
                       )}
                     </div>
                     {/* section 3 */}
-                    <div className="flex flex-col items-center gap-y-5">
+                    <div className="flex flex-col items-center gap-y-14">
                       <p className="text-[18px] text-center mb-2">
                         إجابة الفريق الثاني
                       </p>
@@ -1374,21 +1227,26 @@ const GameInterface = () => {
                         className="w-16 h-16 mb-2"
                       />
                       <p className="text-center">الفريق الثاني</p>
-                      <button
-                        className="bg-gray-200 py-2 px-4 rounded-lg shadow-md hover:bg-gray-400 transition-colors duration-300 flex-1"
-                        onClick={() =>
-                          handleCorrectAnswer(GameInfo.Team2, GameInfo.team2Id)
-                        }
-                      >
-                        {GameInfo.Team2} صحيح
-                      </button>
+                      <div>
+                        <button
+                          className="bg-gray-200 py-2 px-4 rounded-lg shadow-md hover:bg-gray-400 transition-colors duration-300 flex-1"
+                          onClick={() =>
+                            handleCorrectAnswer(
+                              GameInfo.Team2,
+                              GameInfo.team2Id
+                            )
+                          }
+                        >
+                          {GameInfo.Team2} صحيح
+                        </button>
+                      </div>
                     </div>
                   </div>
                   <div className="my-10 text-center">
                     <br />
                     <button
                       onClick={() => noOneAnswer()}
-                      className="text-red-500 border px-32 py-2 rounded-lg"
+                      className="text-white bg-gradient-to-r from-pink-500 to-red-500 border-2 border-pink-500 px-32 py-2 rounded-lg shadow-lg transform transition-transform duration-300 hover:scale-105 hover:shadow-pink-500/50"
                     >
                       No One Answer
                     </button>
