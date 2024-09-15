@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { X, Eye, EyeOff, ArrowUpLeft } from "lucide-react";
 import { useNavigate } from "react-router-dom"; // Assuming you use React Router
 import { apiUrl } from "../Api";
+import socket from "../socket";
 
 const LoginModal = ({
   isOpen,
@@ -94,6 +95,8 @@ const LoginModal = ({
 
       const data = await response.json();
       if (response.ok && data.success) {
+        socket.connect();
+        socket.emit("saveConnUserId", { userId: data.user._id });
         localStorage.setItem("user", JSON.stringify(data.user));
         localStorage.setItem("token", data.token);
         localStorage.setItem("boughtpkg", data.user.currentPackage);

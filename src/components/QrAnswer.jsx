@@ -5,12 +5,11 @@ import socket from "../socket";
 
 const QrAnswer = () => {
   const [answer, setanswer] = useState();
-  const { teamName } = useParams();
+  const { teamName, userId } = useParams();
   const submitAnswer = async (e) => {
     e.preventDefault();
     try {
-      localStorage.setItem(teamName, answer);
-      socket.emit("answer", { teamName, answer });
+      socket.emit("answer", { teamName, answer, userId });
       setanswer("");
       toast.success("Answer Submitted");
       window.close();

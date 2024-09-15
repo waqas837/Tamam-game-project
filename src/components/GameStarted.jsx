@@ -15,6 +15,7 @@ import ImageZoomer from "../utils/ImageZoomer";
 import VideoLoop from "../utils/VideoLoop";
 
 const GameInterface = () => {
+  let interval;
   // modal states
   // state 1
   const [modalState, setmodalState] = useState({
@@ -61,13 +62,21 @@ const GameInterface = () => {
   const [qrTeam2Answer, setqrTeam2Answer] = useState(
     localStorage.getItem(GameInfo.Team2)
   );
-  console.log("qrTeam1Answer", localStorage.getItem(GameInfo.Team1));
-  console.log("qrTeam2Answer", qrTeam2Answer);
   const [openNewModal, setopenNewModal] = useState(false);
+  let userId;
+  let loggedInUser = localStorage.getItem("user");
+  if (loggedInUser) {
+    loggedInUser = JSON.parse(loggedInUser);
+    userId = loggedInUser._id;
+  }
   useEffect(() => {
     if (socket) {
       socket.on("answered", (data) => {
+        alert("Hi");
         console.log("data", data);
+        let teamName = data.teamName;
+        let answer = data.answer;
+        localStorage.setItem(teamName, answer);
         setOutSourceAnswer(data);
         setopenNewModal(true);
       });
@@ -115,6 +124,12 @@ const GameInterface = () => {
     localStorage.removeItem(GameInfo.Team1);
     localStorage.removeItem(GameInfo.Team2);
     await disbleQuestionClosModal();
+  };
+  // showMoreQuestions
+  const showMoreQuestions = (categoryIndex, questionsList) => {
+    setModalIsOpen(true);
+    setmodalState({ step1: false, step2: false, step3: false, step4: true });
+    setModalContent({ category: categoryIndex, questionsList });
   };
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -220,7 +235,6 @@ const GameInterface = () => {
     }
   }, [modalIsOpen]);
   useEffect(() => {
-    let interval;
     if (modalIsOpen && isRunning) {
       interval = setInterval(() => {
         setSeconds((prev) => prev + 1);
@@ -292,6 +306,7 @@ const GameInterface = () => {
     }
   };
   const openModal = (category, questionIndex) => {
+    setmodalState({ step1: true, step2: false, step3: false, step4: false });
     setModalContent({ category, questionIndex });
     setModalIsOpen(true);
   };
@@ -457,13 +472,24 @@ const GameInterface = () => {
         </div> */}
         <div className="mt-0 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-1 m-auto text-center w-full">
           {categories.map((category, categoryIndex) => {
-            const midIndex = Math.ceil(category.questions.length / 2);
-            const firstHalfQuestions = category.questions.slice(0, midIndex);
-            const secondHalfQuestions = category.questions.slice(midIndex);
+            let lastRemainingQuestion;
+            const firstHalfQuestions = category.questions.slice(0, 3); // 3
+            const secondHalfQuestions = category.questions.slice(3, 6); // 3
+            // remaining will be exactly after two halves.(3+3)
+            let remainLastElems = category.questions.length - 6;
+            if (remainLastElems === 0) {
+              lastRemainingQuestion = 0;
+            } else {
+              // If we give it - value it will get the last elements
+              lastRemainingQuestion = category.questions.slice(
+                -remainLastElems
+              );
+            }
+            console.log("lastRemainingQuestion", lastRemainingQuestion);
             return (
               <div
                 key={categoryIndex}
-                className="bg-white bg-opacity-30 rounded-lg flex relative w-full  lg:w-full m-auto items-center justify-center"
+                className="bg-white bg-opacity-30 rounded-lg flex relative w-full lg:w-full m-auto items-center justify-center"
               >
                 {/* Centered image and title with fixed size */}
                 <div className="relative flex flex-col items-center mx-6 min-w-[120px]">
@@ -499,7 +525,7 @@ const GameInterface = () => {
                   <div className="absolute right-0 top-1/2 transform -translate-y-24 translate-x-6 flex flex-col space-y-1">
                     {secondHalfQuestions.map((question, questionIndex) => (
                       <button
-                        key={questionIndex + midIndex}
+                        key={questionIndex}
                         className={`p-2 rounded-full text-2xl  ${
                           question.answered
                             ? "bg-gray-400 cursor-not-allowed border"
@@ -507,7 +533,7 @@ const GameInterface = () => {
                         }`}
                         onClick={() =>
                           !question.answered &&
-                          openModal(categoryIndex, questionIndex + midIndex)
+                          openModal(categoryIndex, questionIndex + 3)
                         }
                         disabled={question.answered}
                       >
@@ -515,6 +541,21 @@ const GameInterface = () => {
                       </button>
                     ))}
                   </div>
+                  {lastRemainingQuestion.length > 0 && (
+                    <div className="-translate-y-9">
+                      <button
+                        onClick={() =>
+                          showMoreQuestions(
+                            categoryIndex,
+                            lastRemainingQuestion
+                          )
+                        }
+                        className="p-2 px-2 bg-gray-200 rounded-full hover:bg-gray-400 text-black border"
+                      >
+                        More+
+                      </button>
+                    </div>
+                  )}
                 </div>
               </div>
             );
@@ -649,9 +690,8 @@ const GameInterface = () => {
                       </p>
                       <div className="p-3 border-2 rounded-xl">
                         <QRCodeSVG
-                          o
                           size={100}
-                          value={`${frontendWebAddress}/answer/${GameInfo.Team1}`}
+                          value={`${frontendWebAddress}/answer/${GameInfo.Team1}/${userId}`}
                         />
                       </div>
                       <div className="text-xs w-10/12 flex flex-col items-center space-y-2">
@@ -826,7 +866,7 @@ const GameInterface = () => {
                       <div className="p-3 border-2 rounded-xl">
                         <QRCodeSVG
                           size={100}
-                          value={`${frontendWebAddress}/answer/${GameInfo.Team2}`}
+                          value={`${frontendWebAddress}/answer/${GameInfo.Team2}/${userId}`}
                         />
                       </div>
                       <div className="text-xs w-10/12 flex flex-col items-center space-y-2">
@@ -1258,7 +1298,60 @@ const GameInterface = () => {
 
           {modalState.step4 && (
             <div className="bg-white p-6 shadow-lg h-screen w-full mx-auto relative">
-              <h1>step 4</h1>
+              <button
+                className="text-gray-600 hover:text-gray-800 transition-colors mt-4 md:mt-0"
+                onClick={closeModal}
+              >
+                <X className="w-6 h-6" />
+              </button>
+              {modalContent && (
+                <div className="flex flex-col items-center justify-center p-4 sm:p-8">
+                  <div className="bg-white rounded-lg shadow-xl p-6 sm:p-8 max-w-2xl w-full">
+                    <h1 className="text-3xl sm:text-4xl font-bold mb-6 text-center text-purple-800">
+                      {categories[modalContent.category].name}
+                    </h1>
+
+                    <div className="mb-8">
+                      <img
+                        className="w-full h-64 object-cover rounded-lg shadow-md"
+                        src={getImageSrc(
+                          categories[modalContent.category].image
+                        )}
+                        alt=""
+                      />
+                    </div>
+
+                    <h2 className="text-2xl font-semibold mb-4 text-center text-gray-700">
+                      Questions
+                    </h2>
+
+                    <div className="flex flex-wrap justify-center gap-4">
+                      {modalContent?.questionsList?.map(
+                        (question, questionIndex) => (
+                          <button
+                            key={questionIndex}
+                            className={`w-16 h-16 rounded-full text-center text-xl sm:text-2xl font-bold transition-colors duration-200 ${
+                              question.answered
+                                ? "bg-gray-400 cursor-not-allowed"
+                                : "bg-gray-200 hover:bg-gray-300 text-black"
+                            }`}
+                            onClick={() =>
+                              !question.answered &&
+                              openModal(
+                                modalContent.category,
+                                questionIndex + 6
+                              )
+                            }
+                            disabled={question.answered}
+                          >
+                            {question.points}
+                          </button>
+                        )
+                      )}
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
           )}
         </Modal>

@@ -7,6 +7,7 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { X, Eye, EyeOff, ArrowUpLeft } from "lucide-react";
 import { apiUrl } from "../Api";
+import socket from "../socket";
 
 const SignupModal = ({
   isOpen,
@@ -84,6 +85,8 @@ const SignupModal = ({
     setErrorMessage("");
     try {
       const response = await axios.post(`${apiUrl}/user/signup`, data);
+      socket.connect();
+      socket.emit("saveConnUserId", { userId: response.data.user._id });
       localStorage.setItem("user", JSON.stringify(response.data.user));
       localStorage.setItem("token", response.data.token);
       localStorage.setItem("boughtpkg", response.data.user.currentPackage);

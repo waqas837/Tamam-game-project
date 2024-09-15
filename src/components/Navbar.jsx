@@ -4,6 +4,7 @@ import "./Navbar.css"; // Import the custom CSS for the ripple effect
 import toast, { Toaster } from "react-hot-toast";
 import LoginModal from "./LoginModal";
 import SignupModel from "./SignupModel";
+import socket from "../socket";
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [user, setUser] = useState(null);
@@ -96,6 +97,7 @@ const Navbar = () => {
   };
 
   const handleLogout = () => {
+    socket.disconnect();
     localStorage.removeItem("user");
     localStorage.removeItem("token");
     localStorage.removeItem("boughtpkg");
