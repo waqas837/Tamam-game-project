@@ -24,6 +24,10 @@ const GameInterface = () => {
     step3: false,
     step4: false,
   });
+  const [qrcodeshow, setqrcodeshow] = useState({
+    firstcode: false,
+    secondcode: false,
+  });
   const [modalIsOpen, setModalIsOpen] = useState(false);
   const [modalContent, setModalContent] = useState(null);
   const [team1Score, setTeam1Score] = useState(0);
@@ -72,7 +76,6 @@ const GameInterface = () => {
   useEffect(() => {
     if (socket) {
       socket.on("answered", (data) => {
-        alert("Hi");
         console.log("data", data);
         let teamName = data.teamName;
         let answer = data.answer;
@@ -113,19 +116,21 @@ const GameInterface = () => {
   };
   const noOneAnswer = async () => {
     setModalIsOpen(false); // off modal
-    //  reset the state
+    //  reset modal the states
     setmodalState({
       step1: true,
       step2: false,
       step3: false,
       step4: false,
     });
+    // reset qrcode state
+    setqrcodeshow({ firstcode: false, secondcode: false });
     setOutSourceAnswer(null);
     localStorage.removeItem(GameInfo.Team1);
     localStorage.removeItem(GameInfo.Team2);
     await disbleQuestionClosModal();
   };
-  // showMoreQuestions
+  // showMoreQuestions wil be used later on
   const showMoreQuestions = (categoryIndex, questionsList) => {
     setModalIsOpen(true);
     setmodalState({ step1: false, step2: false, step3: false, step4: true });
@@ -317,7 +322,10 @@ const GameInterface = () => {
     setMeAnswer({ team1: false, team2: false });
     localStorage.removeItem(GameInfo.Team1);
     localStorage.removeItem(GameInfo.Team2);
+    // reset modal state
     setmodalState({ step1: true, step2: false, step3: false, step4: false });
+    // reset qrcode state
+    setqrcodeshow({ firstcode: false, secondcode: false });
     await disbleQuestionClosModal();
   };
 
@@ -470,45 +478,26 @@ const GameInterface = () => {
             {GameInfo.Team2}: {GameInfo.Team2Score} نقاط
           </div>
         </div> */}
-        <div className="mt-0 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-1 m-auto text-center w-full">
+        <div className="-mt-5 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 p-4 gap-x-6 gap-y-5 w-full mx-auto">
           {categories.map((category, categoryIndex) => {
-            let lastRemainingQuestion;
-            const firstHalfQuestions = category.questions.slice(0, 3); // 3
-            const secondHalfQuestions = category.questions.slice(3, 6); // 3
-            // remaining will be exactly after two halves.(3+3)
-            let remainLastElems = category.questions.length - 6;
-            if (remainLastElems === 0) {
-              lastRemainingQuestion = 0;
-            } else {
-              // If we give it - value it will get the last elements
-              lastRemainingQuestion = category.questions.slice(
-                -remainLastElems
-              );
-            }
-            console.log("lastRemainingQuestion", lastRemainingQuestion);
+            const firstHalfQuestions = category.questions.slice(0, 3);
+            const secondHalfQuestions = category.questions.slice(3, 6);
+
             return (
               <div
                 key={categoryIndex}
-                className="bg-white bg-opacity-30 rounded-lg flex relative w-full lg:w-full m-auto items-center justify-center"
+                className="flex flex-col items-center justify-center"
               >
-                {/* Centered image and title with fixed size */}
-                <div className="relative flex flex-col items-center mx-6 min-w-[120px]">
-                  <img
-                    src={getImageSrc(category.image)}
-                    alt={category.name}
-                    className="rounded-lg mb-2 w-[160px] h-[160px]
-                      sm:w-[180px] sm:h-[180px]
-                      md:w-[200px] md:h-[200px]"
-                  />
-                  {/* Left Column: Render the first half of the questions */}
-                  <div className="absolute left-0 top-1/2 transform -translate-y-24 -translate-x-6 flex flex-col space-y-1 ">
+                <div className="flex">
+                  {/* Left Column: First half of the questions */}
+                  <div className="flex flex-col space-y-2">
                     {firstHalfQuestions.map((question, questionIndex) => (
                       <button
                         key={questionIndex}
-                        className={`p-2 rounded-full text-center text-2xl ${
+                        className={`px-12 py-2 text-3xl rounded-tr-full rounded-br-full ${
                           question.answered
-                            ? "bg-gray-400 cursor-not-allowed border"
-                            : "bg-gray-200 hover:bg-gray-400 text-black border"
+                            ? "bg-gray-400 cursor-not-allowed"
+                            : "bg-gray-200 hover:bg-gray-400 text-black"
                         }`}
                         onClick={() =>
                           !question.answered &&
@@ -521,15 +510,25 @@ const GameInterface = () => {
                     ))}
                   </div>
 
-                  {/* Right Column: Render the second half of the questions */}
-                  <div className="absolute right-0 top-1/2 transform -translate-y-24 translate-x-6 flex flex-col space-y-1">
+                  {/* Center Column: Category image and name */}
+                  <div className="flex flex-col justify-center items-center border h-[173px]">
+                    <img
+                      src={getImageSrc(category.image)}
+                      alt={category.name}
+                      className="w-52 h-[150px] object-cover"
+                    />
+                    {category.name}
+                  </div>
+
+                  {/* Right Column: Second half of the questions */}
+                  <div className="flex flex-col space-y-2">
                     {secondHalfQuestions.map((question, questionIndex) => (
                       <button
                         key={questionIndex}
-                        className={`p-2 rounded-full text-2xl  ${
+                        className={`px-12 py-2 text-3xl rounded-tl-full rounded-bl-full ${
                           question.answered
-                            ? "bg-gray-400 cursor-not-allowed border"
-                            : "bg-gray-200 hover:bg-gray-400 text-black border"
+                            ? "bg-gray-400 cursor-not-allowed"
+                            : "bg-gray-200 hover:bg-gray-400 text-black"
                         }`}
                         onClick={() =>
                           !question.answered &&
@@ -541,7 +540,13 @@ const GameInterface = () => {
                       </button>
                     ))}
                   </div>
-                  {lastRemainingQuestion.length > 0 && (
+                </div>
+              </div>
+            );
+          })}
+        </div>
+
+        {/*   {lastRemainingQuestion.length > 0 && (
                     <div className="-translate-y-9">
                       <button
                         onClick={() =>
@@ -555,13 +560,7 @@ const GameInterface = () => {
                         More+
                       </button>
                     </div>
-                  )}
-                </div>
-              </div>
-            );
-          })}
-        </div>
-
+                  )}*/}
         <section>
           <form onSubmit={handleSubmit} className="space-y-6 -mt-0">
             {error && (
@@ -577,48 +576,14 @@ const GameInterface = () => {
                 <div className="w-10/12 border-2 px-8 py-1 rounded-md bg-white">
                   {GameInfo.Team1Score}
                 </div>
-                <div className="w-10/12 bg-gray-100 rounded-md flex justify-between items-center p-1 text-white">
-                  <button
-                    type="button"
-                    className="bg-pink-400 rounded-full px-3 py-1"
-                    onClick={() => incrementScore("team1")}
-                  >
-                    +
-                  </button>
-                  <p className="text-black">{team1Score}</p>
-                  <button
-                    type="button"
-                    className="bg-pink-400 rounded-full px-3 py-1"
-                    onClick={() => decrementScore("team1")}
-                  >
-                    -
-                  </button>
-                </div>
               </div>
               {/* Team 2 */}
               <div className="text-xs w-10/12 flex flex-col items-center space-y-2">
-                {/* <img src="team.png" width={40} height={50} alt="" /> */}
                 <p className="text-sm text-pink-400">{GameInfo.Team2}</p>
                 <div className="w-10/12 border-2 px-8 py-1 rounded-md bg-white">
                   {GameInfo.Team2Score}
                 </div>
-                <div className="w-10/12 bg-gray-100 rounded-md flex justify-between items-center p-1 text-white">
-                  <button
-                    type="button"
-                    className="bg-pink-400 rounded-full px-3 py-1"
-                    onClick={() => incrementScore("team2")}
-                  >
-                    +
-                  </button>
-                  <p className="text-black">{team2Score}</p>
-                  <button
-                    type="button"
-                    className="bg-pink-400 rounded-full px-3 py-1"
-                    onClick={() => decrementScore("team2")}
-                  >
-                    -
-                  </button>
-                </div>
+
                 {/* <h1>وسائل مساعدة</h1> */}
                 {/* images */}
               </div>
@@ -689,10 +654,24 @@ const GameInterface = () => {
                         إجابة الفريق الأول
                       </p>
                       <div className="p-3 border-2 rounded-xl">
-                        <QRCodeSVG
-                          size={100}
-                          value={`${frontendWebAddress}/answer/${GameInfo.Team1}/${userId}`}
-                        />
+                        {qrcodeshow.secondcode ? (
+                          <QRCodeSVG
+                            size={100}
+                            value={`${frontendWebAddress}/answer/${GameInfo.Team1}/${userId}`}
+                          />
+                        ) : (
+                          <button
+                            onClick={() =>
+                              setqrcodeshow((prevState) => ({
+                                ...prevState,
+                                secondcode: !qrcodeshow.secondcode,
+                              }))
+                            }
+                            className="bg-green-500 text-white text-sm font-medium py-1 px-2 rounded hover:bg-green-600 active:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-300"
+                          >
+                            Generate QR Code
+                          </button>
+                        )}
                       </div>
                       <div className="text-xs w-10/12 flex flex-col items-center space-y-2">
                         {/* images */}
@@ -864,10 +843,24 @@ const GameInterface = () => {
                         إجابة الفريق الثاني
                       </p>
                       <div className="p-3 border-2 rounded-xl">
-                        <QRCodeSVG
-                          size={100}
-                          value={`${frontendWebAddress}/answer/${GameInfo.Team2}/${userId}`}
-                        />
+                        {qrcodeshow.firstcode ? (
+                          <QRCodeSVG
+                            size={100}
+                            value={`${frontendWebAddress}/answer/${GameInfo.Team2}/${userId}`}
+                          />
+                        ) : (
+                          <button
+                            onClick={() =>
+                              setqrcodeshow((...prevState) => ({
+                                ...prevState,
+                                firstcode: !qrcodeshow.firstcode,
+                              }))
+                            }
+                            className="bg-green-500 text-white text-sm font-medium py-1 px-2 rounded hover:bg-green-600 active:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-300"
+                          >
+                            Generate QR Code
+                          </button>
+                        )}
                       </div>
                       <div className="text-xs w-10/12 flex flex-col items-center space-y-2">
                         <div>

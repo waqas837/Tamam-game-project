@@ -198,10 +198,11 @@ const AddCategoryAndQuestions = () => {
                     handleQuestionChange(index, "hint", e.target.value)
                   }
                   className="w-full p-2 border-2 border-pink-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition duration-200"
+                  required
                 />
               </div>
 
-              <div>
+              {/* <div>
                 <label className="block mb-2 text-md font-medium text-purple-700">
                   Right Answer
                 </label>
@@ -213,9 +214,9 @@ const AddCategoryAndQuestions = () => {
                   }
                   className="w-full p-2 border-2 border-pink-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition duration-200"
                 />
-              </div>
+              </div> */}
 
-              <div>
+              {/* <div>
                 <label className="block mb-2 text-md font-medium text-purple-700">
                   Wrong Answer
                 </label>
@@ -227,7 +228,7 @@ const AddCategoryAndQuestions = () => {
                   }
                   className="w-full p-2 border-2 border-pink-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition duration-200"
                 />
-              </div>
+              </div> */}
               <div>
                 <label className="block mb-2 text-md font-medium text-purple-700">
                   نقاط
