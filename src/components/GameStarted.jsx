@@ -482,19 +482,40 @@ const GameInterface = () => {
           {categories.map((category, categoryIndex) => {
             const firstHalfQuestions = category.questions.slice(0, 3);
             const secondHalfQuestions = category.questions.slice(3, 6);
-
+            let lastRemainingQuestion;
+            // remaining will be exactly after two halves.(3+3)
+            let remainLastElems = category.questions.length - 6;
+            if (remainLastElems === 0) {
+              lastRemainingQuestion = 0;
+            } else {
+              // If we give it - value it will get the last elements
+              lastRemainingQuestion = category.questions.slice(
+                -remainLastElems
+              );
+            }
+            console.log("lastRemainingQuestion", lastRemainingQuestion);
             return (
               <div
                 key={categoryIndex}
-                className="flex flex-col items-center justify-center"
+                className="relative flex flex-col items-center justify-center"
               >
-                <div className="flex">
+                {/* Image and category name */}
+                <div className="relative flex flex-col justify-center items-center">
+                  <img
+                    src={getImageSrc(category.image)}
+                    alt={category.name}
+                    className="w-52 h-[150px] object-cover"
+                  />
+                  <div className="absolute bottom-0 bg-white bg-opacity-75 w-full text-center py-2">
+                    {category.name}
+                  </div>
+
                   {/* Left Column: First half of the questions */}
-                  <div className="flex flex-col space-y-2">
+                  <div className="absolute top-1/2 -translate-y-1/2 left-[-30px] flex flex-col space-y-2">
                     {firstHalfQuestions.map((question, questionIndex) => (
                       <button
                         key={questionIndex}
-                        className={`px-12 py-2 text-3xl rounded-tr-full rounded-br-full ${
+                        className={`px-6 py-1 text-2xl transform ${
                           question.answered
                             ? "bg-gray-400 cursor-not-allowed"
                             : "bg-gray-200 hover:bg-gray-400 text-black"
@@ -510,22 +531,12 @@ const GameInterface = () => {
                     ))}
                   </div>
 
-                  {/* Center Column: Category image and name */}
-                  <div className="flex flex-col justify-center items-center border h-[173px]">
-                    <img
-                      src={getImageSrc(category.image)}
-                      alt={category.name}
-                      className="w-52 h-[150px] object-cover"
-                    />
-                    {category.name}
-                  </div>
-
                   {/* Right Column: Second half of the questions */}
-                  <div className="flex flex-col space-y-2">
+                  <div className="absolute top-1/2 -translate-y-1/2 right-[-30px] flex flex-col space-y-2">
                     {secondHalfQuestions.map((question, questionIndex) => (
                       <button
                         key={questionIndex}
-                        className={`px-12 py-2 text-3xl rounded-tl-full rounded-bl-full ${
+                        className={`px-6 py-1 text-2xl transform ${
                           question.answered
                             ? "bg-gray-400 cursor-not-allowed"
                             : "bg-gray-200 hover:bg-gray-400 text-black"
@@ -546,21 +557,6 @@ const GameInterface = () => {
           })}
         </div>
 
-        {/*   {lastRemainingQuestion.length > 0 && (
-                    <div className="-translate-y-9">
-                      <button
-                        onClick={() =>
-                          showMoreQuestions(
-                            categoryIndex,
-                            lastRemainingQuestion
-                          )
-                        }
-                        className="p-2 px-2 bg-gray-200 rounded-full hover:bg-gray-400 text-black border"
-                      >
-                        More+
-                      </button>
-                    </div>
-                  )}*/}
         <section>
           <form onSubmit={handleSubmit} className="space-y-6 -mt-0">
             {error && (
