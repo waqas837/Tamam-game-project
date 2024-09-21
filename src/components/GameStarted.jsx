@@ -310,9 +310,10 @@ const GameInterface = () => {
       console.log("err in handleSubmit", error);
     }
   };
-  const openModal = (category, questionIndex) => {
+  const openModal = (category, q_id) => {
+    alert(q_id);
     setmodalState({ step1: true, step2: false, step3: false, step4: false });
-    setModalContent({ category, questionIndex });
+    setModalContent({ category, q_id });
     setModalIsOpen(true);
   };
 
@@ -331,13 +332,13 @@ const GameInterface = () => {
 
   const disbleQuestionClosModal = async () => {
     if (modalContent) {
-      const { category, questionIndex } = modalContent;
+      const { category, q_id } = modalContent;
       let loggedInUser = localStorage.getItem("user");
       loggedInUser = JSON.parse(loggedInUser);
       const dataToSendDisableQues = {
         onCloseModal: true,
         gameid: location.state.gameId,
-        questionId: categories[category].questions[questionIndex]._id, // Add question ID
+        questionId: q_id, // Add question ID
       };
       try {
         await axios.post(
@@ -480,20 +481,27 @@ const GameInterface = () => {
         </div> */}
         <div className="-mt-5 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 p-4 gap-x-6 gap-y-5 w-full mx-auto">
           {categories.map((category, categoryIndex) => {
-            const firstHalfQuestions = category.questions.slice(0, 3);
-            const secondHalfQuestions = category.questions.slice(3, 6);
-            let lastRemainingQuestion;
-            // remaining will be exactly after two halves.(3+3)
-            let remainLastElems = category.questions.length - 6;
-            if (remainLastElems === 0) {
-              lastRemainingQuestion = 0;
-            } else {
-              // If we give it - value it will get the last elements
-              lastRemainingQuestion = category.questions.slice(
-                -remainLastElems
-              );
+            let firstHalfQuestions;
+            let secondHalfQuestions;
+            let secondHalfIndex = 3;
+            let sixBySixSlices = [];
+            // Need every six elements
+            for (let i = 0; i < category.questions.length; i = i + 6) {
+              let sixBySix = category.questions.slice(i, i + 6);
+              sixBySixSlices.push(sixBySix);
             }
-            console.log("lastRemainingQuestion", lastRemainingQuestion);
+
+            for (let i = 0; i < sixBySixSlices.length; i++) {
+              const element = sixBySixSlices[i];
+              firstHalfQuestions = element.slice(0, 3);
+              secondHalfQuestions = element.slice(3, 6);
+              let allAnswered = element.every((val) => val.answered === true);
+              if (!allAnswered) {
+                // secondHalfIndex = secondHalfIndex + 6;
+                break;
+              }
+            }
+            // console.log("secondHalfIndex", secondHalfIndex);
             return (
               <div
                 key={categoryIndex}
@@ -522,7 +530,7 @@ const GameInterface = () => {
                         }`}
                         onClick={() =>
                           !question.answered &&
-                          openModal(categoryIndex, questionIndex)
+                          openModal(categoryIndex, question._id)
                         }
                         disabled={question.answered}
                       >
@@ -543,7 +551,7 @@ const GameInterface = () => {
                         }`}
                         onClick={() =>
                           !question.answered &&
-                          openModal(categoryIndex, questionIndex + 3)
+                          openModal(categoryIndex, question._id)
                         }
                         disabled={question.answered}
                       >
@@ -636,10 +644,19 @@ const GameInterface = () => {
                   </div>
                   <div className="mb-10">
                     <h2 className="text-lg font-semibold text-center mb-4 rounded bg-[#f4c93d6e]">
+                      {(() => {
+                        console.log("modalContent.q_id", modalContent.q_id);
+                        console.log(
+                          "what is here",
+                          categories[modalContent.category].questions.find(
+                            (val) => val._id === modalContent.q_id
+                          )
+                        );
+                      })()}
                       {
-                        categories[modalContent.category].questions[
-                          modalContent.questionIndex
-                        ].question
+                        categories[modalContent.category].questions.find(
+                          (val) => val._id === modalContent.q_id
+                        ).question
                       }
                     </h2>
                   </div>
@@ -800,25 +817,27 @@ const GameInterface = () => {
                     {/* section 2 */}
                     <div className="flex flex-col items-center">
                       {/* Conditional rendering for image or video */}
-                      {categories[modalContent.category].questions[
-                        modalContent.questionIndex
-                      ].image && (
+                      {categories[modalContent.category].questions.find(
+                        (val) => val._id === modalContent.q_id
+                      ).image && (
                         <>
-                          {categories[modalContent.category].questions[
-                            modalContent.questionIndex
-                          ].image.match(
-                            /\.(jpeg|jpg|gif|png|webp|bmp|svg|jif|tiff|tif|heif|heic|jfif)$/i
-                          ) ? (
+                          {categories[modalContent.category].questions
+                            .find((val) => val._id === modalContent.q_id)
+                            .image.match(
+                              /\.(jpeg|jpg|gif|png|webp|bmp|svg|jif|tiff|tif|heif|heic|jfif)$/i
+                            ) ? (
                             <ImageZoomer
                               src={
-                                categories[modalContent.category].questions[
-                                  modalContent.questionIndex
-                                ].image
+                                categories[
+                                  modalContent.category
+                                ].questions.find(
+                                  (val) => val._id === modalContent.q_id
+                                ).image
                               }
                             />
-                          ) : categories[modalContent.category].questions[
-                              modalContent.questionIndex
-                            ].image ? (
+                          ) : categories[modalContent.category].questions.find(
+                              (val) => val._id === modalContent.q_id
+                            ).image ? (
                             <>
                               <VideoLoop
                                 categories={categories}
@@ -1326,10 +1345,7 @@ const GameInterface = () => {
                             }`}
                             onClick={() =>
                               !question.answered &&
-                              openModal(
-                                modalContent.category,
-                                questionIndex + 6
-                              )
+                              openModal(modalContent.category, question._id)
                             }
                             disabled={question.answered}
                           >
