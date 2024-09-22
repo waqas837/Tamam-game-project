@@ -76,7 +76,6 @@ const GameInterface = () => {
   useEffect(() => {
     if (socket) {
       socket.on("answered", (data) => {
-        console.log("data", data);
         let teamName = data.teamName;
         let answer = data.answer;
         localStorage.setItem(teamName, answer);
@@ -231,7 +230,6 @@ const GameInterface = () => {
       setTeam2Score((prevScore) => prevScore - 1);
   };
   useEffect(() => {
-    // console.log("location", location.state);
     if (modalIsOpen) {
       setIsRunning(true); // Start the timer when the modal opens
     } else {
@@ -290,7 +288,7 @@ const GameInterface = () => {
         let Team2 = data.LongInfo.teams[1].name;
         let Team1Score = data.LongInfo.teams[0].score;
         let Team2Score = data.LongInfo.teams[1].score;
-        console.log("data.LongInfo", data.LongInfo);
+        // console.log("data.LongInfo", data.LongInfo);
         setGameInfo({
           GameName: GameName,
           Team1,
@@ -311,7 +309,6 @@ const GameInterface = () => {
     }
   };
   const openModal = (category, q_id) => {
-    alert(q_id);
     setmodalState({ step1: true, step2: false, step3: false, step4: false });
     setModalContent({ category, q_id });
     setModalIsOpen(true);
@@ -360,8 +357,10 @@ const GameInterface = () => {
     setshowAnswer(!showAnswer);
     setOutSourceAnswer(null);
     if (modalContent) {
-      const { category, questionIndex } = modalContent;
-      const points = categories[category].questions[questionIndex].points;
+      const { category, q_id } = modalContent;
+      const points = categories[category].questions.find(
+        (val) => val._id === q_id
+      ).points;
 
       let newTeam1Score = GameInfo.Team1Score;
       let newTeam2Score = GameInfo.Team1Score;
@@ -382,11 +381,13 @@ const GameInterface = () => {
 
       setCategories((prevCategories) => {
         const newCategories = [...prevCategories];
-        newCategories[category].questions[questionIndex].answered = true;
+        newCategories[category].questions.find(
+          (val) => val._id === q_id
+        ).answered = true;
         return newCategories;
       });
       // reste the modal state
-      setmodalState({ step1: true, step2: false, step3: false, step4: false });
+      setmodalState({ step1: false, step2: false, step3: false, step4: false });
       closeModal();
 
       // Prepare data to send to the backend
@@ -398,9 +399,11 @@ const GameInterface = () => {
         gameName: GameInfo.GameName,
         categoryId: categories[category]._id, // Add category ID
         categoryName: categories[category].name,
-        questionId: categories[category].questions[questionIndex]._id, // Add question ID
-        question: categories[category].questions[questionIndex].question,
-        answer: categories[category].questions[questionIndex].answer,
+        questionId: q_id, // Add question ID
+        question: categories[category].questions.find((val) => val._id === q_id)
+          .question,
+        answer: categories[category].questions.find((val) => val._id === q_id)
+          .answer,
         pointsGot: points,
         correctTeam: team,
         categories,
@@ -435,9 +438,6 @@ const GameInterface = () => {
 
   // Get images url.
   const getImageSrc = (imageUrl) => {
-    if (imageUrl === null) {
-      console.log("imageUrl", imageUrl);
-    }
     // Check if the image URL contains 'http' or 'https' indicating an external link
     if (imageUrl.startsWith("http://") || imageUrl.startsWith("https://")) {
       return imageUrl; // Return the external URL directly
@@ -497,11 +497,10 @@ const GameInterface = () => {
               secondHalfQuestions = element.slice(3, 6);
               let allAnswered = element.every((val) => val.answered === true);
               if (!allAnswered) {
-                // secondHalfIndex = secondHalfIndex + 6;
                 break;
               }
             }
-            // console.log("secondHalfIndex", secondHalfIndex);
+
             return (
               <div
                 key={categoryIndex}
@@ -644,15 +643,6 @@ const GameInterface = () => {
                   </div>
                   <div className="mb-10">
                     <h2 className="text-lg font-semibold text-center mb-4 rounded bg-[#f4c93d6e]">
-                      {(() => {
-                        console.log("modalContent.q_id", modalContent.q_id);
-                        console.log(
-                          "what is here",
-                          categories[modalContent.category].questions.find(
-                            (val) => val._id === modalContent.q_id
-                          )
-                        );
-                      })()}
                       {
                         categories[modalContent.category].questions.find(
                           (val) => val._id === modalContent.q_id
@@ -783,9 +773,11 @@ const GameInterface = () => {
                             {MeAnswer.team1 &&
                               !GameInfo.team1usedAuxMeans.light &&
                               "Hint: " +
-                                categories[modalContent.category].questions[
-                                  modalContent.questionIndex
-                                ].hint}
+                                categories[
+                                  modalContent.category
+                                ].questions.find(
+                                  (val) => val._id === modalContent.q_id
+                                ).hint}
                           </h2>
                         </div>
                         {showHand && (
@@ -795,18 +787,22 @@ const GameInterface = () => {
                               <button class="border-2 border-gray-300 text-gray-500  -500   font-semibold py-2 px-4 rounded-lg shadow-md transition duration-300">
                                 Right Answer :
                                 {
-                                  categories[modalContent.category].questions[
-                                    modalContent.questionIndex
-                                  ].rightanswer
+                                  categories[
+                                    modalContent.category
+                                  ].questions.find(
+                                    (val) => val._id === modalContent.q_id
+                                  ).rightanswer
                                 }
                               </button>
 
                               <button class="border-2 border-gray-300 text-gray-500     font-semibold py-2 px-4 rounded-lg shadow-md transition duration-300">
                                 Wrong Answer :
                                 {
-                                  categories[modalContent.category].questions[
-                                    modalContent.questionIndex
-                                  ].wronganswer
+                                  categories[
+                                    modalContent.category
+                                  ].questions.find(
+                                    (val) => val._id === modalContent.q_id
+                                  ).wronganswer
                                 }
                               </button>
                             </div>
@@ -973,9 +969,11 @@ const GameInterface = () => {
                             {MeAnswer.team2 &&
                               !GameInfo.team2usedAuxMeans.light &&
                               "Hint: " +
-                                categories[modalContent.category].questions[
-                                  modalContent.questionIndex
-                                ].hint}
+                                categories[
+                                  modalContent.category
+                                ].questions.find(
+                                  (val) => val._id === modalContent.q_id
+                                ).hint}
                           </h2>
                         </div>
                       </div>
@@ -1051,9 +1049,9 @@ const GameInterface = () => {
                   <div className="mb-10">
                     <h2 className="text-lg font-semibold text-center mb-4 rounded bg-[#f4c93d6e]">
                       {
-                        categories[modalContent.category].questions[
-                          modalContent.questionIndex
-                        ].answer
+                        categories[modalContent.category].questions.find(
+                          (val) => val._id === modalContent.q_id
+                        ).answer
                       }
                     </h2>
                   </div>
@@ -1083,20 +1081,22 @@ const GameInterface = () => {
                     <div className="flex flex-col items-center">
                       {/* Conditional rendering for image or video/answer document show here */}
 
-                      {categories[modalContent.category].questions[
-                        modalContent.questionIndex
-                      ].document && (
+                      {categories[modalContent.category].questions.find(
+                        (val) => val._id === modalContent.q_id
+                      ).document && (
                         <>
-                          {categories[modalContent.category].questions[
-                            modalContent.questionIndex
-                          ].document.match(
-                            /\.(jpeg|jpg|gif|png|webp|bmp|svg|jif|tiff|tif|heif|heic|jfif)$/i
-                          ) ? (
+                          {categories[modalContent.category].questions
+                            .find((val) => val._id === modalContent.q_id)
+                            .document.match(
+                              /\.(jpeg|jpg|gif|png|webp|bmp|svg|jif|tiff|tif|heif|heic|jfif)$/i
+                            ) ? (
                             <ImageZoomer
                               src={
-                                categories[modalContent.category].questions[
-                                  modalContent.questionIndex
-                                ].document
+                                categories[
+                                  modalContent.category
+                                ].questions.find(
+                                  (val) => val._id === modalContent.q_id
+                                ).document
                               }
                             />
                           ) : (
@@ -1172,9 +1172,9 @@ const GameInterface = () => {
                   <div className="mb-10">
                     <h2 className="text-lg font-semibold text-center mb-4 rounded bg-[#f4c93d6e]">
                       {
-                        categories[modalContent.category].questions[
-                          modalContent.questionIndex
-                        ].answer
+                        categories[modalContent.category].questions.find(
+                          (val) => val._id === modalContent.q_id
+                        ).answer
                       }
                     </h2>
                   </div>
@@ -1217,25 +1217,27 @@ const GameInterface = () => {
                     {/* section 2 */}
                     <div className="flex flex-col items-center">
                       {/* Conditional rendering for image or video */}
-                      {categories[modalContent.category].questions[
-                        modalContent.questionIndex
-                      ].image && (
+                      {categories[modalContent.category].questions.find(
+                        (val) => val._id === modalContent.q_id
+                      ).image && (
                         <>
-                          {categories[modalContent.category].questions[
-                            modalContent.questionIndex
-                          ].image.match(
-                            /\.(jpeg|jpg|gif|png|webp|bmp|svg|jif|tiff|tif|heif|heic|jfif)$/i
-                          ) ? (
+                          {categories[modalContent.category].questions
+                            .find((val) => val._id === modalContent.q_id)
+                            .image.match(
+                              /\.(jpeg|jpg|gif|png|webp|bmp|svg|jif|tiff|tif|heif|heic|jfif)$/i
+                            ) ? (
                             <ImageZoomer
                               src={
-                                categories[modalContent.category].questions[
-                                  modalContent.questionIndex
-                                ].image
+                                categories[
+                                  modalContent.category
+                                ].questions.find(
+                                  (val) => val._id === modalContent.q_id
+                                ).image
                               }
                             />
-                          ) : categories[modalContent.category].questions[
-                              modalContent.questionIndex
-                            ].image ? (
+                          ) : categories[modalContent.category].questions.find(
+                              (val) => val._id === modalContent.q_id
+                            ).image ? (
                             <VideoLoop
                               categories={categories}
                               modalContent={modalContent}
