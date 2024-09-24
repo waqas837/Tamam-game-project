@@ -378,7 +378,7 @@ const GameInterface = () => {
         </h1>
         <br />
         {loading && <Loader />}
-        <div className="-mt-5 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 p-4 gap-x-6 gap-y-5 w-full mx-auto">
+        <div className="-mt-5 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 p-4 gap-x-6 gap-y-5 w-full mx-auto">
           {categories.map((category, categoryIndex) => {
             let firstHalfQuestions;
             let secondHalfQuestions;
@@ -420,15 +420,15 @@ const GameInterface = () => {
                   <img
                     src={getImageSrc(category.image)}
                     alt={category.name}
-                    className="w-52 h-[150px] object-cover"
+                    className="md:w-[140px] md:h-[140px] lg:w-52 lg:h-[150px] object-cover"
                   />
 
                   {/* Left Column: First half of the questions */}
-                  <div className="absolute top-1/2 -translate-y-1/2 left-[-30px] flex flex-col space-y-2">
+                  <div className="absolute top-1/2 -translate-y-1/2 left-[-30px] md:left-[-60px] lg:left-[-70px] xl:left-[-40x] flex flex-col space-y-2">
                     {firstHalfQuestions.map((question, questionIndex) => (
                       <button
                         key={questionIndex}
-                        className={`px-6 py-1 text-2xl transform ${
+                        className={`px-6 py-1 text-2xl md:text-2xl lg:text-3xl transform ${
                           question.answered
                             ? "bg-gray-400 cursor-not-allowed"
                             : "bg-gray-200 hover:bg-gray-400 text-black"
@@ -445,11 +445,11 @@ const GameInterface = () => {
                   </div>
 
                   {/* Right Column: Second half of the questions */}
-                  <div className="absolute top-1/2 -translate-y-1/2 right-[-30px] flex flex-col space-y-2">
+                  <div className="absolute top-1/2 -translate-y-1/2 right-[-30px] md:right-[-60px] lg:right-[-70px] xl:right-[-60px] flex flex-col space-y-2">
                     {secondHalfQuestions.map((question, questionIndex) => (
                       <button
                         key={questionIndex}
-                        className={`px-6 py-1 text-2xl transform ${
+                        className={`px-6 py-1 text-2xl md:text-2xl lg:text-3xl transform ${
                           question.answered
                             ? "bg-gray-400 cursor-not-allowed"
                             : "bg-gray-200 hover:bg-gray-400 text-black"
