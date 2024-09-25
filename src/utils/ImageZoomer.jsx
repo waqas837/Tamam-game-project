@@ -47,7 +47,7 @@ const ImageZoomer = ({ src }) => {
         <img
           src={getImageSrc(src)}
           alt={"name"}
-          className="w-full h-full object-cover cursor-pointer"
+          className="w-full h-[80%] object-cover cursor-pointer"
         />
       </div>
 

@@ -372,13 +372,12 @@ const GameInterface = () => {
 
   return (
     <>
-      <div className="flex flex-col">
+      <div className="flex flex-col h-screen">
         <h1 className="text-center text-xl text-pink-600">
           {GameInfo.GameName}
         </h1>
-        <br />
         {loading && <Loader />}
-        <div className="-mt-5 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 p-4 gap-x-6 gap-y-5 w-full mx-auto">
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-x-10 gap-y-10 p-3 w-full mx-auto">
           {categories.map((category, categoryIndex) => {
             let firstHalfQuestions;
             let secondHalfQuestions;
@@ -420,15 +419,15 @@ const GameInterface = () => {
                   <img
                     src={getImageSrc(category.image)}
                     alt={category.name}
-                    className="md:w-[140px] md:h-[140px] lg:w-52 lg:h-[150px] object-cover"
+                    className="w-[70px] h-[70px] md:w-[140px] md:h-[140px] lg:w-52 lg:h-[150px] object-cover"
                   />
 
                   {/* Left Column: First half of the questions */}
-                  <div className="absolute top-1/2 -translate-y-1/2 left-[-30px] md:left-[-60px] lg:left-[-70px] xl:left-[-40x] flex flex-col space-y-2">
+                  <div className="absolute top-1/2 -translate-y-1/2 left-[-30px] md:left-[-30px] lg:left-[-40px] xl:left-[-40x] flex flex-col space-y-2">
                     {firstHalfQuestions.map((question, questionIndex) => (
                       <button
                         key={questionIndex}
-                        className={`px-6 py-1 text-2xl md:text-2xl lg:text-3xl transform ${
+                        className={`px-3 md:px-6 md:py-1  text-md md:text-2xl lg:text-3xl transform ${
                           question.answered
                             ? "bg-gray-400 cursor-not-allowed"
                             : "bg-gray-200 hover:bg-gray-400 text-black"
@@ -449,7 +448,7 @@ const GameInterface = () => {
                     {secondHalfQuestions.map((question, questionIndex) => (
                       <button
                         key={questionIndex}
-                        className={`px-6 py-1 text-2xl md:text-2xl lg:text-3xl transform ${
+                        className={`px-3 md:px-6 md:py-1 text-md md:text-2xl lg:text-3xl transform ${
                           question.answered
                             ? "bg-gray-400 cursor-not-allowed"
                             : "bg-gray-200 hover:bg-gray-400 text-black"
@@ -470,35 +469,34 @@ const GameInterface = () => {
           })}
         </div>
 
-        <section>
-          <form className="space-y-6 -mt-0">
+        <div className="flex justify-center items-center w-full">
+          <form>
             {error && (
               <p className="text-red-300 text-center bg-red-500 bg-opacity-20 py-2 rounded-lg">
                 {error}
               </p>
             )}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-20 text-center">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-20 text-center w-full">
               {/* Team 1 */}
-              <div className="text-xs w-10/12 flex flex-col items-center space-y-2">
+              <div className="text-xs w-full flex flex-col items-center space-y-2">
                 {/* <img src="team.png" width={40} height={50} alt="team.png" /> */}
                 <p className="text-sm text-pink-400">{GameInfo.Team1}</p>
-                <div className="w-10/12 border-2 px-8 py-1 rounded-md bg-white">
+                <div className="w-full border-2 px-48 py-1 rounded-md">
                   {GameInfo.Team1Score}
                 </div>
               </div>
               {/* Team 2 */}
-              <div className="text-xs w-10/12 flex flex-col items-center space-y-2">
+              <div className="text-xs w-full flex flex-col items-center space-y-2">
                 <p className="text-sm text-pink-400">{GameInfo.Team2}</p>
-                <div className="w-10/12 border-2 px-8 py-1 rounded-md bg-white">
+                <div className="w-full border-2 px-48 py-1 rounded-md bg-white">
                   {GameInfo.Team2Score}
                 </div>
-
                 {/* <h1>وسائل مساعدة</h1> */}
                 {/* images */}
               </div>
             </div>
           </form>
-        </section>
+        </div>
 
         <div className="flex justify-center mt-4">
           <button
@@ -556,7 +554,7 @@ const GameInterface = () => {
                       }
                     </h2>
                   </div>
-                  <div className="grid grid-cols-1 md:grid-cols-3">
+                  <div className="grid grid-cols-3 gap-x-5">
                     {/* section 1 */}
                     <div className="flex flex-col items-center gap-y-10">
                       <p className="text-[18px] text-center mb-2">
@@ -841,7 +839,7 @@ const GameInterface = () => {
                       </div>
                     </div>
                   </div>
-                  <div className="my-10 text-center">
+                  <div className="-mt-10 text-center">
                     <br />
                     <button
                       onClick={() => seeAnswer()}
@@ -895,9 +893,9 @@ const GameInterface = () => {
                       }
                     </h2>
                   </div>
-                  <div className="grid grid-cols-1 md:grid-cols-3">
+                  <div className="grid grid-cols-3">
                     {/* section 1 */}
-                    <div className="flex flex-col items-center gap-y-52">
+                    <div className="flex flex-col items-center p-5 gap-y-40">
                       <p className="text-[18px] text-center mb-2">
                         إجابة الفريقالأول
                       </p>
@@ -942,7 +940,7 @@ const GameInterface = () => {
                       )}
                     </div>
                     {/* section 3 */}
-                    <div className="flex flex-col items-center gap-y-52">
+                    <div className="flex flex-col items-center p-5 gap-y-32">
                       <p className="text-[18px] text-center mb-2">
                         إجابة الفريق الثاني
                       </p>
@@ -955,7 +953,7 @@ const GameInterface = () => {
                       </div>
                     </div>
                   </div>
-                  <div className="my-10 text-center">
+                  <div className="-mt-10 text-center">
                     <br />
                     <button
                       onClick={() => whoAnswer()}
@@ -990,6 +988,7 @@ const GameInterface = () => {
                         className="text-gray-600 hover:text-gray-800 transition-colors"
                         onClick={resetTimer}
                       >
+                        3
                         <RotateCcw className="w-5 h-5" color="#F5C527" />
                       </button>
                     </div>
@@ -1010,9 +1009,9 @@ const GameInterface = () => {
                     </h2>
                   </div>
 
-                  <div className="grid grid-cols-1 md:grid-cols-3">
+                  <div className="grid grid-cols-3 gap-x-2">
                     {/* section 1 */}
-                    <div className="flex flex-col items-center gap-y-14">
+                    <div className="flex flex-col items-center gap-y-8">
                       <p className="text-[18px] text-center mb-2">
                         إجابة الفريق الأول
                       </p>
@@ -1075,7 +1074,7 @@ const GameInterface = () => {
                       )}
                     </div>
                     {/* section 3 */}
-                    <div className="flex flex-col items-center gap-y-14">
+                    <div className="flex flex-col items-center gap-y-8">
                       <p className="text-[18px] text-center mb-2">
                         إجابة الفريق الثاني
                       </p>
@@ -1102,7 +1101,7 @@ const GameInterface = () => {
                       </div>
                     </div>
                   </div>
-                  <div className="my-10 text-center">
+                  <div className="-mt-10 text-center">
                     <br />
                     <button
                       onClick={() => noOneAnswer()}
