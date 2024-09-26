@@ -481,14 +481,14 @@ const GameInterface = () => {
               <div className="text-xs w-full flex flex-col items-center space-y-2">
                 {/* <img src="team.png" width={40} height={50} alt="team.png" /> */}
                 <p className="text-sm text-pink-400">{GameInfo.Team1}</p>
-                <div className="w-full border-2 px-48 py-1 rounded-md">
+                <div className="w-full border-2 px-32 md:px-48 py-1 rounded-md">
                   {GameInfo.Team1Score}
                 </div>
               </div>
               {/* Team 2 */}
               <div className="text-xs w-full flex flex-col items-center space-y-2">
                 <p className="text-sm text-pink-400">{GameInfo.Team2}</p>
-                <div className="w-full border-2 px-48 py-1 rounded-md bg-white">
+                <div className="w-full border-2 px-32 md:px-48 py-1 rounded-md bg-white">
                   {GameInfo.Team2Score}
                 </div>
                 {/* <h1>وسائل مساعدة</h1> */}

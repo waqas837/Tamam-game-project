@@ -28,10 +28,14 @@ const App = () => {
   // Determine if the current route is the admin route
   const isAdminRoute = location.pathname.startsWith("/admin");
   const isAnswerRoute = location.pathname.startsWith("/answer");
+  const startedgameRoute = location.pathname.startsWith("/started-game");
   return (
     <div>
       <PwaAlert />
-      {!isAdminRoute && !isAnswerRoute && <NavbarSimple />}
+      {!isAdminRoute && !isAnswerRoute && (
+        // Hide Navbar on mobile, show on medium and larger screens
+        <NavbarSimple />
+      )}
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/start-game" element={<StartGame />} />
