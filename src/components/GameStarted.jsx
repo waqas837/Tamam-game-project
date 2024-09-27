@@ -11,6 +11,7 @@ import socket from "../socket";
 import { toast, Toaster } from "react-hot-toast";
 import ImageZoomer from "../utils/ImageZoomer";
 import VideoLoop from "../utils/VideoLoop";
+import "./GameStarted.css";
 
 const GameInterface = () => {
   let interval;
@@ -372,7 +373,7 @@ const GameInterface = () => {
 
   return (
     <>
-      <div className="flex flex-col h-screen">
+      <div className="mycustomclass flex flex-col overflow-hidden">
         <h1 className="text-center text-xl text-pink-600">
           {GameInfo.GameName}
         </h1>
@@ -419,15 +420,15 @@ const GameInterface = () => {
                   <img
                     src={getImageSrc(category.image)}
                     alt={category.name}
-                    className="w-[70px] h-[70px] md:w-[140px] md:h-[140px] lg:w-52 lg:h-[150px] object-cover"
+                    className="imageCustomStyles object-cover"
                   />
 
                   {/* Left Column: First half of the questions */}
-                  <div className="absolute top-1/2 -translate-y-1/2 left-[-30px] md:left-[-30px] lg:left-[-40px] xl:left-[-40x] flex flex-col space-y-2">
+                  <div className="absolute top-1/2 -translate-y-1/2 left-[-30px] md:left-[-30px] lg:left-[-40px] xl:left-[-40x] flex flex-col space-y-5 md:space-y-5">
                     {firstHalfQuestions.map((question, questionIndex) => (
                       <button
                         key={questionIndex}
-                        className={`px-3 md:px-6 md:py-1  text-md md:text-2xl lg:text-3xl transform ${
+                        className={`leftButtons px-3 md:px-6 md:py-1 buttonCustomStyles   transform ${
                           question.answered
                             ? "bg-gray-400 cursor-not-allowed"
                             : "bg-gray-200 hover:bg-gray-400 text-black"
@@ -444,11 +445,11 @@ const GameInterface = () => {
                   </div>
 
                   {/* Right Column: Second half of the questions */}
-                  <div className="absolute top-1/2 -translate-y-1/2 right-[-30px] md:right-[-60px] lg:right-[-70px] xl:right-[-60px] flex flex-col space-y-2">
+                  <div className="absolute top-1/2 -translate-y-1/2 right-[-30px] md:right-[-30px] lg:right-[-40px] xl:right-[-60px] flex flex-col space-y-5 md:space-y-5">
                     {secondHalfQuestions.map((question, questionIndex) => (
                       <button
                         key={questionIndex}
-                        className={`px-3 md:px-6 md:py-1 text-md md:text-2xl lg:text-3xl transform ${
+                        className={`px-3 md:px-6 md:py-1 buttonCustomStyles   transform ${
                           question.answered
                             ? "bg-gray-400 cursor-not-allowed"
                             : "bg-gray-200 hover:bg-gray-400 text-black"
@@ -471,11 +472,6 @@ const GameInterface = () => {
 
         <div className="flex justify-center items-center w-full">
           <form>
-            {error && (
-              <p className="text-red-300 text-center bg-red-500 bg-opacity-20 py-2 rounded-lg">
-                {error}
-              </p>
-            )}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-x-20 text-center w-full">
               {/* Team 1 */}
               <div className="text-xs w-full flex flex-col items-center space-y-2">
