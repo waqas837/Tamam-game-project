@@ -1,4 +1,4 @@
-let apiUrl = "http://localhost:1000";
+let apiUrl = "https://vidmate.drawsketch.co";
 let frontendWebAddress = "http://localhost:5173";
 // let apiUrl = "https://tamam.drawsketch.co";
 // let frontendWebAddress = "https://kkgames.netlify.app";
